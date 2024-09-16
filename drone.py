@@ -1,6 +1,8 @@
+from test_harness import *
+from Utility import *
+
 def create_drone():
-    action_plans = []
-	entity_handlers = {}
+    entity_handlers	 = {}
 
     def execute_action_plan(action_plan):
         plan_len = len(action_plan)
@@ -26,8 +28,6 @@ def create_drone():
                 cursor += 1
 
     def go_to(coord):
-        origin_x = get_pos_x()
-        origin_y = get_pos_y()
         x = coord[0]
         y = coord[1]
         
@@ -35,7 +35,7 @@ def create_drone():
             moved = False
             current_x = get_pos_x()
             current_y = get_pos_y()
-				
+
             if current_x < x:
                 moved = moved or move(East)
             elif current_x > x:
@@ -49,20 +49,20 @@ def create_drone():
             if not moved:
                 break
 		
-	def follow_path(path):
-		for coord in path:
-			go_to(coord)
+    def follow_path(path):
+        for coord in path:
+            go_to(coord)
 			           
-	def scan():
-		x = get_pos_x()
-		y = get_pos_y()
+    def scan():
+        x = get_pos_x()
+        y = get_pos_y()
 		
-		plot = game_board["get_node"]((x,y))
-		plot["entity_type"] = get_entity_type()
-		plot["water_level"] = get_water()
-		plot["scan_time"] = get_time()
-		plot["can_harvest"] = can_harvest()
-		plot["ground_type"] = get_ground_type()
+        plot = game_board["get_node"]((x,y))
+        plot["entity_type"] = get_entity_type()
+        plot["water_level"] = get_water()
+        plot["scan_time"] = get_time()
+        plot["can_harvest"] = can_harvest()
+        plot["ground_type"] = get_ground_type()
 		
     def farm():
         x = get_pos_x()
@@ -78,7 +78,7 @@ def create_drone():
         pass
         
     def register_entity_handler(key, handler):
-		entity_handlers[key] = handler
+        entity_handlers[key] = handler
     	
     drone = {
 		"execute_action_plan": execute_action_plan,

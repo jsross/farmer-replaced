@@ -1,3 +1,6 @@
+from test_harness import *
+from Utility import *
+
 def reconstruct_path(cameFrom, current):
     total_path = [current]
 
@@ -62,6 +65,10 @@ def a_star(graph, coord_start, coord_end):
 
         for neighbor_key in neighbors:
             neighbor = neighbors[neighbor_key]
+            
+            if neighbor == None:
+                continue
+				
             coord_neighbor = neighbor["coord"]
 
             # d(current,neighbor) is the weight of the edge from current to neighbor
@@ -72,11 +79,10 @@ def a_star(graph, coord_start, coord_end):
                 # This path to neighbor is better than any previous one. Record it!
                 cameFrom[coord_neighbor] = coord_current
                 neighbor["distance_from_start"] = neighbor_distance_from_start
-                
-                if neighbor["weight"] == Infinity:
-                    # For node n, weight := distance_from_start + approx_distance_to_end. Weight represents our current best guess as to
-            		# how cheap a path could be from start to finish if it goes through n.
-                    neighbor["weight"]  = neighbor_distance_from_start + get_distance(coord_neighbor, coord_end)
+                                
+                # For node n, weight := distance_from_start + approx_distance_to_end. Weight represents our current best guess as to
+                # how cheap a path could be from start to finish if it goes through n.
+                neighbor["weight"]  = neighbor_distance_from_start + get_distance(coord_neighbor, coord_end)
 
                 set_open_coords.add(coord_neighbor)
 
