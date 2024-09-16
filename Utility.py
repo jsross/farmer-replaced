@@ -42,3 +42,17 @@ def get_distance(coord1, coord2):
 	distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
 
 	return distance
+
+def fill_strategy_checkerd(x,y):
+	rem = y % 2
+	fill = (x - rem ) % 2 == 0
+	return fill
+
+def fill_strategy_checkerd_alt(x,y):
+	rem = y % 2
+	fill = (x - rem ) % 2 == 1
+	
+	return fill
+	
+def fill_strategy_solid(x,y):
+	return True
