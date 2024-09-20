@@ -1,4 +1,5 @@
-from test_harness import *
+from __builtins__ import *
+from __test_harness__ import *
 from Utility import *
 
 def reconstruct_path(cameFrom, current):

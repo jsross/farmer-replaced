@@ -1,4 +1,4 @@
-from test_harness import *
+from __builtins__ import *
 from Utility import *
 
 def create_drone():
@@ -48,10 +48,15 @@ def create_drone():
                 
             if not moved:
                 break
+            
+        return coord == (get_pos_x(), get_pos_y())
 		
     def follow_path(path):
         for coord in path:
-            go_to(coord)
+            if not go_to(coord):
+                return False
+
+        return True
 			           
     def scan():
         x = get_pos_x()
@@ -73,9 +78,15 @@ def create_drone():
 
         if entity_type in entity_handlers:
             handler = entity_handlers[entity_type]
-            handler(x, y)
+            handler(game_board, (x, y))
 
         pass
+
+    def get_coords():
+        x = get_pos_x()
+        y = get_pos_y()
+
+        return (x, y)
         
     def register_entity_handler(key, handler):
         entity_handlers[key] = handler
@@ -86,7 +97,8 @@ def create_drone():
         "scan": scan,
         "go_to": go_to,
         "follow_path": follow_path,
-        "register_entity_handler": register_entity_handler
+        "register_entity_handler": register_entity_handler,
+        "get_coords": get_coords
     }
 
     return drone

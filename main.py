@@ -1,3 +1,13 @@
+from __builtins__ import *
+from Utility import *
+from drone import *
+from a_star import *
+from graph import *
+from maze import *
+from farm import *
+
+harvest()
+
 clear()
 
 seedsNeeded = [0,0,0]
@@ -5,31 +15,39 @@ seedsNeeded = [0,0,0]
 drone = create_drone()
 game_board = create_graph(get_world_size())
 
-current_path = a_star(game_board, (0,1),(5,5))
-drone["follow_path"](current_path)
-current_path = a_star(game_board, (5,5),(9,3))
-drone["follow_path"](current_path)
+do_create_maze()
+do_complete_maze(game_board)
 
-farm_plan = create_matrix(get_world_size(),2)
+while True:
+	next_coords = measure()
 
-def fill_strategy_checkerd(x,y):
-	rem = y % 2
-	fill = (x - rem ) % 2 == 0
-	return fill
+	while get_entity_type() == Entities.Treasure:
+		use_item(Items.Fertilizer)
 
-def fill_strategy_checkerd_alt(x,y):
-	rem = y % 2
-	fill = (x - rem ) % 2 == 1
+	treasure_found = False
+            
+	current_path = a_star(game_board, drone["get_coords"](), next_coords)
+    
+	if current_path != None:
+		print("A Star")
+		treasure_found = drone["follow_path"](current_path)
 	
-	return fill
+	if not treasure_found:
+		print("Scan")
+		do_complete_maze(game_board)
 	
-def fill_strategy_solid(x,y):
-	return True
+## do_complete_maze(game_board)
 
-apply_entity_type(farm_plan, 0, 0,get_world_size(), get_world_size(), Entities.Grass, fill_strategy_solid)
-apply_entity_type(farm_plan, 0, 0,get_world_size() / 2, get_world_size() / 2, Entities.Tree,fill_strategy_checkerd)
-apply_entity_type(farm_plan, 0, 0,get_world_size() / 2, get_world_size() / 2, Entities.Sunflower,fill_strategy_checkerd_alt)
-apply_entity_type(farm_plan, get_world_size() / 2, get_world_size() / 2, get_world_size(), get_world_size(), Entities.Carrots,fill_strategy_solid)
+
+
+if current_path != None:
+	drone["follow_path"](current_path)
+
+     
+#current_path = a_star(game_board, (4,5),(9,2))
+
+#if current_path != None:
+#	drone["follow_path"](current_path)
 
 drone["register_entity_handler"](Entities.Bush, handle_bush)
 # drone["register_entity_handler"](Entities.Cactus, handle_cactus)
@@ -40,6 +58,8 @@ drone["register_entity_handler"](Entities.Pumpkin, handle_pumpkin)
 drone["register_entity_handler"](Entities.Sunflower, handle_sunflower)
 drone["register_entity_handler"](Entities.Tree, handle_tree)
 
+farm_plan = create_farm_plan()
+
 def do_scan_farm():
     for xIndex in range(0, get_world_size()):
         for yIndex in range(0, get_world_size()):
@@ -47,7 +67,8 @@ def do_scan_farm():
             drone["scan"]()
             drone["farm"]()
 
-demo_action_plan = [do_scan_farm]
+#demo_action_plan = []
 
-while True:
-    drone["execute_action_plan"](demo_action_plan)
+#while True:
+#	do_scan_farm()
+#    drone["execute_action_plan"](demo_action_plan)

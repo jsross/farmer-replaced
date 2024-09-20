@@ -1,4 +1,4 @@
-from test_harness import *
+from __builtins__ import *
 from Utility import *
 
 def create_graph(size):
@@ -36,6 +36,9 @@ def create_graph(size):
     def remove_connection(coord, direction):
         node = get_node(coord)
 		
+        if not direction in node["neighbors"]:
+            return
+        
         neighbor = node["neighbors"][direction]
 
         node["neighbors"].pop(direction)
@@ -65,11 +68,7 @@ def create_node(coord):
     new_node = {
         "coord": coord,
         "neighbors" : {
-            North: None,
-            East: None,
-            South: None,
-            West: None
-        }    
+        }
     }
     
-    return new_node   
+    return new_node
