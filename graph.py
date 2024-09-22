@@ -1,74 +1,109 @@
 from __builtins__ import *
 from Utility import *
 
-def create_graph(size):
-    matrix = create_matrix(size, 2)
+def create_graph():
+    hashes = set()
+    connections = {}
 
-    def get_size():
-         return size
+    def add_edge(coord_1, coord_2):
+        edge = {coord_1, coord_2}
 
-    def initialize_nodes():
-        for index_x in range(size):
-            for index_y in range(size):
-                coords = (index_x, index_y)
-                matrix[index_x][index_y] = create_node(coords)
-    
-    def get_node(coord):
-        return matrix[coord[0]][coord[1]]
-    
-    def reset_connections():
-        for index_x in range(size):
-            for index_y in range(size):
-                node = matrix[index_x][index_y]
+        edge_hash = hash_edge(edge)
 
-                if index_y + 1 < size:
-                    node["neighbors"][North] = get_node((index_x, index_y + 1))
-
-                if index_x + 1 < size:
-                    node["neighbors"][East] = get_node((index_x + 1, index_y))
-
-                if index_y - 1 >= 0:
-                    node["neighbors"][South] = get_node((index_x, index_y - 1))
-
-                if index_x - 1 >= 0:
-                    node["neighbors"][West] = get_node((index_x - 1, index_y))
-
-    def remove_connection(coord, direction):
-        node = get_node(coord)
-		
-        if not direction in node["neighbors"]:
-            return
+        if edge_hash in hashes:
+            return False
         
-        neighbor = node["neighbors"][direction]
+        hashes.add(edge_hash)
 
-        node["neighbors"].pop(direction)
+        if not coord_1 in connections:
+            connections[coord_1] = set()
+        
+        if not coord_2 in connections:
+            connections[coord_2] = set()
 
-        if direction == North:
-            neighbor["neighbors"].pop(South)
-        elif direction == East:
-            neighbor["neighbors"].pop(West)
-        elif direction == South:
-            neighbor["neighbors"].pop(North)
-        elif direction == West:
-            neighbor["neighbors"].pop(East)
-	    
-    initialize_nodes()
-    reset_connections()
+        connections[coord_1].add(coord_2)
+        connections[coord_2].add(coord_1)
+        
+        return True
     
-    graph = {
-        "reset_connections": reset_connections,
-        "get_node": get_node,
-        "get_size": get_size,
-        "remove_connection": remove_connection
+    def remove_edge(coord_1, coord_2):
+        edge = {coord_1, coord_2}
+
+        edge_hash = hash_edge(edge)
+
+        if not edge_hash in hashes:
+            return False
+        
+        hashes.remove(edge_hash)
+
+        coord_1_connections = connections[coord_1]
+        coord_2_connections = connections[coord_2]
+
+        coord_1_connections.remove(coord_2)
+        coord_2_connections.remove(coord_1)
+
+        return True
+    
+    def get_connected(coord):
+        if not coord in connections:
+            return {}
+        
+        return connections[coord]
+        
+
+    new_graph = {
+        "add_edge": add_edge,
+        "remove_edge": remove_edge,
+        "get_connected": get_connected
     }
 
-    return graph
-
-def create_node(coord):
-    new_node = {
-        "coord": coord,
-        "neighbors" : {
-        }
-    }
+    return new_graph
     
-    return new_node
+def hash_edge(edge):
+    start_ops = get_op_count()
+     
+    edge_set = set()
+	
+	for coord in edge:
+		edge_set.add(hash_coord(coord))
+		
+	result = hash_set(edge_set)
+
+    quick_print("hash_edge: ", (get_op_count() - start_ops))
+		
+	return result 
+
+def hash_set(int_set):
+    start_ops = get_op_count()
+
+    MOD = 1000007
+    sum1 = 0
+    sum2 = 0
+    sum3 = 0
+
+    for num in int_set:
+        sum1 = (sum1 + num) % MOD
+        sum2 = (sum2 + num * num) % MOD
+        sum3 = (sum3 + num * num * num) % MOD
+        
+    hash_value = (sum1 + 31 * sum2 + 961 * sum3) % MOD  # 31^2 = 961
+
+    quick_print("hash_set: ", (get_op_count() - start_ops))
+    return hash_value
+
+def hash_coord(coord):
+    start_ops = get_op_count()
+    hash_value = hash_cantor(coord[0], coord[1])
+    quick_print("hash_coord: ", (get_op_count() - start_ops))
+
+    return hash_value
+
+def hash_cantor(x, y):
+    start_ops = get_op_count()
+
+    hash_value = ((x + y) * (x + y + 1) / 2) + y
+
+    quick_print("hash_cantor: ", (get_op_count() - start_ops))
+
+    return hash_value
+

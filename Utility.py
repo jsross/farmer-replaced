@@ -1,10 +1,11 @@
 def create_matrix(size, num_dims):		
 	matrix = []
-	
-	for _ in range(size):
-		if num_dims <= 1:
+
+	if num_dims <= 1:
+		for _ in range(size):
 			matrix.append(None)
-		else:
+	else:
+		for _ in range(size):	
 			matrix.append(create_matrix(size, num_dims - 1))
 	
 	return matrix
@@ -21,17 +22,6 @@ def apply_entity_type(board, x1, y1, x2, y2, entity_type, fill_test):
 		for yIndex in range(y1,y2):
 			if fill_test(xIndex, yIndex):
 				board[xIndex][yIndex] = entity_type
-
-def hash_edge(edge):
-	hash_coord(edge)
-
-def hash_coord(coord):
-	return hash_cantor(coord[0], coord[1])
-
-def hash_cantor(x, y):
-	n = ((x + y) * (x + y + 1) / 2) + y
-
-	return n
 
 def get_distance(coord1, coord2):
 	x1 = coord1[0]

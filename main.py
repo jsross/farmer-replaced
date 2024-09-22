@@ -3,72 +3,25 @@ from Utility import *
 from drone import *
 from a_star import *
 from graph import *
-from maze import *
 from farm import *
+from game_board import *
+from wall_follow_strategy import *
 
 harvest()
-
 clear()
 
-seedsNeeded = [0,0,0]
+current_game_board = create_game_board(get_world_size())
+current_graph = create_graph()
 
-drone = create_drone()
-game_board = create_graph(get_world_size())
+my_drone = create_drone(current_graph,current_game_board)
+farm_plan = create_farm_plan(my_drone, current_game_board)
+farm_plan["execute_plan"](1)
 
-do_create_maze()
-do_complete_maze(game_board)
+maze_plan = create_maze_plan(my_drone, current_graph)
 
-while True:
-	next_coords = measure()
-
-	while get_entity_type() == Entities.Treasure:
-		use_item(Items.Fertilizer)
-
-	treasure_found = False
-            
-	current_path = a_star(game_board, drone["get_coords"](), next_coords)
-    
-	if current_path != None:
-		print("A Star")
-		treasure_found = drone["follow_path"](current_path)
-	
-	if not treasure_found:
-		print("Scan")
-		do_complete_maze(game_board)
-	
-## do_complete_maze(game_board)
-
-
-
-if current_path != None:
-	drone["follow_path"](current_path)
-
+maze_plan["do_create_maze"]()
+maze_plan["execute_plan"](10)
+harvest()
      
-#current_path = a_star(game_board, (4,5),(9,2))
 
-#if current_path != None:
-#	drone["follow_path"](current_path)
 
-drone["register_entity_handler"](Entities.Bush, handle_bush)
-# drone["register_entity_handler"](Entities.Cactus, handle_cactus)
-drone["register_entity_handler"](Entities.Carrots, handle_carrot)
-drone["register_entity_handler"](Entities.Grass, handle_grass)
-#drone["register_entity_handler"](Entities.Hedge, handle_hedge)
-drone["register_entity_handler"](Entities.Pumpkin, handle_pumpkin)
-drone["register_entity_handler"](Entities.Sunflower, handle_sunflower)
-drone["register_entity_handler"](Entities.Tree, handle_tree)
-
-farm_plan = create_farm_plan()
-
-def do_scan_farm():
-    for xIndex in range(0, get_world_size()):
-        for yIndex in range(0, get_world_size()):
-            drone["go_to"]((xIndex,yIndex))
-            drone["scan"]()
-            drone["farm"]()
-
-#demo_action_plan = []
-
-#while True:
-#	do_scan_farm()
-#    drone["execute_action_plan"](demo_action_plan)
