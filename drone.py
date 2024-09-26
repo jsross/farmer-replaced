@@ -8,69 +8,65 @@ def create_drone(graph, game_board):
 
     move_history = []
 
-    def go_to(coord):
-        x = coord[0]
-        y = coord[1]
-        
-        while True:
-            moved = False
+    properties = {
+        "update_graph_on_success": True,
+        "update_graph_on_failure": True
+    }
 
-            current_coords = get_coords()
-
-            if current_coords[0] < x:
-                moved = moved or move(East)
-            elif current_coords[0] > x:
-                moved = moved or move(West)
-
-            if current_coords[1] < y:
-                moved = moved or move(North)
-            elif current_coords[1] > y:
-                moved = moved or move(South)
-                
-            if not moved:
-                break
-            
-        return coord == get_coords()
-		
     def follow_path(path):
-        for coord in path:
-            if not go_to(coord):
+        for direction in path:
+            if not do_move(direction):
                 return False
 
         return True
 
     def do_move(direction):
-        success = move(direction)
-        
-        start_ops = get_op_count()
-        
+        start_op_count = get_op_count()
+
         starting_coords = get_coords()
+
+        success = move(direction)
+
+        if len(move_history) > 10:
+            move_history.pop(0)
 
         if success:
             move_history.append(direction)
-            graph_add_edge(starting_coords, get_coords())
+            if properties["update_graph_on_success"]:
+                graph_add_edge(starting_coords, get_coords())
         else:
-            target_coords = game_board_get_neighbor(starting_coords, direction)
+            quick_print("Bonk")
 
-            if target_coords != None:
-                graph_remove_edge(starting_coords, target_coords)
+            if properties["update_graph_on_failure"]:
+                target_coords = game_board_get_neighbor(starting_coords[0], starting_coords[1], direction)
 
-        quick_print(get_op_count() - start_ops)
+                if target_coords != None:
+                    graph_remove_edge(starting_coords, target_coords)
+
+        quick_print("do_move: ", get_op_count() - start_op_count)
 
         return success
 
     def get_coords():
-        return (get_pos_x(), get_pos_y())
+        current_coords = (get_pos_x(), get_pos_y())
+
+        return current_coords
     
     def get_last_move():
-        return move_history[len(move_history) - 1]
+        if len(move_history) > 0:
+            return move_history[len(move_history) - 1]
+        else:
+            return None
+        
+    def set_property(name, value):
+        properties[name] = value
     	
     drone = {
-        "go_to": go_to,
         "do_move": do_move,
         "follow_path": follow_path,
         "get_coords": get_coords,
-        "get_last_move": get_last_move
+        "get_last_move": get_last_move,
+        "set_property": set_property
     }
 
     return drone

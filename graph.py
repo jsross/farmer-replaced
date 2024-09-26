@@ -2,18 +2,10 @@ from __builtins__ import *
 from Utility import *
 
 def create_graph():
-    hashes = set()
     connections = {}
 
     def add_edge(coord_1, coord_2):
-        edge = {coord_1, coord_2}
-
-        edge_hash = hash_edge(edge)
-
-        if edge_hash in hashes:
-            return False
-        
-        hashes.add(edge_hash)
+        start_op_count = get_op_count()
 
         if not coord_1 in connections:
             connections[coord_1] = set()
@@ -23,32 +15,37 @@ def create_graph():
 
         connections[coord_1].add(coord_2)
         connections[coord_2].add(coord_1)
+
+        quick_print("add_edge: ", get_op_count() - start_op_count)
         
         return True
     
     def remove_edge(coord_1, coord_2):
-        edge = {coord_1, coord_2}
+        start_op_count = get_op_count()
 
-        edge_hash = hash_edge(edge)
+        if coord_1 in connections:
+            coord_1_connections = connections[coord_1]
 
-        if not edge_hash in hashes:
-            return False
+            if coord_2 in coord_1_connections:
+                coord_1_connections.remove(coord_2)
         
-        hashes.remove(edge_hash)
+        if coord_2 in connections:
+            coord_2_connections = connections[coord_2]
+            
+            if coord_1 in coord_2_connections:
+                coord_2_connections.remove(coord_1)
 
-        coord_1_connections = connections[coord_1]
-        coord_2_connections = connections[coord_2]
-
-        coord_1_connections.remove(coord_2)
-        coord_2_connections.remove(coord_1)
+        quick_print("remove_edge: ", get_op_count() - start_op_count)
 
         return True
     
     def get_connected(coord):
         if not coord in connections:
-            return {}
+            return set()
         
-        return connections[coord]
+        connected_coord = connections[coord]
+        
+        return connected_coord
         
 
     new_graph = {
@@ -58,52 +55,3 @@ def create_graph():
     }
 
     return new_graph
-    
-def hash_edge(edge):
-    start_ops = get_op_count()
-     
-    edge_set = set()
-	
-	for coord in edge:
-		edge_set.add(hash_coord(coord))
-		
-	result = hash_set(edge_set)
-
-    quick_print("hash_edge: ", (get_op_count() - start_ops))
-		
-	return result 
-
-def hash_set(int_set):
-    start_ops = get_op_count()
-
-    MOD = 1000007
-    sum1 = 0
-    sum2 = 0
-    sum3 = 0
-
-    for num in int_set:
-        sum1 = (sum1 + num) % MOD
-        sum2 = (sum2 + num * num) % MOD
-        sum3 = (sum3 + num * num * num) % MOD
-        
-    hash_value = (sum1 + 31 * sum2 + 961 * sum3) % MOD  # 31^2 = 961
-
-    quick_print("hash_set: ", (get_op_count() - start_ops))
-    return hash_value
-
-def hash_coord(coord):
-    start_ops = get_op_count()
-    hash_value = hash_cantor(coord[0], coord[1])
-    quick_print("hash_coord: ", (get_op_count() - start_ops))
-
-    return hash_value
-
-def hash_cantor(x, y):
-    start_ops = get_op_count()
-
-    hash_value = ((x + y) * (x + y + 1) / 2) + y
-
-    quick_print("hash_cantor: ", (get_op_count() - start_ops))
-
-    return hash_value
-

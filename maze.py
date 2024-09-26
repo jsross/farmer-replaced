@@ -30,6 +30,9 @@ def create_maze_plan(drone, graph):
             next_coords = measure()
 
             while get_entity_type() == Entities.Treasure:
+                if(num_items(Items.Fertilizer) >= 0):
+					trade(Items.Fertilizer, get_world_size() * get_world_size())
+					
                 use_item(Items.Fertilizer)
 
             treasure_found = False

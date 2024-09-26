@@ -3,6 +3,8 @@ from __test_harness__ import *
 from Utility import *
 
 def a_star(graph, coord_start, coord_end):
+    start_op_count = get_op_count()
+
     weights = {}
     distances_from_start = {}
     approx_distance_to_end = {}
@@ -10,11 +12,27 @@ def a_star(graph, coord_start, coord_end):
     get_connected = graph["get_connected"]
 
     def reconstruct_path(current):
-        total_path = [current]
+        total_path = []
 
         while current in cameFrom:
-            current = cameFrom[current]
-            total_path.insert(0, current)
+            next = cameFrom[current]
+
+            current_x = current[0]
+            current_y = current[1]
+            
+            next_x = next[0]
+            next_y = next[1]
+            
+            if next_x > current_x:
+                total_path.insert(0, West)
+            elif next_x < current_x:
+                total_path.insert(0, East)
+            elif next_y > current_y:
+                total_path.insert(0, South)
+            elif next_y < current_y:
+                total_path.insert(0, North)
+            
+            current = next
 
         return total_path
 
@@ -41,6 +59,7 @@ def a_star(graph, coord_start, coord_end):
     # For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from the start
     # to n currently known.
     cameFrom = {}
+    result_path = None
    
     while len(set_open_coords) > 0:
         # This operation can occur in O(Log(N)) time if openSet is a min-heap or a priority queue
@@ -48,7 +67,8 @@ def a_star(graph, coord_start, coord_end):
         coord_current = find_lightest_node(set_open_coords)
 
         if coord_current == coord_end:
-            return reconstruct_path(coord_current)
+            result_path = reconstruct_path(coord_current)
+            break 
 
         set_open_coords.remove(coord_current)
 
@@ -81,6 +101,7 @@ def a_star(graph, coord_start, coord_end):
 
                 set_open_coords.add(neighbor)
 
-    # Open set is empty but goal was never reached
-    return None
+    quick_print("a_star: ", get_op_count() - start_op_count)
+    
+    return result_path
 

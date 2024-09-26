@@ -13,8 +13,13 @@ clear()
 current_game_board = create_game_board(get_world_size())
 current_graph = create_graph()
 
+current_game_board["add_connections"](current_graph)
+
 my_drone = create_drone(current_graph,current_game_board)
+my_drone["set_property"]("update_graph_on_success", False)
+
 farm_plan = create_farm_plan(my_drone, current_game_board)
+
 farm_plan["execute_plan"](1)
 
 maze_plan = create_maze_plan(my_drone, current_graph)
