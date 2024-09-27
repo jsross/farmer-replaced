@@ -3,6 +3,8 @@ def do_wall_follow(drone, check_goal):
     drone_get_last_move = drone["get_last_move"]
      
     do_move = drone["do_move"]
+    get_coords = drone["get_coords"]
+	last_move = None
 	
     def try_moves(directions):
         success = False
@@ -13,14 +15,15 @@ def do_wall_follow(drone, check_goal):
 
             if success:
                 break
-                
+    
+    visited = {}
+
     while True:
         if check_goal():
              quick_print("do_wall_follow: ", get_op_count() - start_op_count)
+
              return True
-        
-        last_move = drone_get_last_move()
-        
+
         if last_move == North:
             try_moves([West, North, East, South])
         elif last_move == East:
@@ -31,3 +34,12 @@ def do_wall_follow(drone, check_goal):
             try_moves([South, West, North, East])
         else:
             try_moves([West, North, East, South])
+            
+        current_coords = get_coords()
+
+        last_move = drone_get_last_move()
+
+        if current_coords in visited and visited[current_coords] == last_move:
+            return False
+
+        visited[get_coords()] = drone_get_last_move()
