@@ -19,6 +19,23 @@ def create_drone(graph, game_board):
                 return False
 
         return True
+    
+    def go_to(dest_coords, pathing_strategy):
+        path = pathing_strategy(graph, get_coords(), dest_coords)
+
+        if path == None or len(path) <= 0:
+            quick_print("Path Not Found to: ", dest_coords[0], ":", dest_coords[1])
+            return False
+        
+        success = follow_path(path)
+
+        if not success:
+            quick_print("Bumped into wall")
+        
+        return success
+    
+    def search(check_goal, search_stragegy):
+        return search_stragegy(new_drone, check_goal)
 
     def do_move(direction):
         start_op_count = get_op_count()
@@ -32,6 +49,7 @@ def create_drone(graph, game_board):
 
         if success:
             move_history.append(direction)
+            
             if properties["update_graph_on_success"]:
                 graph_add_edge(starting_coords, get_coords())
         else:
@@ -61,12 +79,14 @@ def create_drone(graph, game_board):
     def set_property(name, value):
         properties[name] = value
     	
-    drone = {
+    new_drone = {
         "do_move": do_move,
         "follow_path": follow_path,
         "get_coords": get_coords,
         "get_last_move": get_last_move,
-        "set_property": set_property
+        "set_property": set_property,
+        "search": search,
+        "go_to": go_to
     }
 
-    return drone
+    return new_drone
