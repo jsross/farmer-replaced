@@ -19,10 +19,10 @@ def create_farm_plan(drone, game_board):
 			do_scan_farm()
 
 	def apply_normal_plan():
-		apply_entity_type(plant_plan, 0, 0,get_world_size(), get_world_size(), Entities.Pumpkin, fill_strategy_solid)
-		apply_entity_type(plant_plan, 0, 0,get_world_size() / 2, get_world_size() / 2, Entities.Tree,fill_strategy_checkerd)
-		apply_entity_type(plant_plan, 0, 0,get_world_size() / 2, get_world_size() / 2, Entities.Sunflower,fill_strategy_checkerd_alt)
-		apply_entity_type(plant_plan, get_world_size() / 2, get_world_size() / 2, get_world_size(), get_world_size(), Entities.Carrots,fill_strategy_solid)
+		#apply_entity_type(plant_plan, 0, 0,get_world_size(), get_world_size(), Entities.Pumpkin, fill_strategy_solid)
+		#apply_entity_type(plant_plan, 0, 0,get_world_size() / 2, get_world_size() / 2, Entities.Tree,fill_strategy_checkerd)
+		#apply_entity_type(plant_plan, 0, 0,get_world_size(), get_world_size(), Entities.Sunflower,fill_strategy_solid)
+		apply_entity_type(plant_plan, 0, 0, 1, 1, Entities.Bush, fill_strategy_solid)
 
 	def handle_pumpkin():
 		if get_ground_type() != Grounds.Soil:
@@ -77,6 +77,9 @@ def create_farm_plan(drone, game_board):
 
 		use_item(Items.Fertilizer)
 		use_item(Items.Water_Tank)
+
+		if(num_items(Items.Sunflower_Seed) >= 0):
+			trade(Items.Sunflower_Seed, get_world_size() * get_world_size())
 			
 		plant(Entities.Sunflower)
 	

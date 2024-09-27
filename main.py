@@ -1,4 +1,5 @@
 from __builtins__ import *
+
 from Utility import *
 from drone import *
 from a_star import *
@@ -25,7 +26,7 @@ farm_plan["execute_plan"](1)
 maze_plan = create_maze_plan(my_drone, current_graph)
 
 maze_plan["do_create_maze"]()
-maze_plan["execute_plan"](10)
+maze_plan["execute_plan"](50)
 harvest()
      
 

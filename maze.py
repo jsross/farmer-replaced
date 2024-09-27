@@ -7,13 +7,7 @@ def create_maze_plan(drone, graph):
         return get_entity_type() == Entities.Treasure
     
     def do_create_maze():
-        clear()
-        
-        if get_ground_type() != Grounds.Turf:
-            till()
-        
-        plant(Entities.Bush)
-        
+    
         while not can_harvest():
             pass
             
@@ -23,11 +17,16 @@ def create_maze_plan(drone, graph):
             use_item(Items.Fertilizer)
 
     def execute_plan(iterations):
+        drone["set_property"]("update_graph_on_success", False)
+		succss = do_wall_follow(drone, check_is_treasure)
+        next_coords = measure()
         
-        do_wall_follow(drone, check_is_treasure)
+        if succss == False:
+            print("Abort")
+            
+            return
 
         for _ in range(iterations):
-            next_coords = measure()
 
             while get_entity_type() == Entities.Treasure:
                 if(num_items(Items.Fertilizer) >= 0):
@@ -36,14 +35,21 @@ def create_maze_plan(drone, graph):
                 use_item(Items.Fertilizer)
 
             treasure_found = False
-                    
+            
             current_path = a_star(graph, drone["get_coords"](), next_coords)
             
-            if current_path != None:
+            if current_path != None and len(current_path) > 0:
+                print("Following Path")
+                drone["set_property"]("update_graph_on_success", False)
                 treasure_found = drone["follow_path"](current_path)
+            else:
+                print("Path Not Found!")
             
             if not treasure_found:
-                do_wall_follow(drone, check_is_treasure)
+                print("Searching")
+				if do_wall_follow(drone, check_is_treasure):
+					drone["set_property"]("update_graph_on_success", True)
+					next_coords = measure()
 
     new_maze_plan = {
         "do_create_maze": do_create_maze,
