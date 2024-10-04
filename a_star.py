@@ -2,12 +2,11 @@ from __builtins__ import *
 from __test_harness__ import *
 from Utility import *
 
-def a_star(graph, coord_start, coord_end):
+def a_star(graph, approx_distance_to_end, coord_start, coord_end):
     start_op_count = get_op_count()
 
     weights = {}
     distances_from_start = {}
-    approx_distance_to_end = {}
 
     get_connected = graph["get_connected"]
 
@@ -33,8 +32,11 @@ def a_star(graph, coord_start, coord_end):
                 total_path.insert(0, North)
             
             current = next
-
-        return total_path
+        
+        if len(total_path) > 0:
+            return total_path
+        
+        return None
 
     def find_lightest_node(set_coords):
         lightest = None
@@ -54,7 +56,6 @@ def a_star(graph, coord_start, coord_end):
     set_open_coords = {coord_start}
 
     distances_from_start[coord_start] = 0
-    approx_distance_to_end[coord_end] = 0
 
     # For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from the start
     # to n currently known.
@@ -79,9 +80,6 @@ def a_star(graph, coord_start, coord_end):
             #if this is the first time visiting this node, set some defaults
             if not neighbor in distances_from_start:
                 distances_from_start[neighbor] = Infinity
-
-            if not neighbor in approx_distance_to_end:
-                approx_distance_to_end[neighbor] = get_distance(neighbor, coord_end)
 
             if not neighbor in weights:
                 weights[neighbor] = Infinity

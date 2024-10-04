@@ -19,7 +19,7 @@ def create_drone(graph, game_board):
                 return False
 
         return True
-
+    
     def do_move(direction):
         start_op_count = get_op_count()
 
@@ -32,6 +32,7 @@ def create_drone(graph, game_board):
 
         if success:
             move_history.append(direction)
+            
             if properties["update_graph_on_success"]:
                 graph_add_edge(starting_coords, get_coords())
         else:
@@ -61,7 +62,7 @@ def create_drone(graph, game_board):
     def set_property(name, value):
         properties[name] = value
     	
-    drone = {
+    new_drone = {
         "do_move": do_move,
         "follow_path": follow_path,
         "get_coords": get_coords,
@@ -69,4 +70,4 @@ def create_drone(graph, game_board):
         "set_property": set_property
     }
 
-    return drone
+    return new_drone
