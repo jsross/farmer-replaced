@@ -1,5 +1,6 @@
 from __builtins__ import *
 from Utility import *
+from wall_follow_strategy import *
 
 def create_drone(graph, game_board):
     game_board_get_neighbor = game_board["get_neighbor"]
@@ -59,6 +60,9 @@ def create_drone(graph, game_board):
         else:
             return None
         
+    def search(check_goal):
+        return do_wall_follow(new_drone, check_goal)
+        
     def set_property(name, value):
         properties[name] = value
     	
@@ -67,7 +71,8 @@ def create_drone(graph, game_board):
         "follow_path": follow_path,
         "get_coords": get_coords,
         "get_last_move": get_last_move,
-        "set_property": set_property
+        "set_property": set_property,
+        "search": search
     }
 
     return new_drone

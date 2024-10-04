@@ -1,10 +1,10 @@
-from wall_follow_strategy import *
 from a_star import *
 
 def create_maze_plan(drone, graph, game_board):
 
     drone_get_coords = drone["get_coords"]
     drone_follow_path = drone["follow_path"]
+    drone_search = drone["search"]
 
     def create_distance_dictionary(size, goal_coords):
         result = {}
@@ -34,7 +34,7 @@ def create_maze_plan(drone, graph, game_board):
 
     def execute_plan(iterations):
         drone["set_property"]("update_graph_on_success", False)
-		success = do_wall_follow(drone, check_is_treasure)
+		success = drone_search(check_is_treasure)
         next_coords = measure()
         distance_dict = create_distance_dictionary(get_world_size(), next_coords)
         
