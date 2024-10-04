@@ -13,6 +13,22 @@ def create_game_board(size):
     def get_node(coord):
         return matrix[coord[0]][coord[1]]
     
+    def get_direction(src_coords, dest_coords):
+        src_x = src_coords[0]
+        src_y = src_coords[1]
+        dest_x = dest_coords[0]
+        dest_y = dest_coords[1]
+
+        if dest_x > src_x:
+            return East
+        elif dest_x < src_x:
+            return West
+        elif dest_y > src_y:
+            return North
+        elif dest_y < src_y:
+            return South
+
+    
     def get_neighbor(x, y, direction):
         start_op_count = get_op_count()
 
@@ -41,6 +57,8 @@ def create_game_board(size):
         return (neighbor_x, neighbor_y)
     
     def add_connections(graph):
+        start_op_count = get_op_count()
+
         graph_add_edge = graph["add_edge"]
 
         for x_index in range(size):
@@ -62,15 +80,15 @@ def create_game_board(size):
                 #Add South Neighbor
                 if y_index > 0:
                     graph_add_edge(current_coords, (x_index, y_index-1))
-                
+
+        quick_print("add_connections: ", get_op_count() - start_op_count)
                 
     initialize_nodes()
-
-
 
     new_game_board = {
         "get_node": get_node,
         "get_neighbor": get_neighbor,
+        "get_direction": get_direction,
         "add_connections": add_connections
     }
 
