@@ -59,6 +59,27 @@ def create_drone(graph, game_board):
             return move_history[len(move_history) - 1]
         else:
             return None
+    
+    def go_to(dest_coords):
+        dest_x = dest_coords[0]
+        dest_y = dest_coords[1]
+
+        while True:
+            current_x = get_pos_x()
+            current_y = get_pos_y()
+
+            if current_x == dest_x and current_y == dest_y:
+                return True
+            
+            if current_x < dest_x:
+                move(East)
+            elif current_x > dest_x:
+                move(West)
+
+            if current_y < dest_y:
+                move(North)
+            elif current_y > dest_y:
+                move(South)
         
     def search(check_goal):
         return do_wall_follow(new_drone, check_goal)
@@ -72,7 +93,8 @@ def create_drone(graph, game_board):
         "get_coords": get_coords,
         "get_last_move": get_last_move,
         "set_property": set_property,
-        "search": search
+        "search": search,
+        "go_to": go_to
     }
 
     return new_drone
