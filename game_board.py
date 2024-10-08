@@ -22,15 +22,10 @@ def create_game_board(size):
         elif dest_y < src_y:
             return South
         
-    def get_distance(coord1, coord2):
+    def get_distance(coords_1, coords_2):
         start_op_count = get_op_count()
 
-        x1 = coord1[0]
-        x2 = coord2[0]
-        y1 = coord1[1]
-        y2 = coord2[1]
-
-        distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+        distance = calculate_dist(coords_1[0], coords_1[1], coords_2[0],coords_2[1])
 
         quick_print("get_distance: ", get_op_count() - start_op_count)
 
@@ -109,3 +104,6 @@ def create_node(x, y):
 
 def translate_coords(coords, x_offset, y_offset):
     return (coords[0] + x_offset, coords[1] + y_offset)
+
+def calculate_dist(x_1, y_1, x_2, y_2):
+    return abs(x_1 - x_2) + abs(y_1 - y_2)
