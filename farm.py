@@ -2,10 +2,9 @@ from __builtins__ import *
 from Utility import *
 
 def create_farm_plan(drone, game_board):
-	game_board_get_node = game_board["get_node"]
+	get_node = game_board["get_node"]
 	drone_do_move = drone["do_move"]
 	drone_get_coords = drone["get_coords"]
-	plant_plan = create_matrix(get_world_size(), 2)
 
 	def do_scan_farm():
 		for _ in range(0, get_world_size()):
@@ -18,17 +17,14 @@ def create_farm_plan(drone, game_board):
 		for _ in range(iterations):
 			do_scan_farm()
 
-	def apply_normal_plan():
-		#apply_entity_type(plant_plan, 0, 0,get_world_size(), get_world_size(), Entities.Pumpkin, fill_strategy_solid)
-		#apply_entity_type(plant_plan, 0, 0,get_world_size() / 2, get_world_size() / 2, Entities.Tree,fill_strategy_checkerd)
-		#apply_entity_type(plant_plan, 0, 0,get_world_size(), get_world_size(), Entities.Sunflower,fill_strategy_solid)
-		apply_entity_type(plant_plan, 0, 0, 1, 1, Entities.Bush, fill_strategy_solid)
-
 	def handle_pumpkin():
 		if get_ground_type() != Grounds.Soil:
 			till()
 			
 		harvest()
+
+		if(num_items(Items.Pumpkin_Seed) == 0):
+			trade(Items.Pumpkin_Seed, get_world_size() * get_world_size())
 
 		plant(Entities.Pumpkin)
 
@@ -40,7 +36,7 @@ def create_farm_plan(drone, game_board):
 		if get_ground_type() != Grounds.Soil:
 			till()
 
-		if(num_items(Items.Carrot_Seed) >= 0):
+		if(num_items(Items.Carrot_Seed) == 0):
 			trade(Items.Carrot_Seed, get_world_size() * get_world_size())
 
 		if get_entity_type() != Entities.Carrots:
@@ -101,12 +97,14 @@ def create_farm_plan(drone, game_board):
 
 	def farm():
 		current_coords = drone_get_coords()
+		current_node = get_node(current_coords)
 		
-		entity_type = plant_plan[current_coords[0]][current_coords[1]]
+		if "entity_type" in current_node:
+			entity_type = current_node["entity_type"]
 
-		if entity_type in entity_handlers:
-			handler = entity_handlers[entity_type]
-			handler()
+			if entity_type in entity_handlers:
+				handler = entity_handlers[entity_type]
+				handler()
 
 	entity_handlers = {
 		Entities.Bush:handle_bush,
@@ -119,8 +117,6 @@ def create_farm_plan(drone, game_board):
 		Entities.Tree: handle_tree
 	}
 
-	apply_normal_plan()
-	
 	new_farm_plan = {
 		"execute_plan": execute_plan
 	}

@@ -2,14 +2,8 @@ from __builtins__ import *
 from Utility import *
 
 def create_game_board(size):
-    matrix = create_matrix(size, 2)
+    matrix = create_matrix(size, create_node)
 
-    def initialize_nodes():
-        for index_x in range(size):
-            for index_y in range(size):
-                coords = (index_x, index_y)
-                matrix[index_x][index_y] = create_node(coords)
-    
     def get_node(coord):
         return matrix[coord[0]][coord[1]]
     
@@ -27,7 +21,20 @@ def create_game_board(size):
             return North
         elif dest_y < src_y:
             return South
+        
+    def get_distance(coord1, coord2):
+        start_op_count = get_op_count()
 
+        x1 = coord1[0]
+        x2 = coord2[0]
+        y1 = coord1[1]
+        y2 = coord2[1]
+
+        distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+
+        quick_print("get_distance: ", get_op_count() - start_op_count)
+
+        return distance
     
     def get_neighbor(x, y, direction):
         start_op_count = get_op_count()
@@ -82,21 +89,23 @@ def create_game_board(size):
                     graph_add_edge(current_coords, (x_index, y_index-1))
 
         quick_print("add_connections: ", get_op_count() - start_op_count)
-                
-    initialize_nodes()
 
     new_game_board = {
         "get_node": get_node,
         "get_neighbor": get_neighbor,
         "get_direction": get_direction,
+        "get_distance": get_distance,
         "add_connections": add_connections
     }
 
     return new_game_board
                      
-def create_node(coord):
+def create_node(x, y):
     new_node = {
-        "coord": coord,
+        "coords": (x,y)
     }
-    
+
     return new_node
+
+def translate_coords(coords, x_offset, y_offset):
+    return (coords[0] + x_offset, coords[1] + y_offset)

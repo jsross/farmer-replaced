@@ -1,7 +1,7 @@
 from a_star import *
 
 def create_maze_plan(drone, graph, game_board):
-
+    game_board_get_distance = game_board["get_distance"]
     drone_get_coords = drone["get_coords"]
     drone_follow_path = drone["follow_path"]
     drone_search = drone["search"]
@@ -13,7 +13,7 @@ def create_maze_plan(drone, graph, game_board):
                 for y_index in range(size):
                     current_coord = (x_index, y_index)
 
-                    result[current_coord] = get_distance(current_coord, goal_coords)
+                    result[current_coord] = game_board_get_distance(current_coord, goal_coords)
 
         return result
 
@@ -34,7 +34,7 @@ def create_maze_plan(drone, graph, game_board):
 
     def execute_plan(iterations):
         drone["set_property"]("update_graph_on_success", False)
-		success = drone_search(check_is_treasure)
+        success = drone_search(check_is_treasure)
         next_coords = measure()
         distance_dict = create_distance_dictionary(get_world_size(), next_coords)
         
