@@ -1,21 +1,9 @@
-from wall_follow_strategy import *
 from a_star import *
 
 def create_maze_plan(drone, graph, game_board):
-
     drone_get_coords = drone["get_coords"]
     drone_follow_path = drone["follow_path"]
-
-    def create_distance_dictionary(size, goal_coords):
-        result = {}
-
-        for x_index in range(size):
-                for y_index in range(size):
-                    current_coord = (x_index, y_index)
-
-                    result[current_coord] = get_distance(current_coord, goal_coords)
-
-        return result
+    drone_search = drone["search"]
 
     def check_is_treasure():
         return get_entity_type() == Entities.Treasure
@@ -34,9 +22,8 @@ def create_maze_plan(drone, graph, game_board):
 
     def execute_plan(iterations):
         drone["set_property"]("update_graph_on_success", False)
-		success = do_wall_follow(drone, check_is_treasure)
+        success = drone_search(check_is_treasure)
         next_coords = measure()
-        distance_dict = create_distance_dictionary(get_world_size(), next_coords)
         
         if success == False:
             print("Abort")
@@ -54,18 +41,17 @@ def create_maze_plan(drone, graph, game_board):
                 
             drone["set_property"]("update_graph_on_success", False)
 
-            path = a_star(graph, distance_dict, drone_get_coords(), next_coords)
+            path = a_star(graph, game_board, drone_get_coords(), next_coords)
 
             if path != None:
                 success = drone_follow_path(path)
 
             if not success:
                 drone["set_property"]("update_graph_on_success", True)
-                success = best_guess_strategy(drone, graph, game_board, distance_dict, check_is_treasure)
+                success = best_guess_strategy(drone, graph, game_board, next_coords)
 
             if success:
                 next_coords = measure()
-                distance_dict = create_distance_dictionary(get_world_size(), next_coords)
 
     new_maze_plan = {
         "do_create_maze": do_create_maze,

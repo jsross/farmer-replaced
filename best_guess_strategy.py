@@ -1,11 +1,12 @@
 from graph import *
 
-def best_guess_strategy(drone, graph, game_board, distance_dict, check_goal):
+def best_guess_strategy(drone, graph, game_board, dest_coords):
     start_op_count = get_op_count()
 
     drone_do_move = drone["do_move"]
     get_coords = drone["get_coords"]
     gb_get_direction = game_board["get_direction"]
+    get_distance = game_board["get_distance"]
     graph_get_connected = graph["get_connected"]
 
     last_coords = None
@@ -13,11 +14,11 @@ def best_guess_strategy(drone, graph, game_board, distance_dict, check_goal):
     visited = {}
 
     def find_lightest(coords):
-        current_lightest = coords[0]
-        lightest_weight = distance_dict[current_lightest]
+        current_lightest = None
+        lightest_weight = Infinity
  
         for current_coord in coords:
-            current_weight = distance_dict[current_coord]
+            current_weight = get_distance(dest_coords, current_coord)
             if current_weight < lightest_weight:
                 current_lightest = current_coord
                 lightest_weight = current_weight
@@ -27,7 +28,7 @@ def best_guess_strategy(drone, graph, game_board, distance_dict, check_goal):
     current_coords = get_coords()
         
     while True:
-        if check_goal():
+        if current_coords == dest_coords:
             quick_print("best_guess_strategy: ", get_op_count() - start_op_count)
 
             return True

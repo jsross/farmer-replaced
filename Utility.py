@@ -1,12 +1,10 @@
-def create_matrix(size, num_dims):		
+def create_matrix(size, create_item):
 	matrix = []
 
-	if num_dims <= 1:
-		for _ in range(size):
-			matrix.append(None)
-	else:
-		for _ in range(size):	
-			matrix.append(create_matrix(size, num_dims - 1))
+	for x_index in range(size):
+		matrix.append([])
+		for y_index in range(size):
+			matrix[x_index].append(create_item(x_index, y_index))
 	
 	return matrix
 
@@ -16,22 +14,6 @@ def create_plot(entity_type):
     }
 
     return plot
-
-def apply_entity_type(board, x1, y1, x2, y2, entity_type, fill_test):
-	for xIndex in range(x1, x2):
-		for yIndex in range(y1,y2):
-			if fill_test(xIndex, yIndex):
-				board[xIndex][yIndex] = entity_type
-
-def get_distance(coord1, coord2):
-	x1 = coord1[0]
-	x2 = coord2[0]
-	y1 = coord1[1]
-	y2 = coord2[1]
-
-	distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
-
-	return distance
 
 def fill_strategy_checkerd(x,y):
 	rem = y % 2

@@ -2,9 +2,10 @@ from __builtins__ import *
 from __test_harness__ import *
 from Utility import *
 
-def a_star(graph, approx_distance_to_end, coord_start, coord_end):
+def a_star(graph, game_board, coord_start, coord_end):
     start_op_count = get_op_count()
-
+    
+    get_distance = game_board["get_distance"]
     weights = {}
     distances_from_start = {}
 
@@ -93,9 +94,9 @@ def a_star(graph, approx_distance_to_end, coord_start, coord_end):
                 cameFrom[neighbor] = coord_current
                 distances_from_start[neighbor] = tenative_distance_from_start
                                 
-                # For node n, weight := distance_from_start + approx_distance_to_end. Weight represents our current best guess as to
+                # For node n, weight := distance_from_start + get_distance. Weight represents our current best guess as to
                 # how cheap a path could be from start to finish if it goes through n.
-                weights[neighbor]  = tenative_distance_from_start + approx_distance_to_end[neighbor]
+                weights[neighbor]  = tenative_distance_from_start + get_distance(coord_end, neighbor)
 
                 set_open_coords.add(neighbor)
 

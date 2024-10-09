@@ -1,8 +1,11 @@
 from __builtins__ import *
 from Utility import *
+from wall_follow_strategy import *
+from game_board import *
 
 def create_drone(graph, game_board):
     game_board_get_neighbor = game_board["get_neighbor"]
+    get_distance = game_board["get_distance"]
     graph_add_edge = graph["add_edge"]
     graph_remove_edge = graph["remove_edge"]
 
@@ -58,6 +61,52 @@ def create_drone(graph, game_board):
             return move_history[len(move_history) - 1]
         else:
             return None
+    
+    def go_to(dest_x, dest_y):
+        start_op_count = get_op_count()
+
+        current_x = get_pos_x()
+        current_y = get_pos_y()
+        world_size = get_world_size()
+        radius = world_size / 2
+        
+        x_multiplier = 0
+        y_multiplier = 0
+
+        if current_x < radius and dest_x > radius:
+            x_multiplier = -1
+        if current_x > radius and dest_x < radius:
+            x_multiplier = 1
+        
+        if current_y < radius and dest_y > radius:
+            y_multiplier = -1
+        if current_y > radius and dest_y < radius:
+            y_multiplier = 1
+
+        dest_x += world_size * x_multiplier
+        dest_y += world_size * y_multiplier
+
+        while True:
+            if current_x == dest_x and current_y == dest_y:
+                quick_print("go_to: ", get_op_count() - start_op_count)
+                return True
+            
+            if current_x < dest_x:
+                move(East)
+                current_x += 1
+            elif current_x > dest_x:
+                move(West)
+                current_x -= 1
+
+            if current_y < dest_y:
+                move(North)
+                current_y += 1
+            elif current_y > dest_y:
+                move(South)
+                current_y -= 1
+    
+    def search(check_goal):
+        return do_wall_follow(new_drone, check_goal)
         
     def set_property(name, value):
         properties[name] = value
@@ -67,7 +116,9 @@ def create_drone(graph, game_board):
         "follow_path": follow_path,
         "get_coords": get_coords,
         "get_last_move": get_last_move,
-        "set_property": set_property
+        "set_property": set_property,
+        "search": search,
+        "go_to": go_to
     }
 
     return new_drone
