@@ -28,7 +28,7 @@ def best_guess_strategy(drone, graph, game_board, dest_coords):
     current_coords = get_coords()
         
     while True:
-        if check_goal():
+        if current_coords == dest_coords:
             quick_print("best_guess_strategy: ", get_op_count() - start_op_count)
 
             return True

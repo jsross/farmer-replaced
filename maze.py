@@ -41,14 +41,14 @@ def create_maze_plan(drone, graph, game_board):
                 
             drone["set_property"]("update_graph_on_success", False)
 
-            path = a_star(graph, distance_dict, drone_get_coords(), next_coords)
+            path = a_star(graph, game_board, drone_get_coords(), next_coords)
 
             if path != None:
                 success = drone_follow_path(path)
 
             if not success:
                 drone["set_property"]("update_graph_on_success", True)
-                success = best_guess_strategy(drone, graph, game_board, distance_dict, check_is_treasure)
+                success = best_guess_strategy(drone, graph, game_board, next_coords)
 
             if success:
                 next_coords = measure()
