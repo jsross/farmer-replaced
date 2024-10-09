@@ -62,102 +62,54 @@ def create_drone(graph, game_board):
         else:
             return None
     
-    def go_to(dest_coords):
+    def go_to(dest_x, dest_y):
         start_op_count = get_op_count()
-        
-        path = get_shortest_path(dest_coords)
-        success = follow_path(path)
-        
-        quick_print("go_to: ", get_op_count() - start_op_count)
-        
-        return success
-    
-    def get_shortest_path(dest_coords):
-        start_op_count = get_op_count()
-        current_coords = get_coords()
 
-        current_x = current_coords[0]
-        current_y = current_coords[1]
-
+        current_x = get_pos_x()
+        current_y = get_pos_y()
         world_size = get_world_size()
-        neg_world_size = world_size * -1
         radius = world_size / 2
-
-        min_x = current_x - radius
-        max_x = current_x + radius
-        min_y = current_y - radius
-        max_y = current_y + radius
-
-        coords = set()
-        coords.add(dest_coords)
-
-        def add_coords(to_add):
-            x = to_add[0]
-            y = to_add[1]
-
-            if min_x <= x <= max_x and min_y <= y <= max_y:
-                coords.add(to_add)
-
-        add_coords(translate_coords(dest_coords, 0, world_size))
-        add_coords(translate_coords(dest_coords, world_size, world_size))
-        add_coords(translate_coords(dest_coords, world_size, 0))
-        add_coords(translate_coords(dest_coords, world_size, neg_world_size))
-        add_coords(translate_coords(dest_coords, 0, neg_world_size))
-        add_coords(translate_coords(dest_coords, neg_world_size, neg_world_size))
-        add_coords(translate_coords(dest_coords, neg_world_size, 0))
-        add_coords(translate_coords(dest_coords, neg_world_size, world_size))
         
-        closest_coords = find_closest(current_coords, coords)
+        x_multiplier = 0
+        y_multiplier = 0
 
-        closets_x = closest_coords[0]
-        closets_y = closest_coords[1]
+        if current_x < radius and dest_x > radius:
+            x_multiplier = -1
+        if current_x > radius and dest_x < radius:
+            x_multiplier = 1
         
-        path = []
+        if current_y < radius and dest_y > radius:
+            y_multiplier = -1
+        if current_y > radius and dest_y < radius:
+            y_multiplier = 1
+
+        dest_x += world_size * x_multiplier
+        dest_y += world_size * y_multiplier
 
         while True:
-            if current_x == closets_x and current_y == closets_y:
-                break
+            if current_x == dest_x and current_y == dest_y:
+                quick_print("go_to: ", get_op_count() - start_op_count)
+                return True
             
-            if current_x < closets_x:
-                path.append(East)
+            if current_x < dest_x:
+                move(East)
                 current_x += 1
-            elif current_x > closets_x:
-                path.append(West)
+            elif current_x > dest_x:
+                move(West)
                 current_x -= 1
 
-            if current_y < closets_y:
-                path.append(North)
+            if current_y < dest_y:
+                move(North)
                 current_y += 1
-            elif current_y > closets_y:
-                path.append(South)
+            elif current_y > dest_y:
+                move(South)
                 current_y -= 1
-
-        quick_print("get_shortest_path: ", get_op_count() - start_op_count)
-        
-        return path
-                
-
+    
     def search(check_goal):
         return do_wall_follow(new_drone, check_goal)
         
     def set_property(name, value):
         properties[name] = value
-    
-    def find_closest(target, coord_set):
-        start_op_count = get_op_count()
-        closest = None
-        closest_dist = Infinity
-
-        for current_coords in coord_set:
-            current_distance = get_distance(target, current_coords)
-
-            if current_distance < closest_dist:
-                closest = current_coords
-                closest_dist = current_distance
-
-        quick_print("find_closest: ", get_op_count() - start_op_count)
-
-        return closest
     	
     new_drone = {
         "do_move": do_move,
