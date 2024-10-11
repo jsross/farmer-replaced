@@ -1,21 +1,41 @@
 from __builtins__ import *
 from Utility import *
 
-def create_farm_plan(drone, game_board):
+def create_farmer(drone, game_board):
 	get_node = game_board["get_node"]
 	drone_do_move = drone["do_move"]
 	drone_get_coords = drone["get_coords"]
+	drone_scan = drone["scan"]
 
-	def do_scan_farm():
-		for _ in range(0, get_world_size()):
-			for _ in range(0, get_world_size()):
-				farm()
-				drone_do_move(North)
-			drone_do_move(East)
+	def do_work(iterations):
+		start_op_count = get_op_count()
 
-	def execute_plan(iterations):
-		for _ in range(iterations):
-			do_scan_farm()
+		plan = create_plan()
+
+		execute_plan(plan)
+
+		quick_print("do_work: ", get_op_count() - start_op_count)
+
+
+	def create_plan():
+		start_op_count = get_op_count()
+
+		actions = []
+
+		actions.append((drone_scan, till))
+		actions.append((drone_scan, till))
+
+		quick_print("create_plan: ", get_op_count() - start_op_count)
+
+		return actions
+	
+	def execute_plan(plan):
+		start_op_count = get_op_count()
+
+		for action in plan:
+			action[0](action[1])
+		
+		quick_print("execute_plan: ", get_op_count() - start_op_count)
 
 	def handle_pumpkin():
 		if get_ground_type() != Grounds.Soil:
@@ -105,6 +125,9 @@ def create_farm_plan(drone, game_board):
 			if entity_type in entity_handlers:
 				handler = entity_handlers[entity_type]
 				handler()
+	
+	def do_move(args):
+		move(args[0])
 
 	entity_handlers = {
 		Entities.Bush:handle_bush,
@@ -117,8 +140,8 @@ def create_farm_plan(drone, game_board):
 		Entities.Tree: handle_tree
 	}
 
-	new_farm_plan = {
-		"execute_plan": execute_plan
+	new_farmer = {
+		"do_work": do_work
 	}
 
-	return new_farm_plan
+	return new_farmer

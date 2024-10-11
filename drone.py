@@ -104,6 +104,36 @@ def create_drone(graph, game_board):
             elif current_y > dest_y:
                 move(South)
                 current_y -= 1
+
+    def go_home():
+        current_coords = get_coords()
+        
+        if current_coords != (0,0):
+            go_to((0,0))
+
+    def scan(action):
+        start_op_count = get_op_count()
+        
+        go_home()
+
+        size = get_world_size()
+
+        for x_index in range(size):
+            for y_index in range(size):
+                action()
+
+                if x_index % 2 == 0:
+                    if y_index < size - 1:
+                        move(North)
+                    else:
+                        move(East)
+                else:
+                    if y_index < size - 1:
+                        move(South)
+                    else:
+                        move(East)
+
+        quick_print("scan: ", get_op_count() - start_op_count)
     
     def search(check_goal):
         return do_wall_follow(new_drone, check_goal)
@@ -118,7 +148,8 @@ def create_drone(graph, game_board):
         "get_last_move": get_last_move,
         "set_property": set_property,
         "search": search,
-        "go_to": go_to
+        "go_to": go_to,
+        "scan": scan
     }
 
     return new_drone
