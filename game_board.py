@@ -4,6 +4,18 @@ from Utility import *
 def create_game_board(size):
     matrix = create_matrix(size, create_node)
 
+    def apply_property_value(coord_1, coord_2, property_name, property_value, fill_test):
+        x1 = coord_1[0]
+        y1 = coord_1[1]
+        x2 = coord_2[0]
+        y2 = coord_2[1]
+
+        for x_index in range(x1, x2):
+            for y_index in range(y1, y2):
+                if fill_test(x_index, y_index):
+                    node = get_node((x_index, y_index))
+                    node[property_name] = property_value
+
     def get_node(coord):
         return matrix[coord[0]][coord[1]]
     
@@ -90,7 +102,8 @@ def create_game_board(size):
         "get_neighbor": get_neighbor,
         "get_direction": get_direction,
         "get_distance": get_distance,
-        "add_connections": add_connections
+        "add_connections": add_connections,
+        "apply_property_value": apply_property_value
     }
 
     return new_game_board
@@ -107,3 +120,18 @@ def translate_coords(coords, x_offset, y_offset):
 
 def calculate_dist(x_1, y_1, x_2, y_2):
     return abs(x_1 - x_2) + abs(y_1 - y_2)
+
+
+def fill_strategy_checkerd(x,y):
+	rem = y % 2
+	fill = (x - rem ) % 2 == 0
+	return fill
+
+def fill_strategy_checkerd_alt(x,y):
+	rem = y % 2
+	fill = (x - rem ) % 2 == 1
+	
+	return fill
+	
+def fill_strategy_solid(x,y):
+	return True

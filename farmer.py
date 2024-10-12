@@ -1,33 +1,47 @@
 from __builtins__ import *
 from Utility import *
+from game_board import *
 
 def create_farmer(drone, game_board):
 	get_node = game_board["get_node"]
 	drone_do_move = drone["do_move"]
 	drone_get_coords = drone["get_coords"]
 	drone_scan = drone["scan"]
+	apply_property_value = game_board["apply_property_value"]
 
 	def do_work(iterations):
 		start_op_count = get_op_count()
 
 		plan = create_plan()
 
-		execute_plan(plan)
+		for _ in range(iterations):
+			execute_plan(plan)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 
-
 	def create_plan():
 		start_op_count = get_op_count()
-
+		size = get_world_size()
+		
+		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Carrots, fill_strategy_solid)
+		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Tree, fill_strategy_checkerd)
 		actions = []
 
-		actions.append((drone_scan, till))
-		actions.append((drone_scan, till))
+		actions.append((drone_scan, handle_expected_entity))
 
 		quick_print("create_plan: ", get_op_count() - start_op_count)
 
 		return actions
+
+	def handle_expected_entity():
+		drone_coords = drone_get_coords()
+		current_node = get_node(drone_coords)
+
+		entity_type = current_node["Expected_Entity_Type"]
+		handler = entity_handlers[entity_type]
+
+		handler()
+
 	
 	def execute_plan(plan):
 		start_op_count = get_op_count()
@@ -40,7 +54,7 @@ def create_farmer(drone, game_board):
 	def handle_pumpkin():
 		if get_ground_type() != Grounds.Soil:
 			till()
-			
+		
 		harvest()
 
 		if(num_items(Items.Pumpkin_Seed) == 0):
@@ -145,3 +159,10 @@ def create_farmer(drone, game_board):
 	}
 
 	return new_farmer
+
+def create_action(func, arg):
+
+	def execute():
+		func(arg)
+	
+	return execute
