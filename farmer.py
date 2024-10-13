@@ -4,10 +4,10 @@ from game_board import *
 
 def create_farmer(drone, game_board):
 	get_node = game_board["get_node"]
-	drone_do_move = drone["do_move"]
 	drone_get_coords = drone["get_coords"]
 	drone_scan = drone["scan"]
 	apply_property_value = game_board["apply_property_value"]
+	execute_action_plan = drone["execute_action_plan"]
 
 	def do_work(iterations):
 		start_op_count = get_op_count()
@@ -15,7 +15,7 @@ def create_farmer(drone, game_board):
 		plan = create_plan()
 
 		for _ in range(iterations):
-			execute_plan(plan)
+			execute_action_plan(plan)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 
@@ -25,31 +25,60 @@ def create_farmer(drone, game_board):
 		
 		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Carrots, fill_strategy_solid)
 		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Tree, fill_strategy_checkerd)
+		apply_property_value((0,0),(size/2,size/2), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
+
 		actions = []
 
-		actions.append((drone_scan, handle_expected_entity))
+		apply_scan_plan(actions, [plant_expected])
+
+		actions.append([drone_scan, plant_expected])
 
 		quick_print("create_plan: ", get_op_count() - start_op_count)
 
 		return actions
-
-	def handle_expected_entity():
-		drone_coords = drone_get_coords()
-		current_node = get_node(drone_coords)
-
-		entity_type = current_node["Expected_Entity_Type"]
-		handler = entity_handlers[entity_type]
-
-		handler()
-
 	
-	def execute_plan(plan):
+	def apply_scan_plan(actions, action):
 		start_op_count = get_op_count()
 
-		for action in plan:
-			action[0](action[1])
+		size = get_world_size()
+
+		for x_index in range(size):
+			for y_index in range(size):
+				actions.append(action)
+
+				if x_index % 2 == 0:
+					if y_index < size - 1:
+						actions.append(move_north)
+					else:
+						actions.append(move_east)
+				else:
+					if y_index < size - 1:
+						actions.append(move_south)
+					else:
+						actions.append(move_east)
+
+		quick_print("create_scan_plan: ", get_op_count() - start_op_count)
 		
-		quick_print("execute_plan: ", get_op_count() - start_op_count)
+		return actions
+
+	def plant_expected():
+		drone_coords = drone_get_coords()
+		current_node = get_node(drone_coords)
+		entity_type = current_node["Expected_Entity_Type"]
+
+		entity_requirements = entity_requirements_map[entity_type]
+
+		if "Grounds" in entity_requirements and get_ground_type() != entity_requirements["Grounds"]:
+			till()
+
+		if "Seeds" in entity_requirements:
+			item_type = entity_requirements["Seeds"]
+
+			if num_items(item_type) == 0:
+				if not trade(item_type, get_world_size() ** 2):
+					quick_print("Unable to trade for item: ", item_type)
+			
+		plant(entity_type)
 
 	def handle_pumpkin():
 		if get_ground_type() != Grounds.Soil:
@@ -62,7 +91,7 @@ def create_farmer(drone, game_board):
 
 		plant(Entities.Pumpkin)
 
-		use_item(Items.Water_Tank)
+		#use_item(Items.Water_Tank)
 	
 	def handle_carrot():
 		harvest()
@@ -76,8 +105,8 @@ def create_farmer(drone, game_board):
 		if get_entity_type() != Entities.Carrots:
 			plant(Entities.Carrots)
 
-		use_item(Items.Fertilizer)
-		use_item(Items.Water_Tank)
+		#use_item(Items.Fertilizer)
+		#use_item(Items.Water_Tank)
 
 	def handle_grass():
 		harvest()
@@ -86,7 +115,7 @@ def create_farmer(drone, game_board):
 			till()
 		
 		plant(Entities.Grass)
-		use_item(Items.Water_Tank)
+		#use_item(Items.Water_Tank)
 	
 	def handle_bush():
 		if get_ground_type() != Grounds.Turf:
@@ -120,28 +149,14 @@ def create_farmer(drone, game_board):
 			till()
 
 		plant(Entities.Tree)
-		use_item(Items.Fertilizer)
-		use_item(Items.Water_Tank)
+		#use_item(Items.Fertilizer)
+		#use_item(Items.Water_Tank)
 	
 	def handle_cactus():
 		pass
 
 	def handle_hedge():
 		pass
-
-	def farm():
-		current_coords = drone_get_coords()
-		current_node = get_node(current_coords)
-		
-		if "entity_type" in current_node:
-			entity_type = current_node["entity_type"]
-
-			if entity_type in entity_handlers:
-				handler = entity_handlers[entity_type]
-				handler()
-	
-	def do_move(args):
-		move(args[0])
 
 	entity_handlers = {
 		Entities.Bush:handle_bush,
@@ -154,15 +169,38 @@ def create_farmer(drone, game_board):
 		Entities.Tree: handle_tree
 	}
 
+	entity_requirements_map = {
+		Entities.Grass: {
+			"Grounds": Grounds.Turf
+		},
+		Entities.Carrots: {
+			"Grounds": Grounds.Soil,
+			"Seeds": Items.Carrot_Seed
+		},
+		Entities.Tree: {
+			"Grounds": Grounds.Turf
+		},
+		Entities.Pumpkin: {
+			"Grounds": Grounds.Soil,
+			"Seeds": Items.Pumpkin_Seed
+		}
+	}
+
+	move_north = [move, North]
+	move_east = [move, East]
+	move_south = [move, South]
+	move_west = [move, West]
+
 	new_farmer = {
 		"do_work": do_work
 	}
 
 	return new_farmer
 
-def create_action(func, arg):
-
+def create_action_with_arg(func, arg):
 	def execute():
 		func(arg)
 	
 	return execute
+
+

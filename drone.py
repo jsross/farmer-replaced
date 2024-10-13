@@ -105,6 +105,21 @@ def create_drone(graph, game_board):
                 move(South)
                 current_y -= 1
 
+    def execute_action_plan(plan):
+        for action in plan:
+            execute_action(action)
+
+    def execute_action(action):
+        func = action[0]
+        arg_count = len(action) - 1
+
+        if arg_count == 0:
+            func()
+        if arg_count == 1:
+            func(action[1])
+        if arg_count == 2:
+            func(action[1],action[2])
+
     def go_home():
         current_coords = get_coords()
         
@@ -149,7 +164,9 @@ def create_drone(graph, game_board):
         "set_property": set_property,
         "search": search,
         "go_to": go_to,
-        "scan": scan
+        "scan": scan,
+        "go_home": go_home,
+        "execute_action_plan": execute_action_plan
     }
 
     return new_drone
