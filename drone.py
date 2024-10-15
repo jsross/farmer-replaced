@@ -4,8 +4,8 @@ from wall_follow_strategy import *
 from game_board import *
 
 def create_drone(graph, game_board):
-    game_board_get_neighbor = game_board["get_neighbor"]
-    get_distance = game_board["get_distance"]
+    get_neighbor = game_board["get_neighbor"]
+    get_plot = game_board["get_node"]
     graph_add_edge = graph["add_edge"]
     graph_remove_edge = graph["remove_edge"]
 
@@ -42,7 +42,7 @@ def create_drone(graph, game_board):
             quick_print("Bonk")
 
             if properties["update_graph_on_failure"]:
-                target_coords = game_board_get_neighbor(starting_coords[0], starting_coords[1], direction)
+                target_coords = get_neighbor(starting_coords[0], starting_coords[1], direction)
 
                 if target_coords != None:
                     graph_remove_edge(starting_coords, target_coords)
@@ -50,6 +50,25 @@ def create_drone(graph, game_board):
         quick_print("do_move: ", get_op_count() - start_op_count)
 
         return success
+    
+    def do_plant(entity_type):
+        current_coords = get_coords()
+        plot = get_plot(current_coords)
+
+        success = plant(entity_type)
+
+        plot["Planted"] = success
+        plot["can_harvest"] = can_harvest()
+        plot["Timestamp"] = get_time()
+
+    def do_till():
+        current_coords = get_coords()
+
+        plot = get_plot(current_coords)
+        till()
+
+        plot["Grounds"] = get_ground_type()
+        plot["Timestamp"] = get_time()
 
     def get_coords():
         current_coords = (get_pos_x(), get_pos_y())
@@ -125,30 +144,6 @@ def create_drone(graph, game_board):
         
         if current_coords != (0,0):
             go_to((0,0))
-
-    def scan(action):
-        start_op_count = get_op_count()
-        
-        go_home()
-
-        size = get_world_size()
-
-        for x_index in range(size):
-            for y_index in range(size):
-                action()
-
-                if x_index % 2 == 0:
-                    if y_index < size - 1:
-                        move(North)
-                    else:
-                        move(East)
-                else:
-                    if y_index < size - 1:
-                        move(South)
-                    else:
-                        move(East)
-
-        quick_print("scan: ", get_op_count() - start_op_count)
     
     def search(check_goal):
         return do_wall_follow(new_drone, check_goal)
@@ -164,7 +159,8 @@ def create_drone(graph, game_board):
         "set_property": set_property,
         "search": search,
         "go_to": go_to,
-        "scan": scan,
+        "do_till": do_till,
+        "do_plant": do_plant,
         "go_home": go_home,
         "execute_action_plan": execute_action_plan
     }

@@ -3,173 +3,90 @@ from Utility import *
 from game_board import *
 
 def create_farmer(drone, game_board):
-	get_node = game_board["get_node"]
-	drone_get_coords = drone["get_coords"]
-	drone_scan = drone["scan"]
+	get_plot = game_board["get_node"]
 	apply_property_value = game_board["apply_property_value"]
+	do_till = drone["do_till"]
+	do_plant = drone["do_plant"]
 	execute_action_plan = drone["execute_action_plan"]
 
 	def do_work(iterations):
 		start_op_count = get_op_count()
 
-		plan = create_plan()
+		prep_plan = create_initial_prep_plan()
 
-		for _ in range(iterations):
-			execute_action_plan(plan)
+		execute_action_plan(prep_plan)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 
-	def create_plan():
+	def create_initial_prep_plan():
 		start_op_count = get_op_count()
 		size = get_world_size()
 		
 		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Carrots, fill_strategy_solid)
 		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Tree, fill_strategy_checkerd)
-		apply_property_value((0,0),(size/2,size/2), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
+		#Sapply_property_value((0,0),(size/2,size/2), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
 
-		actions = []
+		seed_counts = {
+			Items.Cactus_Seed: 0,
+			Items.Carrot_Seed: 0,
+			Items.Pumpkin_Seed: 0,
+			Items.Sunflower_Seed: 0
+		}
 
-		apply_scan_plan(actions, [plant_expected])
+		plan = []
+		plan.append([clear])
 
-		actions.append([drone_scan, plant_expected])
-
-		quick_print("create_plan: ", get_op_count() - start_op_count)
-
-		return actions
-	
-	def apply_scan_plan(actions, action):
-		start_op_count = get_op_count()
-
-		size = get_world_size()
+		def create_plan(_,_):
+			return []
+		
+		current_x = 0
+		current_y = 0
 
 		for x_index in range(size):
 			for y_index in range(size):
-				actions.append(action)
+				plot = get_plot((current_x, current_y))
+
+				entity_type = plot["Expected_Entity_Type"]
+				requirements = requirements_map[entity_type]
+
+				if "Grounds" in requirements and requirements["Grounds"]  == Grounds.Soil:
+					plan.append([do_till])
+
+				if "Seeds" in requirements:
+					item_type = requirements["Seeds"]
+
+					seed_counts[item_type] += 1
+
+				plan.append([do_plant, entity_type])
 
 				if x_index % 2 == 0:
 					if y_index < size - 1:
-						actions.append(move_north)
+						plan.append(move_north)
+						current_y += 1
 					else:
-						actions.append(move_east)
+						plan.append(move_east)
+						current_x += 1
 				else:
 					if y_index < size - 1:
-						actions.append(move_south)
+						plan.append(move_south)
+						current_y -= 1
 					else:
-						actions.append(move_east)
+						plan.append(move_east)
+						current_x += 1
 
-		quick_print("create_scan_plan: ", get_op_count() - start_op_count)
-		
-		return actions
+		for item_type in seed_counts:
+			required_count = seed_counts[item_type]
 
-	def plant_expected():
-		drone_coords = drone_get_coords()
-		current_node = get_node(drone_coords)
-		entity_type = current_node["Expected_Entity_Type"]
+			if required_count > 0:
+				plan.insert(0, [trade, item_type, required_count])
 
-		entity_requirements = entity_requirements_map[entity_type]
 
-		if "Grounds" in entity_requirements and get_ground_type() != entity_requirements["Grounds"]:
-			till()
+		quick_print("create_plan: ", get_op_count() - start_op_count)
 
-		if "Seeds" in entity_requirements:
-			item_type = entity_requirements["Seeds"]
-
-			if num_items(item_type) == 0:
-				if not trade(item_type, get_world_size() ** 2):
-					quick_print("Unable to trade for item: ", item_type)
-			
-		plant(entity_type)
-
-	def handle_pumpkin():
-		if get_ground_type() != Grounds.Soil:
-			till()
-		
-		harvest()
-
-		if(num_items(Items.Pumpkin_Seed) == 0):
-			trade(Items.Pumpkin_Seed, get_world_size() * get_world_size())
-
-		plant(Entities.Pumpkin)
-
-		#use_item(Items.Water_Tank)
+		return plan
 	
-	def handle_carrot():
-		harvest()
 
-		if get_ground_type() != Grounds.Soil:
-			till()
-
-		if(num_items(Items.Carrot_Seed) == 0):
-			trade(Items.Carrot_Seed, get_world_size() * get_world_size())
-
-		if get_entity_type() != Entities.Carrots:
-			plant(Entities.Carrots)
-
-		#use_item(Items.Fertilizer)
-		#use_item(Items.Water_Tank)
-
-	def handle_grass():
-		harvest()
-		
-		if get_ground_type() != Grounds.Turf:
-			till()
-		
-		plant(Entities.Grass)
-		#use_item(Items.Water_Tank)
-	
-	def handle_bush():
-		if get_ground_type() != Grounds.Turf:
-			till()
-
-		harvest()
-		
-		plant(Entities.Bush)
-
-		use_item(Items.Fertilizer)
-		use_item(Items.Water_Tank)
-	
-	def handle_sunflower():
-		harvest()
-
-		if get_ground_type() != Grounds.Soil:
-			till()
-
-		use_item(Items.Fertilizer)
-		use_item(Items.Water_Tank)
-
-		if(num_items(Items.Sunflower_Seed) >= 0):
-			trade(Items.Sunflower_Seed, get_world_size() * get_world_size())
-			
-		plant(Entities.Sunflower)
-	
-	def handle_tree():
-		harvest()
-
-		if get_ground_type() != Grounds.Soil:
-			till()
-
-		plant(Entities.Tree)
-		#use_item(Items.Fertilizer)
-		#use_item(Items.Water_Tank)
-	
-	def handle_cactus():
-		pass
-
-	def handle_hedge():
-		pass
-
-	entity_handlers = {
-		Entities.Bush:handle_bush,
-		Entities.Cactus: handle_cactus,
-		Entities.Carrots: handle_carrot,
-		Entities.Grass: handle_grass,
-		Entities.Hedge: handle_hedge,
-		Entities.Pumpkin: handle_pumpkin,
-		Entities.Sunflower: handle_sunflower,
-		Entities.Tree: handle_tree
-	}
-
-	entity_requirements_map = {
+	requirements_map = {
 		Entities.Grass: {
 			"Grounds": Grounds.Turf
 		},
