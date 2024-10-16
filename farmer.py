@@ -5,9 +5,13 @@ from game_board import *
 def create_farmer(drone, game_board):
 	get_plot = game_board["get_node"]
 	apply_property_value = game_board["apply_property_value"]
-	do_till = drone["do_till"]
-	do_plant = drone["do_plant"]
+	do_scan = drone["do_scan"]
 	execute_action_plan = drone["execute_action_plan"]
+
+	def create_plan(x, y):
+		return []
+	
+	plot_plans = create_matrix(get_world_size(), create_plan)
 
 	def do_work(iterations):
 		start_op_count = get_op_count()
@@ -15,6 +19,11 @@ def create_farmer(drone, game_board):
 		prep_plan = create_initial_prep_plan()
 
 		execute_action_plan(prep_plan)
+
+		maint_plan = create_maintenance_plan()
+
+		for _ in range(iterations):
+			execute_action_plan(maint_plan)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 
@@ -32,32 +41,90 @@ def create_farmer(drone, game_board):
 			Items.Pumpkin_Seed: 0,
 			Items.Sunflower_Seed: 0
 		}
+		
+		for x_index in range(size):
+			for y_index in range(size):
+				plot = get_plot((x_index, y_index))
+				plot_plan = plot_plans[x_index][y_index]
+
+				entity_type = plot["Expected_Entity_Type"]
+				requirements = requirements_map[entity_type]
+
+				if "grounds" in requirements and requirements["grounds"]  == Grounds.Soil:
+					plot_plan.append([till])
+
+				if "seeds" in requirements:
+					seed_counts[requirements["seeds"]] += 1
+
+				plot_plan.append([plant, entity_type])
+				plot_plan.append([do_scan])
+
+		plan = create_scan_plan()
+
+		for item_type in seed_counts:
+			required_count = seed_counts[item_type]
+
+			if required_count > 0:
+				plan.insert(0, [trade, item_type, required_count])
+		
+		plan.insert(0, [clear])
+
+		quick_print("create_initial_prep_plan: ", get_op_count() - start_op_count)
+
+		return plan
+	
+	def create_maintenance_plan():
+		start_op_count = get_op_count()
+		
+		size = get_world_size()
+
+		seed_counts = {
+			Items.Cactus_Seed: 0,
+			Items.Carrot_Seed: 0,
+			Items.Pumpkin_Seed: 0,
+			Items.Sunflower_Seed: 0
+		}
+
+		for x_index in range(size):
+			for y_index in range(size):
+				plot = get_plot((x_index, y_index))
+				plot_plan = plot_plans[x_index][y_index]
+
+				entity_type = plot["Expected_Entity_Type"]
+				requiments = requirements_map[entity_type]
+
+				plot_plan.append([harvest])
+				plot_plan.append([plant, entity_type])
+
+				if "seeds" in requiments:
+					seed_counts[requiments["seeds"]] += 1
+		
+		plan = create_scan_plan()
+
+		for item_type in seed_counts:
+			required_count = seed_counts[item_type]
+
+			if required_count > 0:
+				plan.insert(0, [trade, item_type, required_count])
+
+		quick_print("create_maintenance_plan: ", get_op_count() - start_op_count)
+
+		return plan
+		
+	def create_scan_plan():
+		size = get_world_size()
 
 		plan = []
-		plan.append([clear])
-
-		def create_plan(_,_):
-			return []
 		
 		current_x = 0
 		current_y = 0
 
 		for x_index in range(size):
 			for y_index in range(size):
-				plot = get_plot((current_x, current_y))
+				plot_plan = plot_plans[current_x][current_y]
 
-				entity_type = plot["Expected_Entity_Type"]
-				requirements = requirements_map[entity_type]
-
-				if "Grounds" in requirements and requirements["Grounds"]  == Grounds.Soil:
-					plan.append([do_till])
-
-				if "Seeds" in requirements:
-					item_type = requirements["Seeds"]
-
-					seed_counts[item_type] += 1
-
-				plan.append([do_plant, entity_type])
+				while len(plot_plan) > 0:
+					plan.append(plot_plan.pop(0))
 
 				if x_index % 2 == 0:
 					if y_index < size - 1:
@@ -74,32 +141,28 @@ def create_farmer(drone, game_board):
 						plan.append(move_east)
 						current_x += 1
 
-		for item_type in seed_counts:
-			required_count = seed_counts[item_type]
+		return plan		
 
-			if required_count > 0:
-				plan.insert(0, [trade, item_type, required_count])
-
-
-		quick_print("create_plan: ", get_op_count() - start_op_count)
-
-		return plan
 	
 
 	requirements_map = {
 		Entities.Grass: {
-			"Grounds": Grounds.Turf
+			"grounds": Grounds.Turf,
+			"grow_speed": 0.5
 		},
 		Entities.Carrots: {
-			"Grounds": Grounds.Soil,
-			"Seeds": Items.Carrot_Seed
+			"grounds": Grounds.Soil,
+			"seeds": Items.Carrot_Seed,
+			"grow_speed": 6.0
 		},
 		Entities.Tree: {
-			"Grounds": Grounds.Turf
+			"grounds": Grounds.Turf,
+			"grow_speed": 7.0
 		},
 		Entities.Pumpkin: {
-			"Grounds": Grounds.Soil,
-			"Seeds": Items.Pumpkin_Seed
+			"grounds": Grounds.Soil,
+			"seeds": Items.Pumpkin_Seed,
+			"grow_speed": 2.0
 		}
 	}
 

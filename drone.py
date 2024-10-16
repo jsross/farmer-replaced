@@ -51,24 +51,15 @@ def create_drone(graph, game_board):
 
         return success
     
-    def do_plant(entity_type):
-        current_coords = get_coords()
-        plot = get_plot(current_coords)
+    def do_scan():
+        plot = get_plot(get_coords())
 
-        success = plant(entity_type)
-
-        plot["Planted"] = success
+        plot["entity_type"] = get_entity_type()
+        plot["ground_type"] = get_ground_type()
+        plot["measure"] = measure()
         plot["can_harvest"] = can_harvest()
-        plot["Timestamp"] = get_time()
-
-    def do_till():
-        current_coords = get_coords()
-
-        plot = get_plot(current_coords)
-        till()
-
-        plot["Grounds"] = get_ground_type()
-        plot["Timestamp"] = get_time()
+        plot["water"] = get_water()
+        plot["timestamp"] = get_time()
 
     def get_coords():
         current_coords = (get_pos_x(), get_pos_y())
@@ -125,8 +116,12 @@ def create_drone(graph, game_board):
                 current_y -= 1
 
     def execute_action_plan(plan):
+        start_op_count = get_op_count()
+
         for action in plan:
             execute_action(action)
+        
+        quick_print("execute_action_plan: ", get_op_count() - start_op_count)
 
     def execute_action(action):
         func = action[0]
@@ -144,9 +139,9 @@ def create_drone(graph, game_board):
         
         if current_coords != (0,0):
             go_to((0,0))
+
     
-    def search(check_goal):
-        return do_wall_follow(new_drone, check_goal)
+    
         
     def set_property(name, value):
         properties[name] = value
@@ -157,10 +152,8 @@ def create_drone(graph, game_board):
         "get_coords": get_coords,
         "get_last_move": get_last_move,
         "set_property": set_property,
-        "search": search,
         "go_to": go_to,
-        "do_till": do_till,
-        "do_plant": do_plant,
+        "do_scan": do_scan,
         "go_home": go_home,
         "execute_action_plan": execute_action_plan
     }
