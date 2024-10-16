@@ -3,7 +3,8 @@ from Utility import *
 from game_board import *
 
 def create_farmer(drone, game_board):
-	get_plot = game_board["get_node"]
+	get_plot = game_board["get_plot"]
+	get_plots = game_board["get_plots"]
 	apply_property_value = game_board["apply_property_value"]
 	do_scan = drone["do_scan"]
 	execute_action_plan = drone["execute_action_plan"]
@@ -20,10 +21,8 @@ def create_farmer(drone, game_board):
 
 		execute_action_plan(prep_plan)
 
-		maint_plan = create_maintenance_plan()
-
 		for _ in range(iterations):
-			execute_action_plan(maint_plan)
+			execute_action_plan(create_maintenance_plan())
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 
@@ -33,7 +32,7 @@ def create_farmer(drone, game_board):
 		
 		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Carrots, fill_strategy_solid)
 		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Tree, fill_strategy_checkerd)
-		#Sapply_property_value((0,0),(size/2,size/2), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
+		apply_property_value((0,0),(size/2,size/2), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
 
 		seed_counts = {
 			Items.Cactus_Seed: 0,
@@ -91,13 +90,19 @@ def create_farmer(drone, game_board):
 				plot_plan = plot_plans[x_index][y_index]
 
 				entity_type = plot["Expected_Entity_Type"]
-				requiments = requirements_map[entity_type]
+				requirements = requirements_map[entity_type]
 
-				plot_plan.append([harvest])
+				if "harvest_test" in requirements:
+					if requirements["harvest_test"]():
+						plot_plan.append([harvest])
+				else:
+					plot_plan.append([harvest])
+					
 				plot_plan.append([plant, entity_type])
-
-				if "seeds" in requiments:
-					seed_counts[requiments["seeds"]] += 1
+				plot_plan.append([do_scan])
+				
+				if "seeds" in requirements:
+					seed_counts[requirements["seeds"]] += 1
 		
 		plan = create_scan_plan()
 
@@ -141,29 +146,54 @@ def create_farmer(drone, game_board):
 						plan.append(move_east)
 						current_x += 1
 
-		return plan		
-
+		return plan
 	
+	def can_harvest_pumpkin():
+		plots = get_plots(Entities.Pumpkin)
+
+		def can_harvest_plot(item, _):
+			return item["can_harvest"] 
+		
+		results = find_in_array(plots, can_harvest_plot)
+	
+		if len(results) == len(plots):
+			return True
+		
+		return False
 
 	requirements_map = {
-		Entities.Grass: {
-			"grounds": Grounds.Turf,
-			"grow_speed": 0.5
+		Entities.Bush: {
+			"grow_speed": 4.0
 		},
 		Entities.Carrots: {
 			"grounds": Grounds.Soil,
 			"seeds": Items.Carrot_Seed,
 			"grow_speed": 6.0
 		},
-		Entities.Tree: {
+		Entities.Cactus: {
+			"grounds": Grounds.Soil,
+			"seeds": Items.Cactus_Seed,
+			"grow_speed": 6.0
+		},
+		Entities.Grass: {
 			"grounds": Grounds.Turf,
-			"grow_speed": 7.0
+			"grow_speed": 0.5
 		},
 		Entities.Pumpkin: {
 			"grounds": Grounds.Soil,
 			"seeds": Items.Pumpkin_Seed,
-			"grow_speed": 2.0
-		}
+			"grow_speed": 2.0,
+			"harvest_test": can_harvest_pumpkin
+		},
+		Entities.Sunflower: {
+			"grounds": Grounds.Soil,
+			"seeds": Items.Sunflower_Seed,
+			"grow_speed": 5.0
+		},
+		Entities.Tree: {
+			"grounds": Grounds.Turf,
+			"grow_speed": 7.0
+		}		
 	}
 
 	move_north = [move, North]

@@ -13,11 +13,20 @@ def create_game_board(size):
         for x_index in range(x1, x2):
             for y_index in range(y1, y2):
                 if fill_test(x_index, y_index):
-                    node = get_node((x_index, y_index))
-                    node[property_name] = property_value
+                    plot = get_plot((x_index, y_index))
+                    plot[property_name] = property_value
 
-    def get_node(coord):
+    def get_plot(coord):
         return matrix[coord[0]][coord[1]]
+    
+    def get_plots(expected_entity_type):
+
+        def plot_test(plot, x_index, y_index):
+            return plot["Expected_Entity_Type"] == expected_entity_type
+
+        plots = find_in_matrix(matrix, plot_test)
+
+        return plots
     
     def get_direction(src_coords, dest_coords):
         src_x = src_coords[0]
@@ -98,7 +107,8 @@ def create_game_board(size):
         quick_print("add_connections: ", get_op_count() - start_op_count)
 
     new_game_board = {
-        "get_node": get_node,
+        "get_plot": get_plot,
+        "get_plots": get_plots,
         "get_neighbor": get_neighbor,
         "get_direction": get_direction,
         "get_distance": get_distance,

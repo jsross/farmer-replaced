@@ -5,7 +5,8 @@ from game_board import *
 
 def create_drone(graph, game_board):
     get_neighbor = game_board["get_neighbor"]
-    get_plot = game_board["get_node"]
+    get_plot = game_board["get_plot"]
+    get_plots = game_board["get_plots"]
     graph_add_edge = graph["add_edge"]
     graph_remove_edge = graph["remove_edge"]
 
