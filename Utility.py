@@ -8,23 +8,25 @@ def create_matrix(size, create_item):
 	
 	return matrix
 
-def create_plot(entity_type):
-    plot = {
-        "entity_type": entity_type
-    }
+def find_in_matrix(matrix, test_func):
+	items = []
+	size = len(matrix)
+	for x_index in range(size):
+		for y_index in range(size):
+			item = matrix[x_index][y_index]
 
-    return plot
+			if test_func(item, x_index, y_index):
+				items.append(item)
+				
+	return items
 
-def fill_strategy_checkerd(x,y):
-	rem = y % 2
-	fill = (x - rem ) % 2 == 0
-	return fill
+def find_in_array(array, test_func):
+	items = []
 
-def fill_strategy_checkerd_alt(x,y):
-	rem = y % 2
-	fill = (x - rem ) % 2 == 1
+	for index in range(len(array)):
+		item = array[index]
+
+		if test_func(item, index):
+			items.append(item)
 	
-	return fill
-	
-def fill_strategy_solid(x,y):
-	return True
+	return items

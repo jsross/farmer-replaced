@@ -4,8 +4,9 @@ from wall_follow_strategy import *
 from game_board import *
 
 def create_drone(graph, game_board):
-    game_board_get_neighbor = game_board["get_neighbor"]
-    get_distance = game_board["get_distance"]
+    get_neighbor = game_board["get_neighbor"]
+    get_plot = game_board["get_plot"]
+    get_plots = game_board["get_plots"]
     graph_add_edge = graph["add_edge"]
     graph_remove_edge = graph["remove_edge"]
 
@@ -42,7 +43,7 @@ def create_drone(graph, game_board):
             quick_print("Bonk")
 
             if properties["update_graph_on_failure"]:
-                target_coords = game_board_get_neighbor(starting_coords[0], starting_coords[1], direction)
+                target_coords = get_neighbor(starting_coords[0], starting_coords[1], direction)
 
                 if target_coords != None:
                     graph_remove_edge(starting_coords, target_coords)
@@ -50,6 +51,16 @@ def create_drone(graph, game_board):
         quick_print("do_move: ", get_op_count() - start_op_count)
 
         return success
+    
+    def do_scan():
+        plot = get_plot(get_coords())
+
+        plot["entity_type"] = get_entity_type()
+        plot["ground_type"] = get_ground_type()
+        plot["measure"] = measure()
+        plot["can_harvest"] = can_harvest()
+        plot["water"] = get_water()
+        plot["timestamp"] = get_time()
 
     def get_coords():
         current_coords = (get_pos_x(), get_pos_y())
@@ -104,9 +115,34 @@ def create_drone(graph, game_board):
             elif current_y > dest_y:
                 move(South)
                 current_y -= 1
+
+    def execute_action_plan(plan):
+        start_op_count = get_op_count()
+
+        for action in plan:
+            execute_action(action)
+        
+        quick_print("execute_action_plan: ", get_op_count() - start_op_count)
+
+    def execute_action(action):
+        func = action[0]
+        arg_count = len(action) - 1
+
+        if arg_count == 0:
+            func()
+        if arg_count == 1:
+            func(action[1])
+        if arg_count == 2:
+            func(action[1],action[2])
+
+    def go_home():
+        current_coords = get_coords()
+        
+        if current_coords != (0,0):
+            go_to((0,0))
+
     
-    def search(check_goal):
-        return do_wall_follow(new_drone, check_goal)
+    
         
     def set_property(name, value):
         properties[name] = value
@@ -117,8 +153,10 @@ def create_drone(graph, game_board):
         "get_coords": get_coords,
         "get_last_move": get_last_move,
         "set_property": set_property,
-        "search": search,
-        "go_to": go_to
+        "go_to": go_to,
+        "do_scan": do_scan,
+        "go_home": go_home,
+        "execute_action_plan": execute_action_plan
     }
 
     return new_drone
