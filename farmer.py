@@ -1,38 +1,50 @@
 from __builtins__ import *
 from Utility import *
 from game_board import *
+from navigator import *
 
 def create_farmer(drone, game_board):
 	get_plot = game_board["get_plot"]
 	get_plots = game_board["get_plots"]
 	apply_property_value = game_board["apply_property_value"]
 	do_scan = drone["do_scan"]
-	execute_action_plan = drone["execute_action_plan"]
+	do_trade = drone["do_trade"]
 
-	def create_plan(x, y):
+	execute_plot_plans = drone["execute_plot_plans"]
+
+	def create_plan(_x, _y):
 		return []
-	
-	plot_plans = create_matrix(get_world_size(), create_plan)
 
 	def do_work(iterations):
-		start_op_count = get_op_count()
+		clear()
 
-		prep_plan = create_initial_prep_plan()
-
-		execute_action_plan(prep_plan)
-
-		for _ in range(iterations):
-			execute_action_plan(create_maintenance_plan())
-
-		quick_print("do_work: ", get_op_count() - start_op_count)
-
-	def create_initial_prep_plan():
-		start_op_count = get_op_count()
 		size = get_world_size()
-		
+		start_op_count = get_op_count()
+
 		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Carrots, fill_strategy_solid)
 		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Tree, fill_strategy_checkerd)
 		apply_property_value((0,0),(size/2,size/2), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
+
+		scan_paths = create_scan_paths(size, size)
+		
+		prep_plot_plans = create_initial_plot_plans()
+		do_trade(prep_plot_plans[1])
+
+		execute_plot_plans(prep_plot_plans[0], scan_paths)
+
+		maint_plan = create_maintenance_plan()
+
+		for _ in range(iterations):
+			do_trade(maint_plan[1])
+			execute_plot_plans(maint_plan[0], scan_paths)
+
+		quick_print("do_work: ", get_op_count() - start_op_count)
+	
+	def create_initial_plot_plans():
+		start_op_count = get_op_count()
+		size = get_world_size()
+
+		plot_plans = create_matrix(get_world_size(), create_plan)
 
 		seed_counts = {
 			Items.Cactus_Seed: 0,
@@ -58,24 +70,15 @@ def create_farmer(drone, game_board):
 				plot_plan.append([plant, entity_type])
 				plot_plan.append([do_scan])
 
-		plan = create_scan_plan()
+		quick_print("create_initial_plot_plans: ", get_op_count() - start_op_count)
 
-		for item_type in seed_counts:
-			required_count = seed_counts[item_type]
-
-			if required_count > 0:
-				plan.insert(0, [trade, item_type, required_count])
-		
-		plan.insert(0, [clear])
-
-		quick_print("create_initial_prep_plan: ", get_op_count() - start_op_count)
-
-		return plan
+		return (plot_plans, seed_counts)
 	
 	def create_maintenance_plan():
 		start_op_count = get_op_count()
-		
 		size = get_world_size()
+
+		plot_plans = create_matrix(get_world_size(), create_plan)
 
 		seed_counts = {
 			Items.Cactus_Seed: 0,
@@ -103,50 +106,10 @@ def create_farmer(drone, game_board):
 				
 				if "seeds" in requirements:
 					seed_counts[requirements["seeds"]] += 1
-		
-		plan = create_scan_plan()
-
-		for item_type in seed_counts:
-			required_count = seed_counts[item_type]
-
-			if required_count > 0:
-				plan.insert(0, [trade, item_type, required_count])
 
 		quick_print("create_maintenance_plan: ", get_op_count() - start_op_count)
 
-		return plan
-		
-	def create_scan_plan():
-		size = get_world_size()
-
-		plan = []
-		
-		current_x = 0
-		current_y = 0
-
-		for x_index in range(size):
-			for y_index in range(size):
-				plot_plan = plot_plans[current_x][current_y]
-
-				while len(plot_plan) > 0:
-					plan.append(plot_plan.pop(0))
-
-				if x_index % 2 == 0:
-					if y_index < size - 1:
-						plan.append(move_north)
-						current_y += 1
-					else:
-						plan.append(move_east)
-						current_x += 1
-				else:
-					if y_index < size - 1:
-						plan.append(move_south)
-						current_y -= 1
-					else:
-						plan.append(move_east)
-						current_x += 1
-
-		return plan
+		return (plot_plans,seed_counts)
 	
 	def can_harvest_pumpkin():
 		plots = get_plots(Entities.Pumpkin)
@@ -195,11 +158,6 @@ def create_farmer(drone, game_board):
 			"grow_speed": 7.0
 		}		
 	}
-
-	move_north = [move, North]
-	move_east = [move, East]
-	move_south = [move, South]
-	move_west = [move, West]
 
 	new_farmer = {
 		"do_work": do_work
