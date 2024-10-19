@@ -14,11 +14,10 @@ clear()
 current_game_board = create_game_board(get_world_size())
 current_graph = create_graph()
 
-my_drone = create_drone(current_graph,current_game_board)
-my_drone["set_property"]("update_graph_on_success", False)
+my_drone = create_drone(current_game_board)
 
 farm_plan = create_farmer(my_drone, current_game_board)
-farm_plan["do_work"](100)
+farm_plan["do_work"](1)
 
 # current_game_board["add_connections"](current_graph)
 

@@ -3,11 +3,14 @@ from graph import *
 def best_guess_strategy(drone, graph, game_board, dest_coords):
     start_op_count = get_op_count()
 
-    drone_do_move = drone["do_move"]
+    do_move = drone["do_move"]
     get_coords = drone["get_coords"]
-    gb_get_direction = game_board["get_direction"]
+    get_direction = game_board["get_direction"]
     get_distance = game_board["get_distance"]
-    graph_get_connected = graph["get_connected"]
+    get_neighbor = game_board["get_neighbor"]
+    add_edge = graph["add_edge"]
+    remove_edge = graph["remove_edge"]
+    get_connected = graph["get_connected"]
 
     last_coords = None
     dead_ends = set()
@@ -33,7 +36,7 @@ def best_guess_strategy(drone, graph, game_board, dest_coords):
 
             return True
 
-        neighbors = list(graph_get_connected(current_coords))
+        neighbors = list(get_connected(current_coords))
         
         if len(neighbors) == 0:
             exit(1)
@@ -46,7 +49,7 @@ def best_guess_strategy(drone, graph, game_board, dest_coords):
                 neighbors.remove(dead_end)
 
         if len(neighbors) == 0:
-            direction = gb_get_direction(current_coords, last_coords)
+            direction = get_direction(current_coords, last_coords)
         else:
             unvisited = []
 
@@ -60,13 +63,14 @@ def best_guess_strategy(drone, graph, game_board, dest_coords):
                 lightest = find_lightest(neighbors)
         
             lightest = find_lightest(neighbors)
-            direction = gb_get_direction(current_coords, lightest)
+            direction = get_direction(current_coords, lightest)
 
-        success = drone_do_move(direction)
+        success = do_move(direction)
         
         if success:
             last_coords = current_coords
             current_coords = get_coords()
+            add_edge(last_coords, current_coords)
 
             if current_coords in visited and visited[current_coords] == direction:
                 quick_print("best_guess_strategy: ", get_op_count() - start_op_count)
@@ -75,7 +79,7 @@ def best_guess_strategy(drone, graph, game_board, dest_coords):
             visited[current_coords] = direction
 
             if last_coords != None and not last_coords in dead_ends:
-                Last_neighbors = list(graph_get_connected(last_coords))
+                Last_neighbors = list(get_connected(last_coords))
                 Last_neighbors.remove(current_coords)
 
                 dead_end_count = 0
@@ -86,4 +90,9 @@ def best_guess_strategy(drone, graph, game_board, dest_coords):
                 
                 if dead_end_count >= len(Last_neighbors):
                     dead_ends.add(last_coords)
+        else:
+            target_coords = get_neighbor(current_coords[0], current_coords[1], direction)
+
+            if target_coords != None:
+                remove_edge(current_coords, target_coords)
             

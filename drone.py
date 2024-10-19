@@ -3,30 +3,22 @@ from Utility import *
 from wall_follow_strategy import *
 from game_board import *
 
-def create_drone(graph, game_board):
-    get_neighbor = game_board["get_neighbor"]
+def create_drone(game_board):
     get_plot = game_board["get_plot"]
-    graph_add_edge = graph["add_edge"]
-    graph_remove_edge = graph["remove_edge"]
 
     move_history = []
 
-    properties = {
-        "update_graph_on_success": True,
-        "update_graph_on_failure": True
-    }
-
     def follow_path(path):
-        for direction in path:
+        for index in range(len(path)):
+            direction = path[index]
+
             if not do_move(direction):
-                return False
+                return index
 
         return True
     
     def do_move(direction):
         start_op_count = get_op_count()
-
-        starting_coords = get_coords()
 
         success = move(direction)
 
@@ -36,17 +28,6 @@ def create_drone(graph, game_board):
         if success:
             move_history.append(direction)
             
-            if properties["update_graph_on_success"]:
-                graph_add_edge(starting_coords, get_coords())
-        else:
-            quick_print("Bonk")
-
-            if properties["update_graph_on_failure"]:
-                target_coords = get_neighbor(starting_coords[0], starting_coords[1], direction)
-
-                if target_coords != None:
-                    graph_remove_edge(starting_coords, target_coords)
-
         quick_print("do_move: ", get_op_count() - start_op_count)
 
         return success
@@ -102,16 +83,12 @@ def create_drone(graph, game_board):
         if arg_count == 2:
             func(action[1],action[2])
         
-    def set_property(name, value):
-        properties[name] = value
-    	
     new_drone = {
         "do_move": do_move,
         "do_trade": do_trade,
         "follow_path": follow_path,
         "get_coords": get_coords,
         "get_last_move": get_last_move,
-        "set_property": set_property,
         "do_scan": do_scan,
         "execute_plot_plans": execute_plot_plans
     }

@@ -21,7 +21,6 @@ def create_maze_plan(drone, graph, game_board):
             use_item(Items.Fertilizer)
 
     def execute_plan(iterations):
-        drone["set_property"]("update_graph_on_success", False)
         success = drone_search(check_is_treasure)
         next_coords = measure()
         
@@ -38,8 +37,6 @@ def create_maze_plan(drone, graph, game_board):
                     trade(Items.Fertilizer, get_world_size() * get_world_size())
 					
                 use_item(Items.Fertilizer)
-                
-            drone["set_property"]("update_graph_on_success", False)
 
             path = a_star(graph, game_board, drone_get_coords(), next_coords)
 
@@ -47,7 +44,6 @@ def create_maze_plan(drone, graph, game_board):
                 success = drone_follow_path(path)
 
             if not success:
-                drone["set_property"]("update_graph_on_success", True)
                 success = best_guess_strategy(drone, graph, game_board, next_coords)
 
             if success:
@@ -59,4 +55,3 @@ def create_maze_plan(drone, graph, game_board):
     }
 
     return new_maze_plan
-    
