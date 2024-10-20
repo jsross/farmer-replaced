@@ -23,22 +23,6 @@ def create_navigator(drone, graph, game_board):
 
         visited = {}
 
-        def try_moves(directions):
-            success = False
-            last_coords = get_coords()
-            
-            for direction in directions:
-                success = do_move(direction)
-                
-                if success:
-                    add_edge(last_coords, get_coords())
-
-                    break
-                else:
-                    remove_edge(get_coords(), get_neighbor(get_pos_x(), get_pos_y(), direction))
-            
-            return success
-
         while True:
             if check_goal():
                 quick_print("do_wall_follow: ", get_op_count() - start_op_count)
@@ -78,7 +62,7 @@ def create_navigator(drone, graph, game_board):
         if success:
             return True
         
-        best_guess_strategy(dest_coords)
+        return best_guess_strategy(dest_coords)
 
     def best_guess_strategy(dest_coords):
         start_op_count = get_op_count()
@@ -169,69 +153,32 @@ def create_navigator(drone, graph, game_board):
 
     def get_a_star_path(coord_start, coord_end):
         start_op_count = get_op_count()
-        weights = {}
+        
         distances_from_start = {}
-
-        def reconstruct_path(current):
-            total_path = []
-
-            while current in cameFrom:
-                next = cameFrom[current]
-
-                current_x = current[0]
-                current_y = current[1]
-                
-                next_x = next[0]
-                next_y = next[1]
-                
-                if next_x > current_x:
-                    total_path.insert(0, West)
-                elif next_x < current_x:
-                    total_path.insert(0, East)
-                elif next_y > current_y:
-                    total_path.insert(0, South)
-                elif next_y < current_y:
-                    total_path.insert(0, North)
-                
-                current = next
-            
-            if len(total_path) > 0:
-                return total_path
-            
-            return None
-
-        def find_lightest_node(set_coords):
-            lightest = None
-
-            for current_coord in set_coords:
-                if lightest == None:
-                    lightest = current_coord
-                else:
-                    if weights[current_coord] < weights[lightest]:
-                        lightest = current_coord
-
-            return lightest
                 
         # The set of discovered nodes that may need to be (re-)expanded.
         # Initially, only the start node is known.
         # This is usually implemented as a min-heap or priority queue rather than a hash-set.
         set_open_coords = {coord_start}
-
         distances_from_start[coord_start] = 0
+        weights = {
+            coord_start: get_distance(coord_start, coord_end)
+        }
 
-        # For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from the start
+        # For node n, came_from[n] is the node immediately preceding it on the cheapest path from the start
         # to n currently known.
-        cameFrom = {}
+        came_from = {}
         result_path = None
     
         while len(set_open_coords) > 0:
             # This operation can occur in O(Log(N)) time if openSet is a min-heap or a priority queue
             
-            coord_current = find_lightest_node(set_open_coords)
+            coord_current = find_lightest_node(set_open_coords, weights)
 
             if coord_current == coord_end:
-                result_path = reconstruct_path(coord_current)
-                break 
+                result_path = reconstruct_path(coord_current, came_from)
+
+                break
 
             set_open_coords.remove(coord_current)
 
@@ -251,7 +198,7 @@ def create_navigator(drone, graph, game_board):
 
                 if tenative_distance_from_start < distances_from_start[neighbor]:
                     # This path to neighbor is better than any previous one. Record it!
-                    cameFrom[neighbor] = coord_current
+                    came_from[neighbor] = coord_current
                     distances_from_start[neighbor] = tenative_distance_from_start
                                     
                     # For node n, weight := distance_from_start + get_distance. Weight represents our current best guess as to
@@ -263,6 +210,22 @@ def create_navigator(drone, graph, game_board):
         quick_print("a_star: ", get_op_count() - start_op_count)
         
         return result_path
+    
+    def try_moves(directions):
+        success = False
+        last_coords = get_coords()
+        
+        for direction in directions:
+            success = do_move(direction)
+            
+            if success:
+                add_edge(last_coords, get_coords())
+
+                break
+            else:
+                remove_edge(get_coords(), get_neighbor(get_pos_x(), get_pos_y(), direction))
+    
+        return success
 
     new_navigator = {
         "search": search,
@@ -270,6 +233,47 @@ def create_navigator(drone, graph, game_board):
     }
 
     return new_navigator
+
+def reconstruct_path(current, came_from):
+    total_path = []
+
+    while current in came_from:
+        current_x = current[0]
+        current_y = current[1]
+
+        next = came_from[current]
+        
+        next_x = next[0]
+        next_y = next[1]
+        
+        if next_x > current_x:
+            total_path.insert(0, West)
+        elif next_x < current_x:
+            total_path.insert(0, East)
+        elif next_y > current_y:
+            total_path.insert(0, South)
+        elif next_y < current_y:
+            total_path.insert(0, North)
+        
+        current = next
+    
+    if len(total_path) > 0:
+        return total_path
+    
+    return None
+
+def find_lightest_node(coords, weights):
+    lightest = None
+    lightest_weight = Infinity
+
+    for current_coords in coords:
+        current_weight = weights[current_coords]
+
+        if current_weight < lightest_weight:
+            lightest = current_coords
+            lightest_weight = current_weight
+
+    return lightest
 
 def create_path(src_x, src_y, dest_x, dest_y):
     start_op_count = get_op_count()
