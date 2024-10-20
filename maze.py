@@ -1,14 +1,11 @@
 from a_star import *
 from navigator import *
 
-def create_maze_plan(drone, graph, game_board):
-    navigator = create_navigator(drone, graph, game_board)
+def create_maze_plan(drone, game_board):
+    navigator = create_navigator(drone, game_board)
 
     search = navigator["search"]
     seak =  navigator["seak"]
-
-    get_coords = drone["get_coords"]
-    follow_path = drone["follow_path"]
 
     def check_is_treasure():
         return get_entity_type() == Entities.Treasure

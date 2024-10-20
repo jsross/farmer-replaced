@@ -52,6 +52,15 @@ def create_game_board(size):
 
         return distance
     
+    def get_distance_map(x, y):
+        result = {}
+
+        for x_index in range(size):
+            for y_index in range(size):
+                result[(x_index, y_index)] = calculate_dist(x_index, y_index, x, y)
+        
+        return result
+
     def get_neighbor(x, y, direction):
         start_op_count = get_op_count()
 
@@ -76,6 +85,16 @@ def create_game_board(size):
         quick_print("get_neighbor: ", get_op_count() - start_op_count)
 
         return neighbor_coords
+    
+    def get_neighbors(x, y):
+        neighbors = [
+            (x, (y + 1) % size), # North
+            ((x + 1) % size, y), # East
+            (x, (y - 1) % size), # South
+            ((x - 1) % size, y)  # West
+        ]
+
+        return neighbors
     
     def add_connections(graph):
         start_op_count = get_op_count()
@@ -108,8 +127,10 @@ def create_game_board(size):
         "get_plot": get_plot,
         "get_plots": get_plots,
         "get_neighbor": get_neighbor,
+        "get_neighbors": get_neighbors,
         "get_direction": get_direction,
         "get_distance": get_distance,
+        "get_distance_map": get_distance_map,
         "add_connections": add_connections,
         "apply_property_value": apply_property_value
     }
@@ -128,7 +149,6 @@ def translate_coords(coords, x_offset, y_offset):
 
 def calculate_dist(x_1, y_1, x_2, y_2):
     return abs(x_1 - x_2) + abs(y_1 - y_2)
-
 
 def fill_strategy_checkerd(x,y):
 	rem = y % 2

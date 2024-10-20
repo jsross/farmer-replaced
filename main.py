@@ -12,7 +12,6 @@ from maze import *
 clear()
 
 current_game_board = create_game_board(get_world_size())
-current_graph = create_graph()
 
 my_drone = create_drone(current_game_board)
 
@@ -21,10 +20,11 @@ my_drone = create_drone(current_game_board)
 
 # current_game_board["add_connections"](current_graph)
 
-maze_plan = create_maze_plan(my_drone, current_graph, current_game_board)
+maze_plan = create_maze_plan(my_drone, current_game_board)
 
 maze_plan["do_create_maze"]()
 maze_plan["execute_plan"](50)
+
 harvest()
 
 # harvest()

@@ -1,11 +1,15 @@
 from __builtins__ import *
+from graph import *
 
-def create_navigator(drone, graph, game_board):
+def create_navigator(drone, game_board):
+
+    graph = create_graph()
     
     add_edge = graph["add_edge"]
     remove_edge = graph["remove_edge"]
     get_connected = graph["get_connected"]
     get_edge_count = graph["get_edge_count"]
+    reset_connections = graph["reset_connections"]
     
     get_last_move = drone["get_last_move"]
     get_coords = drone["get_coords"]
@@ -13,8 +17,11 @@ def create_navigator(drone, graph, game_board):
     follow_path = drone["follow_path"]
 
     get_neighbor = game_board["get_neighbor"]
+    get_neighbors = game_board["get_neighbors"]
     get_distance = game_board["get_distance"]
+    get_distance_map = game_board["get_distance_map"]
     get_direction = game_board["get_direction"]
+    add_connections = game_board["add_connections"]
 
     def search(check_goal):
         start_op_count = get_op_count()
@@ -52,12 +59,17 @@ def create_navigator(drone, graph, game_board):
     def seak(dest_coords):
         success = False
 
-        quick_print("edge count: ", get_edge_count())
-        
-        path = get_a_star_path(get_coords(), dest_coords)
+        edge_count = get_edge_count()
 
-        if(path != None and len(path) > 0):
-            success = follow_path(path)
+        if edge_count < 60:
+            path = get_a_star_path(get_coords(), dest_coords)
+
+            if(path != None and len(path) > 0):
+                success = follow_path(path)
+
+                if not success:
+                    reset_connections()
+                    add_connections(graph)
 
         if success:
             return True
@@ -71,17 +83,7 @@ def create_navigator(drone, graph, game_board):
         dead_ends = set()
         visited = {}
 
-        def find_lightest(coords):
-            current_lightest = None
-            lightest_weight = Infinity
-    
-            for current_coord in coords:
-                current_weight = get_distance(dest_coords, current_coord)
-                if current_weight < lightest_weight:
-                    current_lightest = current_coord
-                    lightest_weight = current_weight
-            
-            return current_lightest
+        weights =  get_distance_map(dest_coords[0], dest_coords[1])
         
         current_coords = get_coords()
             
@@ -113,11 +115,10 @@ def create_navigator(drone, graph, game_board):
                         unvisited.append(neighbor)
 
                 if len(unvisited) > 0:
-                    lightest = find_lightest(unvisited)
+                    lightest = find_lightest_node(unvisited, weights)
                 else:
-                    lightest = find_lightest(neighbors)
+                    lightest = find_lightest_node(neighbors, weights)
             
-                lightest = find_lightest(neighbors)
                 direction = get_direction(current_coords, lightest)
 
             success = do_move(direction)

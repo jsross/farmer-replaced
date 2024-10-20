@@ -49,13 +49,23 @@ def create_graph():
     
     def get_edge_count():
         return len(connections) / 2
+    
+    def reset_connections():
+        keys = []
+
+        for key in connections:
+            keys.append(key)
+
+        for key in keys:
+            connections.pop(key)
         
     new_graph = {
         "add_edge": add_edge,
         "remove_edge": remove_edge,
         "get_edge_count": get_edge_count,
         "get_connected": get_connected,
-        "get_edge_count": get_edge_count
+        "get_edge_count": get_edge_count,
+        "reset_connections": reset_connections
     }
 
     return new_graph
