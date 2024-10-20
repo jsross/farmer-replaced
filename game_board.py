@@ -71,13 +71,11 @@ def create_game_board(size):
             neighbor_x = x - 1
             neighbor_y = y
 
-        if (neighbor_x < 0 or neighbor_x >= size) or (neighbor_y < 0 or neighbor_y >= size):
-            quick_print("get_neighbor: ", get_op_count() - start_op_count)
-            return None
+        neighbor_coords = (neighbor_x % size, neighbor_y % size)
         
         quick_print("get_neighbor: ", get_op_count() - start_op_count)
 
-        return (neighbor_x, neighbor_y)
+        return neighbor_coords
     
     def add_connections(graph):
         start_op_count = get_op_count()

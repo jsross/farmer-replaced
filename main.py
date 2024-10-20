@@ -16,14 +16,15 @@ current_graph = create_graph()
 
 my_drone = create_drone(current_game_board)
 
-farm_plan = create_farmer(my_drone, current_game_board)
-farm_plan["do_work"](1)
+#farm_plan = create_farmer(my_drone, current_game_board)
+#farm_plan["do_work"](1)
 
 # current_game_board["add_connections"](current_graph)
 
-# maze_plan = create_maze_plan(my_drone, current_graph, current_game_board)
+maze_plan = create_maze_plan(my_drone, current_graph, current_game_board)
 
-# maze_plan["do_create_maze"]()
-# maze_plan["execute_plan"](50)
+maze_plan["do_create_maze"]()
+maze_plan["execute_plan"](50)
+harvest()
 
 # harvest()
