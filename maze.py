@@ -41,7 +41,7 @@ def create_maze_plan(drone, game_board):
 					
                 use_item(Items.Fertilizer)
 
-            success = seak(next_coords)
+            success = seak(next_coords, 5)
 
             if success:
                 next_coords = measure()

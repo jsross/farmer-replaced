@@ -56,25 +56,23 @@ def create_navigator(drone, game_board):
 
             visited[get_coords()] = get_last_move()
 
-    def seak(dest_coords):
+    def seak(dest_coords, max_tries):
         success = False
 
-        edge_count = get_edge_count()
-
-        if edge_count < 60:
+        for _ in range(max_tries):
             path = get_a_star_path(get_coords(), dest_coords)
 
-            if(path != None and len(path) > 0):
+            if path != None:
                 success = follow_path(path)
 
-                if not success:
-                    reset_connections()
-                    add_connections(graph)
+            if not success:
+                print("Reset Connections")
+                reset_connections()
+                add_connections(graph)
 
-        if success:
-            return True
-        
-        return best_guess_strategy(dest_coords)
+                success = best_guess_strategy(dest_coords)
+
+        return success
 
     def best_guess_strategy(dest_coords):
         start_op_count = get_op_count()
@@ -129,7 +127,9 @@ def create_navigator(drone, game_board):
                 add_edge(last_coords, current_coords)
 
                 if current_coords in visited and visited[current_coords] == direction:
+                    quick_print("Looping")
                     quick_print("best_guess_strategy: ", get_op_count() - start_op_count)
+                    
                     return False
 
                 visited[current_coords] = direction

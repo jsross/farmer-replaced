@@ -22,8 +22,10 @@ my_drone = create_drone(current_game_board)
 
 maze_plan = create_maze_plan(my_drone, current_game_board)
 
-maze_plan["do_create_maze"]()
-maze_plan["execute_plan"](50)
+for maze_count in range(10):
+    #set_farm_size(5)
+    maze_plan["do_create_maze"]()
+    maze_plan["execute_plan"](20)
 
 harvest()
 
