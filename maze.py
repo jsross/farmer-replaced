@@ -1,9 +1,11 @@
 from a_star import *
+from navigator import *
 
-def create_maze_plan(drone, graph, game_board):
-    drone_get_coords = drone["get_coords"]
-    drone_follow_path = drone["follow_path"]
-    drone_search = drone["search"]
+def create_maze_plan(drone, game_board):
+    navigator = create_navigator(drone, game_board)
+
+    search = navigator["search"]
+    seak =  navigator["seak"]
 
     def check_is_treasure():
         return get_entity_type() == Entities.Treasure
@@ -21,14 +23,14 @@ def create_maze_plan(drone, graph, game_board):
             use_item(Items.Fertilizer)
 
     def execute_plan(iterations):
-        drone["set_property"]("update_graph_on_success", False)
-        success = drone_search(check_is_treasure)
-        next_coords = measure()
+        success = search(check_is_treasure)
         
         if success == False:
             print("Abort")
             
             return
+        
+        next_coords = measure()
 
         for _ in range(iterations):
             success = False
@@ -38,20 +40,13 @@ def create_maze_plan(drone, graph, game_board):
                     trade(Items.Fertilizer, get_world_size() * get_world_size())
 					
                 use_item(Items.Fertilizer)
-                
-            drone["set_property"]("update_graph_on_success", False)
 
-            path = a_star(graph, game_board, drone_get_coords(), next_coords)
-
-            if path != None:
-                success = drone_follow_path(path)
-
-            if not success:
-                drone["set_property"]("update_graph_on_success", True)
-                success = best_guess_strategy(drone, graph, game_board, next_coords)
+            success = seak(next_coords, 5)
 
             if success:
                 next_coords = measure()
+            else:
+                break
 
     new_maze_plan = {
         "do_create_maze": do_create_maze,
@@ -59,4 +54,3 @@ def create_maze_plan(drone, graph, game_board):
     }
 
     return new_maze_plan
-    

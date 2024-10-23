@@ -8,6 +8,16 @@ def create_matrix(size, create_item):
 	
 	return matrix
 
+def create_matrix_with_default(size, default):
+	matrix = []
+
+	for x_index in range(size):
+		matrix.append([])
+		for _ in range(size):
+			matrix[x_index].append(default)
+	
+	return matrix
+
 def find_in_matrix(matrix, test_func):
 	items = []
 	size = len(matrix)
