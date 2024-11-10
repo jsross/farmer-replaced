@@ -21,9 +21,9 @@ def create_farmer(drone, game_board):
 		size = get_world_size()
 		start_op_count = get_op_count()
 
-		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Carrots, fill_strategy_solid)
-		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Tree, fill_strategy_checkerd)
-		apply_property_value((0,0),(size/2,size/2), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
+		#apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Carrots, fill_strategy_solid)
+		#apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Tree, fill_strategy_checkerd)
+		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
 
 		scan_paths = create_scan_paths(size, size)
 		
@@ -102,7 +102,7 @@ def create_farmer(drone, game_board):
 					plot_plan.append([harvest])
 					
 				plot_plan.append([plant, entity_type])
-				plot_plan.append([do_scan])
+				plot_plan.append([handle_scan, x_index, y_index])
 				
 				if "seeds" in requirements:
 					seed_counts[requirements["seeds"]] += 1
@@ -111,11 +111,14 @@ def create_farmer(drone, game_board):
 
 		return (plot_plans,seed_counts)
 	
+	def handle_scan(x,y):
+		get_plot(x,y)["scan"] = do_scan()
+
 	def can_harvest_pumpkin():
 		plots = get_plots(Entities.Pumpkin)
 
 		def can_harvest_plot(item, _):
-			return item["can_harvest"] 
+			return item["can_harvest"]
 		
 		results = find_in_array(plots, can_harvest_plot)
 	

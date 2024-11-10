@@ -3,9 +3,7 @@ from Utility import *
 from wall_follow_strategy import *
 from game_board import *
 
-def create_drone(game_board):
-    get_plot = game_board["get_plot"]
-
+def create_drone():
     move_history = []
 
     def follow_path(path):
@@ -33,14 +31,16 @@ def create_drone(game_board):
         return success
     
     def do_scan():
-        plot = get_plot(get_coords())
+        scan_results = {
+            "entity_type": get_entity_type(),
+            "ground_type": get_ground_type(),
+            "measure": measure(),
+            "can_harvest": can_harvest(),
+            "water": get_water(),
+            "timestamp": get_time()
+        }
 
-        plot["entity_type"] = get_entity_type()
-        plot["ground_type"] = get_ground_type()
-        plot["measure"] = measure()
-        plot["can_harvest"] = can_harvest()
-        plot["water"] = get_water()
-        plot["timestamp"] = get_time()
+        return scan_results
     
     def do_trade(seed_counts):
         for item_type in seed_counts:
