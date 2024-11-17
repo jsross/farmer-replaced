@@ -62,14 +62,17 @@ def create_drone():
         else:
             return None
         
-    def execute_plot_plans(plot_plans, paths):
+    def execute_plot_plans(game_board, paths):
+        get_plot = game_board["get_plot"]
+
         for path in paths:
-            plot_plan = plot_plans[get_pos_x()][get_pos_y()]
-            execute_plot_plan(plot_plan)
+            plot = get_plot(get_coords())
+            execute_plot_plan(plot["plan"])
             follow_path(path)
 
     def execute_plot_plan(plot_plan):
-        for action in plot_plan:
+        while len(plot_plan) > 0:
+            action = plot_plan.pop(0)
             execute_action(action)
 
     def execute_action(action):
