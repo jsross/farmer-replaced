@@ -42,14 +42,17 @@ def create_drone():
 
         return scan_results
     
-    def do_trade(seed_counts):
-        for item_type in seed_counts:
+    def do_trade(needed_seed_counts):
+        for item_type in needed_seed_counts:
             current_count = num_items(item_type)
-            needed_count = seed_counts[item_type]
+            needed_count = needed_seed_counts[item_type]
             to_buy = needed_count - current_count
 
             if to_buy > 0:
                 trade(item_type, to_buy)
+
+            needed_seed_counts[item_type] = 0
+            
 
     def get_coords():
         current_coords = (get_pos_x(), get_pos_y())

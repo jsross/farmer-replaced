@@ -15,10 +15,8 @@ current_game_board = create_game_board(get_world_size())
 
 my_drone = create_drone()
 
-# trade(Items.Pumpkin_Seed, 300)
-
 farmer = create_farmer(my_drone, current_game_board)
-farmer["do_work"](10)
+farmer["do_work"](100)
 
 # current_game_board["add_connections"](current_graph)
 

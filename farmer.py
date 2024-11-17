@@ -11,6 +11,14 @@ def create_farmer(drone, game_board):
 	do_scan = drone["do_scan"]
 	do_trade = drone["do_trade"]
 
+	needed_item_counts = {
+		Items.Carrot_Seed: 0,
+		Items.Cactus_Seed: 0,
+		Items.Fertilizer: 0,
+		Items.Pumpkin_Seed: 0,
+		Items.Sunflower_Seed: 0
+	}
+
 	execute_plot_plans = drone["execute_plot_plans"]
 
 	def do_work(iterations):
@@ -19,10 +27,11 @@ def create_farmer(drone, game_board):
 		size = get_world_size()
 		start_op_count = get_op_count()
 
-		#create_region(Entities.Bush, (0,0), (size,size), fill_strategy_solid)
+		#create_region(Entities.Carrots, (0,0), (size,size), fill_strategy_solid)
 
 		create_region(Entities.Carrots, (0,0), (size/2, size/2), fill_strategy_checkerd)
-		create_region(Entities.Grass, (0, size/2), (size/2, size), fill_strategy_solid )
+		create_region(Entities.Tree, (0,0), (size/2, size/2), fill_strategy_checkerd_alt)
+		create_region(Entities.Grass, (0, size/2), (size/2, size), fill_strategy_solid)
 		create_region(Entities.Bush, (size/2, 0), (size, size/2), fill_strategy_solid )
 		create_region(Entities.Pumpkin, (size/2, size/2), (size, size), fill_strategy_solid)
 
@@ -50,7 +59,7 @@ def create_farmer(drone, game_board):
 
 					plot["plan"].append([handle_scan, plot])
 
-			#do_trade(maint_plan[1])
+			do_trade(needed_item_counts)
 			execute_plot_plans(game_board, scan_paths)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
@@ -64,7 +73,7 @@ def create_farmer(drone, game_board):
 		if get_ground_type() != Grounds.Soil:
 			till()
 
-		if(num_items(Items.Carrot_Seed) >= 0):
+		if(num_items(Items.Carrot_Seed) == 0):
 			trade(Items.Carrot_Seed, get_world_size() * get_world_size())
 
 		if get_entity_type() != Entities.Carrots:
@@ -121,6 +130,8 @@ def create_farmer(drone, game_board):
 	}
 
 	def create_initial_pumpkin_plan(plots):
+		needed_item_counts[Items.Pumpkin_Seed] += len(plots)
+
 		for plot in plots:
 			plot["plan"].append([till])
 			plot["plan"].append([plant, Entities.Pumpkin])
@@ -138,10 +149,15 @@ def create_farmer(drone, game_board):
 		not_ready = find_in_array(plots, not_ready_test)
 
 		if len(not_ready) > 0:
+			needed_item_counts[Items.Pumpkin_Seed] += len(not_ready) 
 			for plot in not_ready:
 				plot["plan"].append([plant, Entities.Pumpkin])
 		else:
 			plots[0]["plan"].append([harvest])
+			needed_item_counts[Items.Pumpkin_Seed] += len(plots)
+
+			for plot in plots:
+				plot["plan"].append([plant, Entities.Pumpkin])
 
 	mid_plan_factories = {
 		Entities.Pumpkin: create_maintence_pumpkin_plan
@@ -158,5 +174,3 @@ def create_action_with_arg(func, arg):
 		func(arg)
 	
 	return execute
-
-
