@@ -15,6 +15,9 @@ current_game_board = create_game_board(get_world_size())
 
 my_drone = create_drone()
 
+if num_items(Items.Empty_Tank) == 0:
+    trade(Items.Empty_Tank, 1000)
+
 farmer = create_farmer(my_drone, current_game_board)
 farmer["do_work"](100)
 

@@ -147,7 +147,13 @@ def create_game_board(size):
 def create_node(x, y):
     new_node = {
         "coords": (x,y),
-        "plan": []
+        "plan": [],
+        "entity_type": None,
+        "ground_type": None,
+        "measure": 0,
+        "can_harvest": False,
+        "water": 0,
+        "timestamp": 0
     }
 
     return new_node

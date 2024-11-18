@@ -53,11 +53,16 @@ def create_farmer(drone, game_board):
 					create_plan(region_plots)
 
 				for plot in region_plots:
+					plot_plan = plot["plan"]
+
 					if region_type in region_handlers:
 						region_handler = region_handlers[region_type]
-						plot["plan"].append([region_handler])
+						plot_plan.append([region_handler])
 
-					plot["plan"].append([handle_scan, plot])
+					plot_plan.append([handle_scan, plot])
+
+					if plot["water"] < 0.5:
+						plot_plan.append([use_item, Items.Water_Tank])
 
 			do_trade(needed_item_counts)
 			execute_plot_plans(game_board, scan_paths)
@@ -65,7 +70,11 @@ def create_farmer(drone, game_board):
 		quick_print("do_work: ", get_op_count() - start_op_count)
 	
 	def handle_scan(plot):
-		plot["scan"] = do_scan()
+		scan = do_scan()
+		
+		for key in scan:
+			plot[key] = scan[key]
+
 
 	def handle_carrot():
 		harvest()
@@ -95,18 +104,12 @@ def create_farmer(drone, game_board):
 		harvest()
 		
 		plant(Entities.Bush)
-
-		use_item(Items.Fertilizer)
-		use_item(Items.Water_Tank)
 	
 	def handle_sunflower():
 		harvest()
 
 		if get_ground_type() != Grounds.Soil:
 			till()
-
-		use_item(Items.Fertilizer)
-		use_item(Items.Water_Tank)
 
 		if(num_items(Items.Sunflower_Seed) >= 0):
 			trade(Items.Sunflower_Seed, get_world_size() * get_world_size())
@@ -142,9 +145,7 @@ def create_farmer(drone, game_board):
 
 	def create_maintence_pumpkin_plan(plots):
 		def not_ready_test(plot, _):
-			scan = plot["scan"]
-
-			return not scan["can_harvest"]
+			return not plot["can_harvest"]
 
 		not_ready = find_in_array(plots, not_ready_test)
 
