@@ -32,8 +32,8 @@ def create_farmer(drone, game_board):
 		create_region(Entities.Carrots, (0,0), (size/2, size/2), fill_strategy_checkerd)
 		create_region(Entities.Tree, (0,0), (size/2, size/2), fill_strategy_checkerd_alt)
 		create_region(Entities.Grass, (0, size/2), (size/2, size), fill_strategy_solid)
-		create_region(Entities.Bush, (size/2, 0), (size, size/2), fill_strategy_solid )
-		create_region(Entities.Pumpkin, (size/2, size/2), (size, size), fill_strategy_solid)
+		create_region(Entities.Pumpkin, (size/2, 0), (size, size/2), fill_strategy_solid )
+		create_region(Entities.Bush, (size/2, size/2), (size, size), fill_strategy_solid)
 
 		scan_paths = create_scan_paths(size, size)
 
@@ -59,10 +59,12 @@ def create_farmer(drone, game_board):
 						region_handler = region_handlers[region_type]
 						plot_plan.append([region_handler])
 
+					needed_item_counts[Items.Fertilizer] += 1
+					
+					plot_plan.append([use_item, Items.Fertilizer])
+					plot_plan.append([use_item, Items.Water_Tank])
+					
 					plot_plan.append([handle_scan, plot])
-
-					if plot["water"] < 0.5:
-						plot_plan.append([use_item, Items.Water_Tank])
 
 			do_trade(needed_item_counts)
 			execute_plot_plans(game_board, scan_paths)
@@ -74,7 +76,6 @@ def create_farmer(drone, game_board):
 		
 		for key in scan:
 			plot[key] = scan[key]
-
 
 	def handle_carrot():
 		harvest()
