@@ -19,11 +19,12 @@ if num_items(Items.Empty_Tank) == 0:
     trade(Items.Empty_Tank, 1000)
 
 farmer = create_farmer(my_drone, my_farm)
-farmer["do_work"](8)
+farmer["do_work"](5)
 
-# maze_plan = create_maze_plan(my_drone, farm)
+maze_plan = create_maze_plan(my_drone, my_farm)
 
-# for maze_count in range(10):
-#    maze_plan["do_create_maze"]()
-#    maze_plan["execute_plan"](20)
-# harvest()
+for maze_count in range(10):
+    maze_plan["do_create_maze"]()
+    maze_plan["execute_plan"](20)
+
+harvest()
