@@ -40,3 +40,15 @@ def find_in_array(array, test_func):
 			items.append(item)
 	
 	return items
+
+def select_from_matrix(matrix, coords_1, coords_2, test_func):
+	items = []
+
+	for x_index in range(coords_1[0], coords_2[0]):
+		for y_index in range(coords_1[1], coords_2[1]):
+			item = matrix[x_index][y_index]
+
+			if test_func(item, x_index, y_index):
+				items.append(item)
+				
+	return items

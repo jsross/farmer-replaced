@@ -1,8 +1,7 @@
-from a_star import *
 from navigator import *
 
-def create_maze_plan(drone, game_board):
-    navigator = create_navigator(drone, game_board)
+def create_maze_plan(drone, farm):
+    navigator = create_navigator(drone, farm)
 
     search = navigator["search"]
     seak =  navigator["seak"]
@@ -36,7 +35,7 @@ def create_maze_plan(drone, game_board):
             success = False
 
             while get_entity_type() == Entities.Treasure:
-                if(num_items(Items.Fertilizer) >= 0):
+                if(num_items(Items.Fertilizer) == 0):
                     trade(Items.Fertilizer, get_world_size() * get_world_size())
 					
                 use_item(Items.Fertilizer)

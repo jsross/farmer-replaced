@@ -1,11 +1,9 @@
 from __builtins__ import *
 from Utility import *
 from wall_follow_strategy import *
-from game_board import *
+from farm import *
 
-def create_drone(game_board):
-    get_plot = game_board["get_plot"]
-
+def create_drone():
     move_history = []
 
     def follow_path(path):
@@ -33,23 +31,28 @@ def create_drone(game_board):
         return success
     
     def do_scan():
-        plot = get_plot(get_coords())
+        scan_results = {
+            "entity_type": get_entity_type(),
+            "ground_type": get_ground_type(),
+            "measure": measure(),
+            "can_harvest": can_harvest(),
+            "water": get_water(),
+            "timestamp": get_time()
+        }
 
-        plot["entity_type"] = get_entity_type()
-        plot["ground_type"] = get_ground_type()
-        plot["measure"] = measure()
-        plot["can_harvest"] = can_harvest()
-        plot["water"] = get_water()
-        plot["timestamp"] = get_time()
+        return scan_results
     
-    def do_trade(seed_counts):
-        for item_type in seed_counts:
+    def do_trade(needed_seed_counts):
+        for item_type in needed_seed_counts:
             current_count = num_items(item_type)
-            needed_count = seed_counts[item_type]
+            needed_count = needed_seed_counts[item_type]
             to_buy = needed_count - current_count
 
             if to_buy > 0:
                 trade(item_type, to_buy)
+
+            needed_seed_counts[item_type] = 0
+            
 
     def get_coords():
         current_coords = (get_pos_x(), get_pos_y())
@@ -62,14 +65,17 @@ def create_drone(game_board):
         else:
             return None
         
-    def execute_plot_plans(plot_plans, paths):
+    def execute_plot_plans(game_board, paths):
+        get_plot = game_board["get_plot"]
+
         for path in paths:
-            plot_plan = plot_plans[get_pos_x()][get_pos_y()]
-            execute_plot_plan(plot_plan)
+            plot = get_plot(get_coords())
+            execute_plot_plan(plot["plan"])
             follow_path(path)
 
     def execute_plot_plan(plot_plan):
-        for action in plot_plan:
+        while len(plot_plan) > 0:
+            action = plot_plan.pop(0)
             execute_action(action)
 
     def execute_action(action):

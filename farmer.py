@@ -1,19 +1,26 @@
 from __builtins__ import *
 from Utility import *
-from game_board import *
+from farm import *
 from navigator import *
 
-def create_farmer(drone, game_board):
-	get_plot = game_board["get_plot"]
-	get_plots = game_board["get_plots"]
-	apply_property_value = game_board["apply_property_value"]
+def create_farmer(drone, farm):
+	get_plot = farm["get_plot"]
+	create_region = farm["create_region"]
+	get_regions = farm["get_regions"]
+	apply_property_value = farm["apply_property_value"]
+
 	do_scan = drone["do_scan"]
 	do_trade = drone["do_trade"]
 
-	execute_plot_plans = drone["execute_plot_plans"]
+	needed_item_counts = {
+		Items.Carrot_Seed: 0,
+		Items.Cactus_Seed: 0,
+		Items.Fertilizer: 0,
+		Items.Pumpkin_Seed: 0,
+		Items.Sunflower_Seed: 0
+	}
 
-	def create_plan(_x, _y):
-		return []
+	execute_plot_plans = drone["execute_plot_plans"]
 
 	def do_work(iterations):
 		clear()
@@ -21,142 +28,156 @@ def create_farmer(drone, game_board):
 		size = get_world_size()
 		start_op_count = get_op_count()
 
-		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Carrots, fill_strategy_solid)
-		apply_property_value((0,0),(size,size), "Expected_Entity_Type", Entities.Tree, fill_strategy_checkerd)
-		apply_property_value((0,0),(size/2,size/2), "Expected_Entity_Type", Entities.Pumpkin, fill_strategy_solid)
+		#create_region(Entities.Carrots, (0,0), (size,size), fill_strategy_solid)
+
+		width = size/2
+		height = size/2
+
+		create_region(Entities.Carrots, (0,0), width, height, fill_strategy_checkerd)
+		create_region(Entities.Tree, (0,0), width, height, fill_strategy_checkerd_alt)
+		create_region(Entities.Pumpkin, (0, size/2), width, height, fill_strategy_solid)
+		create_region(Entities.Pumpkin, (size/2, 0), width, height, fill_strategy_solid )
+		create_region(Entities.Bush, (size/2, size/2), width, height, fill_strategy_solid)
 
 		scan_paths = create_scan_paths(size, size)
-		
-		prep_plot_plans = create_initial_plot_plans()
-		do_trade(prep_plot_plans[1])
 
-		execute_plot_plans(prep_plot_plans[0], scan_paths)
+		regions = get_regions()
 
-		maint_plan = create_maintenance_plan()
+		for current_iteration in range(iterations):
+			for region in regions:
+				region_type = region["type"]
+				region_plots = region["plots"]
 
-		for _ in range(iterations):
-			do_trade(maint_plan[1])
-			execute_plot_plans(maint_plan[0], scan_paths)
+				if current_iteration == 0 and region_type in init_plan_factories:
+					create_plan = init_plan_factories[region_type]
+					create_plan(region)
+
+				if current_iteration > 0 and region_type in mid_plan_factories:
+					create_plan = mid_plan_factories[region_type]
+					create_plan(region)
+
+				for plot in region_plots:
+					plot_plan = plot["plan"]
+
+					if region_type in region_handlers:
+						region_handler = region_handlers[region_type]
+						plot_plan.append([region_handler])
+
+					needed_item_counts[Items.Fertilizer] += 1
+					
+					plot_plan.append([use_item, Items.Fertilizer])
+					plot_plan.append([use_item, Items.Water_Tank])
+					
+					plot_plan.append([handle_scan, plot])
+
+			do_trade(needed_item_counts)
+			execute_plot_plans(farm, scan_paths)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 	
-	def create_initial_plot_plans():
-		start_op_count = get_op_count()
-		size = get_world_size()
-
-		plot_plans = create_matrix(get_world_size(), create_plan)
-
-		seed_counts = {
-			Items.Cactus_Seed: 0,
-			Items.Carrot_Seed: 0,
-			Items.Pumpkin_Seed: 0,
-			Items.Sunflower_Seed: 0
-		}
+	def handle_scan(plot):
+		scan = do_scan()
 		
-		for x_index in range(size):
-			for y_index in range(size):
-				plot = get_plot((x_index, y_index))
-				plot_plan = plot_plans[x_index][y_index]
+		for key in scan:
+			plot[key] = scan[key]
 
-				entity_type = plot["Expected_Entity_Type"]
-				requirements = requirements_map[entity_type]
+	def handle_carrot():
+		harvest()
 
-				if "grounds" in requirements and requirements["grounds"]  == Grounds.Soil:
-					plot_plan.append([till])
+		if get_ground_type() != Grounds.Soil:
+			till()
 
-				if "seeds" in requirements:
-					seed_counts[requirements["seeds"]] += 1
+		if(num_items(Items.Carrot_Seed) == 0):
+			trade(Items.Carrot_Seed, get_world_size() * get_world_size())
 
-				plot_plan.append([plant, entity_type])
-				plot_plan.append([do_scan])
+		if get_entity_type() != Entities.Carrots:
+			plant(Entities.Carrots)
 
-		quick_print("create_initial_plot_plans: ", get_op_count() - start_op_count)
-
-		return (plot_plans, seed_counts)
-	
-	def create_maintenance_plan():
-		start_op_count = get_op_count()
-		size = get_world_size()
-
-		plot_plans = create_matrix(get_world_size(), create_plan)
-
-		seed_counts = {
-			Items.Cactus_Seed: 0,
-			Items.Carrot_Seed: 0,
-			Items.Pumpkin_Seed: 0,
-			Items.Sunflower_Seed: 0
-		}
-
-		for x_index in range(size):
-			for y_index in range(size):
-				plot = get_plot((x_index, y_index))
-				plot_plan = plot_plans[x_index][y_index]
-
-				entity_type = plot["Expected_Entity_Type"]
-				requirements = requirements_map[entity_type]
-
-				if "harvest_test" in requirements:
-					if requirements["harvest_test"]():
-						plot_plan.append([harvest])
-				else:
-					plot_plan.append([harvest])
-					
-				plot_plan.append([plant, entity_type])
-				plot_plan.append([do_scan])
-				
-				if "seeds" in requirements:
-					seed_counts[requirements["seeds"]] += 1
-
-		quick_print("create_maintenance_plan: ", get_op_count() - start_op_count)
-
-		return (plot_plans,seed_counts)
-	
-	def can_harvest_pumpkin():
-		plots = get_plots(Entities.Pumpkin)
-
-		def can_harvest_plot(item, _):
-			return item["can_harvest"] 
+	def handle_grass():
+		harvest()
 		
-		results = find_in_array(plots, can_harvest_plot)
-	
-		if len(results) == len(plots):
-			return True
+		if get_ground_type() != Grounds.Turf:
+			till()
 		
-		return False
+		plant(Entities.Grass)
+		use_item(Items.Water_Tank)
+	
+	def handle_bush():
+		if get_ground_type() != Grounds.Turf:
+			till()
 
-	requirements_map = {
-		Entities.Bush: {
-			"grow_speed": 4.0
-		},
-		Entities.Carrots: {
-			"grounds": Grounds.Soil,
-			"seeds": Items.Carrot_Seed,
-			"grow_speed": 6.0
-		},
-		Entities.Cactus: {
-			"grounds": Grounds.Soil,
-			"seeds": Items.Cactus_Seed,
-			"grow_speed": 6.0
-		},
-		Entities.Grass: {
-			"grounds": Grounds.Turf,
-			"grow_speed": 0.5
-		},
-		Entities.Pumpkin: {
-			"grounds": Grounds.Soil,
-			"seeds": Items.Pumpkin_Seed,
-			"grow_speed": 2.0,
-			"harvest_test": can_harvest_pumpkin
-		},
-		Entities.Sunflower: {
-			"grounds": Grounds.Soil,
-			"seeds": Items.Sunflower_Seed,
-			"grow_speed": 5.0
-		},
-		Entities.Tree: {
-			"grounds": Grounds.Turf,
-			"grow_speed": 7.0
-		}		
+		harvest()
+		
+		plant(Entities.Bush)
+	
+	def handle_sunflower():
+		harvest()
+
+		if get_ground_type() != Grounds.Soil:
+			till()
+
+		if(num_items(Items.Sunflower_Seed) >= 0):
+			trade(Items.Sunflower_Seed, get_world_size() * get_world_size())
+			
+		plant(Entities.Sunflower)
+	
+	def handle_tree():
+		harvest()
+
+		if get_ground_type() != Grounds.Soil:
+			till()
+
+		plant(Entities.Tree)
+	
+	region_handlers = {
+		Entities.Bush:handle_bush,
+		Entities.Carrots: handle_carrot,
+		Entities.Grass: handle_grass,
+		Entities.Sunflower: handle_sunflower,
+		Entities.Tree: handle_tree
+	}
+
+	def create_initial_pumpkin_plan(region):
+		plots = region["plots"]
+		needed_item_counts[Items.Pumpkin_Seed] += len(plots)
+
+		for plot in plots:
+			plot["plan"].append([till])
+			plot["plan"].append([plant, Entities.Pumpkin])
+
+	init_plan_factories = {
+		Entities.Pumpkin: create_initial_pumpkin_plan
+	}
+
+	def create_maintence_pumpkin_plan(region):
+		plots = region["plots"]
+		anchor_coords = region["anchor_coords"]
+		height = region["height"]
+
+		def not_ready_test(plot, _):
+			return not plot["can_harvest"]
+
+		not_ready = find_in_array(plots, not_ready_test)
+
+		if len(not_ready) > 0:
+			needed_item_counts[Items.Pumpkin_Seed] += len(not_ready) 
+			for plot in not_ready:
+				plot["plan"].append([plant, Entities.Pumpkin])
+		else:
+			#TODO: Get anchor. Determine if path will hit anchor or anchor + height first.
+			if anchor_coords[0] % 2:
+				anchor = get_plot(anchor_coords)
+			else:
+				anchor = get_plot((anchor_coords[0], anchor_coords[1] + height - 1))
+
+			anchor["plan"].append([harvest])
+			needed_item_counts[Items.Pumpkin_Seed] += len(plots)
+
+			for plot in plots:
+				plot["plan"].append([plant, Entities.Pumpkin])
+
+	mid_plan_factories = {
+		Entities.Pumpkin: create_maintence_pumpkin_plan
 	}
 
 	new_farmer = {
@@ -170,5 +191,3 @@ def create_action_with_arg(func, arg):
 		func(arg)
 	
 	return execute
-
-

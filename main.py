@@ -5,28 +5,26 @@ from drone import *
 from a_star import *
 from graph import *
 from farm import *
-from game_board import *
+from farm import *
 from wall_follow_strategy import *
 from maze import *
 
 clear()
 
-current_game_board = create_game_board(get_world_size())
+my_drone = create_drone()
 
-my_drone = create_drone(current_game_board)
+my_farm = create_farm(get_world_size())
 
-#farm_plan = create_farmer(my_drone, current_game_board)
-#farm_plan["do_work"](1)
+if num_items(Items.Empty_Tank) == 0:
+    trade(Items.Empty_Tank, 1000)
 
-# current_game_board["add_connections"](current_graph)
+farmer = create_farmer(my_drone, my_farm)
+farmer["do_work"](5)
 
-maze_plan = create_maze_plan(my_drone, current_game_board)
+maze_plan = create_maze_plan(my_drone, my_farm)
 
 for maze_count in range(10):
-    #set_farm_size(5)
     maze_plan["do_create_maze"]()
     maze_plan["execute_plan"](20)
 
 harvest()
-
-# harvest()

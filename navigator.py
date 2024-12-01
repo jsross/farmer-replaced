@@ -1,7 +1,7 @@
 from __builtins__ import *
 from graph import *
 
-def create_navigator(drone, game_board):
+def create_navigator(drone, farm):
 
     graph = create_graph()
     
@@ -16,12 +16,12 @@ def create_navigator(drone, game_board):
     do_move = drone["do_move"]
     follow_path = drone["follow_path"]
 
-    get_neighbor = game_board["get_neighbor"]
-    get_neighbors = game_board["get_neighbors"]
-    get_distance = game_board["get_distance"]
-    get_distance_map = game_board["get_distance_map"]
-    get_direction = game_board["get_direction"]
-    add_connections = game_board["add_connections"]
+    get_neighbor = farm["get_neighbor"]
+    get_neighbors = farm["get_neighbors"]
+    get_distance = farm["get_distance"]
+    get_distance_map = farm["get_distance_map"]
+    get_direction = farm["get_direction"]
+    add_connections = farm["add_connections"]
 
     def search(check_goal):
         start_op_count = get_op_count()

@@ -1,9 +1,29 @@
 from __builtins__ import *
 from Utility import *
 
-def create_game_board(size):
+def create_farm(size):
     matrix = create_matrix(size, create_node)
 
+    regions = []
+
+    def create_region(type, anchor_coords, width, height, fill_strategy):
+        end_coords = (anchor_coords[0] + width, anchor_coords[1] + height)
+        plots = select_from_matrix(matrix, anchor_coords, end_coords, fill_strategy)
+
+        region = {
+            "type": type,
+            "plots": plots,
+            "anchor_coords": anchor_coords,
+            "end_coords": end_coords,
+            "width": width,
+            "height": height
+        }
+
+        regions.append(region)
+
+    def get_regions():
+        return regions
+    
     def apply_property_value(coord_1, coord_2, property_name, property_value, fill_test):
         x1 = coord_1[0]
         y1 = coord_1[1]
@@ -18,15 +38,6 @@ def create_game_board(size):
 
     def get_plot(coord):
         return matrix[coord[0]][coord[1]]
-    
-    def get_plots(expected_entity_type):
-
-        def plot_test(plot, x_index, y_index):
-            return plot["Expected_Entity_Type"] == expected_entity_type
-
-        plots = find_in_matrix(matrix, plot_test)
-
-        return plots
     
     def get_direction(src_coords, dest_coords):
         src_x = src_coords[0]
@@ -45,6 +56,9 @@ def create_game_board(size):
         
     def get_distance(coords_1, coords_2):
         start_op_count = get_op_count()
+        
+        if coords_2 == None:
+            print("oops")
 
         distance = calculate_dist(coords_1[0], coords_1[1], coords_2[0],coords_2[1])
 
@@ -123,23 +137,31 @@ def create_game_board(size):
 
         quick_print("add_connections: ", get_op_count() - start_op_count)
 
-    new_game_board = {
+    new_farm = {
+        "create_region": create_region,
         "get_plot": get_plot,
-        "get_plots": get_plots,
         "get_neighbor": get_neighbor,
         "get_neighbors": get_neighbors,
         "get_direction": get_direction,
         "get_distance": get_distance,
         "get_distance_map": get_distance_map,
+        "get_regions": get_regions,
         "add_connections": add_connections,
         "apply_property_value": apply_property_value
     }
 
-    return new_game_board
+    return new_farm
                      
 def create_node(x, y):
     new_node = {
-        "coords": (x,y)
+        "coords": (x,y),
+        "plan": [],
+        "entity_type": None,
+        "ground_type": None,
+        "measure": 0,
+        "can_harvest": False,
+        "water": 0,
+        "timestamp": 0
     }
 
     return new_node
@@ -150,16 +172,16 @@ def translate_coords(coords, x_offset, y_offset):
 def calculate_dist(x_1, y_1, x_2, y_2):
     return abs(x_1 - x_2) + abs(y_1 - y_2)
 
-def fill_strategy_checkerd(x,y):
+def fill_strategy_checkerd(_, x, y):
 	rem = y % 2
 	fill = (x - rem ) % 2 == 0
 	return fill
 
-def fill_strategy_checkerd_alt(x,y):
+def fill_strategy_checkerd_alt(_, x, y):
 	rem = y % 2
 	fill = (x - rem ) % 2 == 1
 	
 	return fill
-	
-def fill_strategy_solid(x,y):
+
+def fill_strategy_solid(_, x, y):
 	return True
