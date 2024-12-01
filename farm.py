@@ -1,17 +1,22 @@
 from __builtins__ import *
 from Utility import *
 
-def create_game_board(size):
+def create_farm(size):
     matrix = create_matrix(size, create_node)
 
     regions = []
 
-    def create_region(type, coords_1, coords_2, fill_strategy):
-        plots = select_from_matrix(matrix, coords_1, coords_2, fill_strategy)
+    def create_region(type, anchor_coords, width, height, fill_strategy):
+        end_coords = (anchor_coords[0] + width, anchor_coords[1] + height)
+        plots = select_from_matrix(matrix, anchor_coords, end_coords, fill_strategy)
 
         region = {
             "type": type,
-            "plots": plots
+            "plots": plots,
+            "anchor_coords": anchor_coords,
+            "end_coords": end_coords,
+            "width": width,
+            "height": height
         }
 
         regions.append(region)
@@ -51,6 +56,9 @@ def create_game_board(size):
         
     def get_distance(coords_1, coords_2):
         start_op_count = get_op_count()
+        
+        if coords_2 == None:
+            print("oops")
 
         distance = calculate_dist(coords_1[0], coords_1[1], coords_2[0],coords_2[1])
 
@@ -129,7 +137,7 @@ def create_game_board(size):
 
         quick_print("add_connections: ", get_op_count() - start_op_count)
 
-    new_game_board = {
+    new_farm = {
         "create_region": create_region,
         "get_plot": get_plot,
         "get_neighbor": get_neighbor,
@@ -142,7 +150,7 @@ def create_game_board(size):
         "apply_property_value": apply_property_value
     }
 
-    return new_game_board
+    return new_farm
                      
 def create_node(x, y):
     new_node = {

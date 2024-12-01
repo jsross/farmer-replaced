@@ -1,7 +1,7 @@
 from __builtins__ import *
 from Utility import *
 from wall_follow_strategy import *
-from game_board import *
+from farm import *
 
 def create_drone():
     move_history = []

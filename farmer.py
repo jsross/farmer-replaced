@@ -1,13 +1,14 @@
 from __builtins__ import *
 from Utility import *
-from game_board import *
+from farm import *
 from navigator import *
 
-def create_farmer(drone, game_board):
-	get_plot = game_board["get_plot"]
-	create_region = game_board["create_region"]
-	get_regions = game_board["get_regions"]
-	apply_property_value = game_board["apply_property_value"]
+def create_farmer(drone, farm):
+	get_plot = farm["get_plot"]
+	create_region = farm["create_region"]
+	get_regions = farm["get_regions"]
+	apply_property_value = farm["apply_property_value"]
+
 	do_scan = drone["do_scan"]
 	do_trade = drone["do_trade"]
 
@@ -29,11 +30,14 @@ def create_farmer(drone, game_board):
 
 		#create_region(Entities.Carrots, (0,0), (size,size), fill_strategy_solid)
 
-		create_region(Entities.Carrots, (0,0), (size/2, size/2), fill_strategy_checkerd)
-		create_region(Entities.Tree, (0,0), (size/2, size/2), fill_strategy_checkerd_alt)
-		create_region(Entities.Grass, (0, size/2), (size/2, size), fill_strategy_solid)
-		create_region(Entities.Pumpkin, (size/2, 0), (size, size/2), fill_strategy_solid )
-		create_region(Entities.Bush, (size/2, size/2), (size, size), fill_strategy_solid)
+		width = size/2
+		height = size/2
+
+		create_region(Entities.Carrots, (0,0), width, height, fill_strategy_checkerd)
+		create_region(Entities.Tree, (0,0), width, height, fill_strategy_checkerd_alt)
+		create_region(Entities.Pumpkin, (0, size/2), width, height, fill_strategy_solid)
+		create_region(Entities.Pumpkin, (size/2, 0), width, height, fill_strategy_solid )
+		create_region(Entities.Bush, (size/2, size/2), width, height, fill_strategy_solid)
 
 		scan_paths = create_scan_paths(size, size)
 
@@ -46,11 +50,11 @@ def create_farmer(drone, game_board):
 
 				if current_iteration == 0 and region_type in init_plan_factories:
 					create_plan = init_plan_factories[region_type]
-					create_plan(region_plots)
+					create_plan(region)
 
 				if current_iteration > 0 and region_type in mid_plan_factories:
 					create_plan = mid_plan_factories[region_type]
-					create_plan(region_plots)
+					create_plan(region)
 
 				for plot in region_plots:
 					plot_plan = plot["plan"]
@@ -67,7 +71,7 @@ def create_farmer(drone, game_board):
 					plot_plan.append([handle_scan, plot])
 
 			do_trade(needed_item_counts)
-			execute_plot_plans(game_board, scan_paths)
+			execute_plot_plans(farm, scan_paths)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 	
@@ -133,7 +137,8 @@ def create_farmer(drone, game_board):
 		Entities.Tree: handle_tree
 	}
 
-	def create_initial_pumpkin_plan(plots):
+	def create_initial_pumpkin_plan(region):
+		plots = region["plots"]
 		needed_item_counts[Items.Pumpkin_Seed] += len(plots)
 
 		for plot in plots:
@@ -144,7 +149,11 @@ def create_farmer(drone, game_board):
 		Entities.Pumpkin: create_initial_pumpkin_plan
 	}
 
-	def create_maintence_pumpkin_plan(plots):
+	def create_maintence_pumpkin_plan(region):
+		plots = region["plots"]
+		anchor_coords = region["anchor_coords"]
+		height = region["height"]
+
 		def not_ready_test(plot, _):
 			return not plot["can_harvest"]
 
@@ -155,7 +164,13 @@ def create_farmer(drone, game_board):
 			for plot in not_ready:
 				plot["plan"].append([plant, Entities.Pumpkin])
 		else:
-			plots[0]["plan"].append([harvest])
+			#TODO: Get anchor. Determine if path will hit anchor or anchor + height first.
+			if anchor_coords[0] % 2:
+				anchor = get_plot(anchor_coords)
+			else:
+				anchor = get_plot((anchor_coords[0], anchor_coords[1] + height - 1))
+
+			anchor["plan"].append([harvest])
 			needed_item_counts[Items.Pumpkin_Seed] += len(plots)
 
 			for plot in plots:
