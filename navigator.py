@@ -325,6 +325,16 @@ def create_path(src_x, src_y, dest_x, dest_y):
 
     return path
 
+def create_paths(coords_list):
+    last_coords = (get_pos_x(),get_pos_y())
+    paths = []
+
+    for coords in coords_list:
+        paths.append(create_path(last_coords[0],last_coords[1], coords[0], coords[1]))
+        last_coords = coords
+
+    return paths
+
 def create_scan_paths(width, height):
     paths = []
 

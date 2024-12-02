@@ -4,10 +4,12 @@ from farm import *
 from navigator import *
 
 def create_farmer(drone, farm):
-	get_plot = farm["get_plot"]
 	create_region = farm["create_region"]
 	get_regions = farm["get_regions"]
-	apply_property_value = farm["apply_property_value"]
+	select_coords = farm["select_coords"]
+
+	max_priority = 15
+	no_priority = 0
 
 	do_scan = drone["do_scan"]
 	do_trade = drone["do_trade"]
@@ -39,14 +41,11 @@ def create_farmer(drone, farm):
 		create_region(Entities.Pumpkin, (size/2, 0), width, height, fill_strategy_solid )
 		create_region(Entities.Bush, (size/2, size/2), width, height, fill_strategy_solid)
 
-		scan_paths = create_scan_paths(size, size)
-
 		regions = get_regions()
 
 		for current_iteration in range(iterations):
 			for region in regions:
 				region_type = region["type"]
-				region_plots = region["plots"]
 
 				if current_iteration == 0 and region_type in init_plan_factories:
 					create_plan = init_plan_factories[region_type]
@@ -56,22 +55,26 @@ def create_farmer(drone, farm):
 					create_plan = mid_plan_factories[region_type]
 					create_plan(region)
 
-				for plot in region_plots:
-					plot_plan = plot["plan"]
+				if region_type in static_handlers:
+					region_plots = region["plots"]
+					region_handler = static_handlers[region_type]
 
-					if region_type in region_handlers:
-						region_handler = region_handlers[region_type]
+					for plot in region_plots:
+						plot_plan = plot["plan"]
 						plot_plan.append([region_handler])
-
-					needed_item_counts[Items.Fertilizer] += 1
-					
-					plot_plan.append([use_item, Items.Fertilizer])
-					plot_plan.append([use_item, Items.Water_Tank])
-					
-					plot_plan.append([handle_scan, plot])
-
+						plot["priority"] = max_priority
+						plot_plan.append([handle_scan, plot])
+			
 			do_trade(needed_item_counts)
-			execute_plot_plans(farm, scan_paths)
+
+			for priority in range(max_priority, 1, -1):
+				properties = {
+					"priority": priority
+				}
+
+				coords = select_coords(properties)
+				paths = create_paths(coords)
+				execute_plot_plans(farm, paths)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 	
@@ -129,7 +132,7 @@ def create_farmer(drone, farm):
 
 		plant(Entities.Tree)
 	
-	region_handlers = {
+	static_handlers = {
 		Entities.Bush:handle_bush,
 		Entities.Carrots: handle_carrot,
 		Entities.Grass: handle_grass,
@@ -144,6 +147,7 @@ def create_farmer(drone, farm):
 		for plot in plots:
 			plot["plan"].append([till])
 			plot["plan"].append([plant, Entities.Pumpkin])
+			plot["priority"] = max_priority
 
 	init_plan_factories = {
 		Entities.Pumpkin: create_initial_pumpkin_plan
@@ -151,30 +155,43 @@ def create_farmer(drone, farm):
 
 	def create_maintence_pumpkin_plan(region):
 		plots = region["plots"]
-		anchor_coords = region["anchor_coords"]
-		height = region["height"]
 
 		def not_ready_test(plot, _):
 			return not plot["can_harvest"]
 
 		not_ready = find_in_array(plots, not_ready_test)
 
-		if len(not_ready) > 0:
-			needed_item_counts[Items.Pumpkin_Seed] += len(not_ready) 
-			for plot in not_ready:
-				plot["plan"].append([plant, Entities.Pumpkin])
+		if len(not_ready) == 0:
+			for index in range(len(plots)):
+				plot = plots[index]
+				plot_plan = plot["plan"]
+
+				if index == 0:
+					plot_plan.append([harvest])
+					plot["priority"] = 15
+				else:
+					plot["priority"] = 14 
+
+				plot_plan.append([plant, Entities.Pumpkin])
+				plot_plan.append([use_item, Items.Fertilizer])
+				plot_plan.append([use_item, Items.Water_Tank])
+				plot_plan.append([handle_scan, plot])
+
+				needed_item_counts[Items.Pumpkin_Seed] += len(not_ready)
 		else:
-			#TODO: Get anchor. Determine if path will hit anchor or anchor + height first.
-			if anchor_coords[0] % 2:
-				anchor = get_plot(anchor_coords)
-			else:
-				anchor = get_plot((anchor_coords[0], anchor_coords[1] + height - 1))
-
-			anchor["plan"].append([harvest])
-			needed_item_counts[Items.Pumpkin_Seed] += len(plots)
-
 			for plot in plots:
-				plot["plan"].append([plant, Entities.Pumpkin])
+				if not plot["can_harvest"]:
+					plot["priority"] = max_priority
+					plot_plan = plot["plan"]
+
+					plot_plan.append([plant, Entities.Pumpkin])
+					plot_plan.append([use_item, Items.Fertilizer])
+					plot_plan.append([use_item, Items.Water_Tank])
+					plot_plan.append([handle_scan, plot])
+
+					needed_item_counts[Items.Pumpkin_Seed] += len(not_ready)
+				else:
+					plot["priority"] = no_priority
 
 	mid_plan_factories = {
 		Entities.Pumpkin: create_maintence_pumpkin_plan

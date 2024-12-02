@@ -137,7 +137,20 @@ def create_farm(size):
 
         quick_print("add_connections: ", get_op_count() - start_op_count)
 
+    def select_coords(properties):
+
+        def test_func(item, _x, _y):
+            for property_key in properties:
+                if not item[property_key] == properties[property_key]:
+                    return False
+            
+            return True
+
+        return select_prop_from_matrix(matrix, "coords", test_func)
+
     new_farm = {
+        "add_connections": add_connections,
+        "apply_property_value": apply_property_value,
         "create_region": create_region,
         "get_plot": get_plot,
         "get_neighbor": get_neighbor,
@@ -146,8 +159,7 @@ def create_farm(size):
         "get_distance": get_distance,
         "get_distance_map": get_distance_map,
         "get_regions": get_regions,
-        "add_connections": add_connections,
-        "apply_property_value": apply_property_value
+        "select_coords": select_coords
     }
 
     return new_farm

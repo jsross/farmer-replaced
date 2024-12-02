@@ -41,6 +41,21 @@ def find_in_array(array, test_func):
 	
 	return items
 
+def select_prop_from_matrix(matrix, prop_key, test_func):
+	results = []
+	size = len(matrix)
+
+	for x_index in range(size):
+		for y_index in range(size):
+			item = matrix[x_index][y_index]
+
+			if test_func(item, x_index, y_index):
+				results.append(item[prop_key])
+				
+	return results
+
+
+
 def select_from_matrix(matrix, coords_1, coords_2, test_func):
 	items = []
 
