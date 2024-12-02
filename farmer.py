@@ -73,8 +73,7 @@ def create_farmer(drone, farm):
 				}
 
 				coords = select_coords(properties)
-				paths = create_paths(coords)
-				execute_plot_plans(farm, paths)
+				execute_plot_plans(farm, coords)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 	

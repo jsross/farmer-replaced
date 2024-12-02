@@ -65,13 +65,19 @@ def create_drone():
         else:
             return None
         
-    def execute_plot_plans(game_board, paths):
+    def go_to(x, y):
+        path = create_path(get_pos_x(), get_pos_y(), x, y)
+
+        return follow_path(path)
+
+    def execute_plot_plans(game_board, coords_list):
         get_plot = game_board["get_plot"]
 
-        for path in paths:
+        for coords in coords_list:
+            go_to(coords[0], coords[1])
             plot = get_plot(get_coords())
+
             execute_plot_plan(plot["plan"])
-            follow_path(path)
 
     def execute_plot_plan(plot_plan):
         while len(plot_plan) > 0:
@@ -87,7 +93,7 @@ def create_drone():
         if arg_count == 1:
             func(action[1])
         if arg_count == 2:
-            func(action[1],action[2])
+            func(action[1], action[2])
         
     new_drone = {
         "do_move": do_move,
