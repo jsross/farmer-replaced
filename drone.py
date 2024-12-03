@@ -1,6 +1,5 @@
 from __builtins__ import *
 from Utility import *
-from wall_follow_strategy import *
 from farm import *
 
 def create_drone():
@@ -30,17 +29,7 @@ def create_drone():
 
         return success
     
-    def do_scan():
-        scan_results = {
-            "entity_type": get_entity_type(),
-            "ground_type": get_ground_type(),
-            "measure": measure(),
-            "can_harvest": can_harvest(),
-            "water": get_water(),
-            "timestamp": get_time()
-        }
 
-        return scan_results
     
     def do_trade(needed_seed_counts):
         for item_type in needed_seed_counts:
@@ -101,8 +90,19 @@ def create_drone():
         "follow_path": follow_path,
         "get_coords": get_coords,
         "get_last_move": get_last_move,
-        "do_scan": do_scan,
         "execute_plot_plans": execute_plot_plans
     }
 
     return new_drone
+
+def do_scan():
+    scan_results = {
+        "entity_type": get_entity_type(),
+        "ground_type": get_ground_type(),
+        "measure": measure(),
+        "can_harvest": can_harvest(),
+        "water": get_water(),
+        "timestamp": get_time()
+    }
+
+    return scan_results

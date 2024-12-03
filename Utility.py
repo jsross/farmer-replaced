@@ -54,8 +54,6 @@ def select_prop_from_matrix(matrix, prop_key, test_func):
 				
 	return results
 
-
-
 def select_from_matrix(matrix, coords_1, coords_2, test_func):
 	items = []
 
@@ -67,3 +65,7 @@ def select_from_matrix(matrix, coords_1, coords_2, test_func):
 				items.append(item)
 				
 	return items
+
+def merge(target, source):
+	for key in source:
+		target[key] = source[key]

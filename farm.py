@@ -172,6 +172,7 @@ def create_node(x, y):
         "ground_type": None,
         "measure": 0,
         "can_harvest": False,
+        "priority": 0,
         "water": 0,
         "timestamp": 0
     }

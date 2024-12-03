@@ -9,6 +9,9 @@ from farm import *
 from wall_follow_strategy import *
 from maze import *
 
+MAX_PRIORITY = 15
+NO_PRIORITY = 0
+
 clear()
 
 my_drone = create_drone()
