@@ -2,8 +2,9 @@ from __builtins__ import *
 from Utility import *
 from farm import *
 
-def create_drone():
+def create_drone(farm):
     move_history = []
+    get_plot = farm["get_plot"]
 
     def follow_path(path):
         for index in range(len(path)):
@@ -29,20 +30,6 @@ def create_drone():
 
         return success
     
-
-    
-    def do_trade(needed_seed_counts):
-        for item_type in needed_seed_counts:
-            current_count = num_items(item_type)
-            needed_count = needed_seed_counts[item_type]
-            to_buy = needed_count - current_count
-
-            if to_buy > 0:
-                trade(item_type, to_buy)
-
-            needed_seed_counts[item_type] = 0
-            
-
     def get_coords():
         current_coords = (get_pos_x(), get_pos_y())
 
@@ -59,38 +46,28 @@ def create_drone():
 
         return follow_path(path)
 
-    def execute_plot_plans(game_board, coords_list):
-        get_plot = game_board["get_plot"]
-
+    def execute_plot_actions(coords_list):
         for coords in coords_list:
-            go_to(coords[0], coords[1])
-            plot = get_plot(get_coords())
+            current_x = coords[0]
+            current_y = coords[1]
 
-            execute_plot_plan(plot["plan"])
+            success = go_to(current_x, current_y)
 
-    def execute_plot_plan(plot_plan):
-        while len(plot_plan) > 0:
-            action = plot_plan.pop(0)
-            execute_action(action)
-
-    def execute_action(action):
-        func = action[0]
-        arg_count = len(action) - 1
-
-        if arg_count == 0:
-            func()
-        if arg_count == 1:
-            func(action[1])
-        if arg_count == 2:
-            func(action[1], action[2])
+            if not success:
+                return False
+            
+            plot = get_plot(current_x, current_y)
+            plot_action = plot["action"]
+            plot_action(plot)
         
+        return True
+
     new_drone = {
         "do_move": do_move,
-        "do_trade": do_trade,
         "follow_path": follow_path,
         "get_coords": get_coords,
         "get_last_move": get_last_move,
-        "execute_plot_plans": execute_plot_plans
+        "execute_plot_actions": execute_plot_actions
     }
 
     return new_drone

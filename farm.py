@@ -33,11 +33,11 @@ def create_farm(size):
         for x_index in range(x1, x2):
             for y_index in range(y1, y2):
                 if fill_test(x_index, y_index):
-                    plot = get_plot((x_index, y_index))
+                    plot = get_plot(x_index, y_index)
                     plot[property_name] = property_value
 
-    def get_plot(coord):
-        return matrix[coord[0]][coord[1]]
+    def get_plot(x, y):
+        return matrix[x][y]
     
     def get_direction(src_coords, dest_coords):
         src_x = src_coords[0]
@@ -167,7 +167,7 @@ def create_farm(size):
 def create_node(x, y):
     new_node = {
         "coords": (x,y),
-        "plan": [],
+        "action": no_op,
         "entity_type": None,
         "ground_type": None,
         "measure": 0,
@@ -178,6 +178,9 @@ def create_node(x, y):
     }
 
     return new_node
+
+def no_op(_):
+    return
 
 def translate_coords(coords, x_offset, y_offset):
     return (coords[0] + x_offset, coords[1] + y_offset)

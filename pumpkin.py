@@ -11,10 +11,9 @@ def apply_initial_pumpkin_plan(region):
     }
 
     for plot in plots:
-        plot_plan = plot["plan"]
         plot["priority"] = MAX_PRIORITY
-        plot_plan.append([init_pumpkin_plot, plot])
-    
+        plot["action"] = init_pumpkin_plot
+
     return item_counts
 
 def apply_maintence_pumpkin_plan(region):
@@ -34,25 +33,25 @@ def apply_maintence_pumpkin_plan(region):
 
     if not_ready_count == 0:
         harvest_plot = plots[0]
-        harvest_plot["priority"] = 15
-        harvest_plot["plan"].append([harvest_and_replant_pumpkin_plot, harvest_plot])
+        harvest_plot["priority"] = MAX_PRIORITY
+        harvest_plot["action"] = harvest_and_replant_pumpkin_plot
         
         for index in range(1, plot_count):
             plot = plots[index]
-            plot_plan = plot["plan"]
-
-            plot["priority"] = 14
-            plot_plan.append([plant_and_scan_pumpkin_plot, plot])
+            plot ["priority"] = MAX_PRIORITY - 1
+            plot ["action"] = plant_and_scan_pumpkin_plot
 
             item_counts[Items.Pumpkin_Seed] += len(not_ready)
     else:
         for plot in plots:
             if not plot["can_harvest"]:
                 plot["priority"] = MAX_PRIORITY
+                plot["action"] = plant_and_scan_pumpkin_plot
+
                 item_counts[Items.Pumpkin_Seed] += len(not_ready)
-                plot["plan"].append([plant_and_scan_pumpkin_plot, plot])
             else:
                 plot["priority"] = NO_PRIORITY
+                plot["action"] = no_op
 
 def harvest_and_replant_pumpkin_plot(plot):
     harvest()

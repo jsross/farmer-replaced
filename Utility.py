@@ -8,21 +8,22 @@ def create_matrix(size, create_item):
 	
 	return matrix
 
-def create_matrix_with_default(size, default):
+def create_matrix_with_default(width, height, default):
 	matrix = []
 
-	for x_index in range(size):
+	for x_index in range(width):
 		matrix.append([])
-		for _ in range(size):
+		for _ in range(height):
 			matrix[x_index].append(default)
 	
 	return matrix
 
 def find_in_matrix(matrix, test_func):
 	items = []
-	size = len(matrix)
-	for x_index in range(size):
-		for y_index in range(size):
+	width = len(matrix)
+	for x_index in range(width):
+		height = len(x_index[x_index])
+		for y_index in range(height):
 			item = matrix[x_index][y_index]
 
 			if test_func(item, x_index, y_index):

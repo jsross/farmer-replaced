@@ -2,24 +2,26 @@ from __builtins__ import *
 from __test_harness__ import *
 from Utility import *
 from drone import *
+from farm import *
 
 def apply_init_sunflower_plan(region):
     plots = region["plots"]
+    plot_count = len(plots)
 
     item_count = {
-        Items.Sunflower_Seed: len(plots)
+        Items.Sunflower_Seed: plot_count,
+        Items.Fertilizer: plot_count
     }
 
     for plot in plots:
-        plot_plan = plot["plan"]
         plot["priority"] = MAX_PRIORITY
-
-        plot_plan.append([init_sunflower_plot, plot])
+        plot["action"] = init_sunflower_plot
 
     return item_count
 
 def apply_maintence_sunflower_plan(region):
     plots = region["plots"]
+    plot_count = len(plots)
 
     current_timestamp = get_time()
 
@@ -39,18 +41,19 @@ def apply_maintence_sunflower_plan(region):
 
     ready_count = len(ready)
 
-    if len(plots) == ready_count:
+    if plot_count == ready_count: #If all plots are ready, harvest
         for plot in plots:
             plot["priority"] = plot["measure"]
-            plot["plan"].append([harvest_sunflower_plot, plot])
+            plot["action"] = harvest_sunflower_plot
     elif ready_count == 0:
         for plot in plots:
             plot["priority"] = MAX_PRIORITY
-            plot["plan"].append([plant_sunflower_plot, plot])
+            plot["action"] = plant_sunflower_plot
     else:
         for plot in plots:
             plot["priority"] = NO_PRIORITY
-			
+            plot["action"] = no_op
+
 def init_sunflower_plot(plot):
     till()
 
