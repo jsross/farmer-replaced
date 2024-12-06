@@ -6,17 +6,18 @@ def create_farm(size):
 
     regions = []
 
-    def create_region(type, anchor_coords, width, height, fill_strategy):
+    def create_region(anchor_coords, width, height, handler, options):
         end_coords = (anchor_coords[0] + width, anchor_coords[1] + height)
-        plots = select_from_matrix(matrix, anchor_coords, end_coords, fill_strategy)
+        plots = select_from_matrix(matrix, anchor_coords, end_coords)
 
         region = {
-            "type": type,
             "plots": plots,
             "anchor_coords": anchor_coords,
             "end_coords": end_coords,
             "width": width,
-            "height": height
+            "height": height,
+            "handler": handler,
+            "options": options
         }
 
         regions.append(region)
@@ -33,11 +34,11 @@ def create_farm(size):
         for x_index in range(x1, x2):
             for y_index in range(y1, y2):
                 if fill_test(x_index, y_index):
-                    plot = get_plot((x_index, y_index))
+                    plot = get_plot(x_index, y_index)
                     plot[property_name] = property_value
 
-    def get_plot(coord):
-        return matrix[coord[0]][coord[1]]
+    def get_plot(x, y):
+        return matrix[x][y]
     
     def get_direction(src_coords, dest_coords):
         src_x = src_coords[0]
@@ -137,7 +138,19 @@ def create_farm(size):
 
         quick_print("add_connections: ", get_op_count() - start_op_count)
 
+    def select_coords(properties):
+        def test_func(item, _x, _y):
+            for property_key in properties:
+                if not item[property_key] == properties[property_key]:
+                    return False
+            
+            return True
+
+        return select_prop_from_matrix(matrix, "coords", test_func)
+
     new_farm = {
+        "add_connections": add_connections,
+        "apply_property_value": apply_property_value,
         "create_region": create_region,
         "get_plot": get_plot,
         "get_neighbor": get_neighbor,
@@ -146,8 +159,7 @@ def create_farm(size):
         "get_distance": get_distance,
         "get_distance_map": get_distance_map,
         "get_regions": get_regions,
-        "add_connections": add_connections,
-        "apply_property_value": apply_property_value
+        "select_coords": select_coords
     }
 
     return new_farm
@@ -155,16 +167,20 @@ def create_farm(size):
 def create_node(x, y):
     new_node = {
         "coords": (x,y),
-        "plan": [],
+        "action": no_op,
         "entity_type": None,
         "ground_type": None,
         "measure": 0,
         "can_harvest": False,
+        "priority": 0,
         "water": 0,
         "timestamp": 0
     }
 
     return new_node
+
+def no_op(_):
+    return
 
 def translate_coords(coords, x_offset, y_offset):
     return (coords[0] + x_offset, coords[1] + y_offset)

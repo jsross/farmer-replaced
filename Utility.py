@@ -8,26 +8,27 @@ def create_matrix(size, create_item):
 	
 	return matrix
 
-def create_matrix_with_default(size, default):
+def create_matrix_with_default(width, height, default):
 	matrix = []
 
-	for x_index in range(size):
+	for x_index in range(width):
 		matrix.append([])
-		for _ in range(size):
+		for _ in range(height):
 			matrix[x_index].append(default)
 	
 	return matrix
 
 def find_in_matrix(matrix, test_func):
 	items = []
-	size = len(matrix)
-	for x_index in range(size):
-		for y_index in range(size):
+	width = len(matrix)
+	for x_index in range(width):
+		height = len(x_index[x_index])
+		for y_index in range(height):
 			item = matrix[x_index][y_index]
 
 			if test_func(item, x_index, y_index):
 				items.append(item)
-				
+
 	return items
 
 def find_in_array(array, test_func):
@@ -41,14 +42,43 @@ def find_in_array(array, test_func):
 	
 	return items
 
-def select_from_matrix(matrix, coords_1, coords_2, test_func):
+def select_object_from_array(array, properties):
+	def test_func(item, _):
+		for key in properties:
+			if key not in item:
+				return False
+			if item[key] != properties[key]:
+				return False
+			
+			continue
+
+		return True
+	
+	return find_in_array(array, test_func)
+
+
+def select_prop_from_matrix(matrix, prop_key, test_func):
+	results = []
+	size = len(matrix)
+
+	for x_index in range(size):
+		for y_index in range(size):
+			item = matrix[x_index][y_index]
+
+			if test_func(item, x_index, y_index):
+				results.append(item[prop_key])
+				
+	return results
+
+def select_from_matrix(matrix, coords_1, coords_2):
 	items = []
 
 	for x_index in range(coords_1[0], coords_2[0]):
 		for y_index in range(coords_1[1], coords_2[1]):
-			item = matrix[x_index][y_index]
-
-			if test_func(item, x_index, y_index):
-				items.append(item)
+			items.append(matrix[x_index][y_index])
 				
 	return items
+
+def merge(target, source):
+	for key in source:
+		target[key] = source[key]
