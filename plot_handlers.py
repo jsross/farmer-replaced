@@ -14,9 +14,14 @@ def handle_basic_region(region, _):
     options = region["options"]
     entity_type = options["entity_type"]
 
+    path = []
+
     for plot in plots:
         plot["priority"] = MAX_PRIORITY
         plot["action"] = static_handlers[entity_type]
+        path.append(plot["coords"])
+
+    return path
 
 
 def handle_carrot(plot):

@@ -139,7 +139,6 @@ def create_farm(size):
         quick_print("add_connections: ", get_op_count() - start_op_count)
 
     def select_coords(properties):
-
         def test_func(item, _x, _y):
             for property_key in properties:
                 if not item[property_key] == properties[property_key]:

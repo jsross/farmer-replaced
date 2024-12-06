@@ -42,6 +42,21 @@ def find_in_array(array, test_func):
 	
 	return items
 
+def select_object_from_array(array, properties):
+	def test_func(item, _):
+		for key in properties:
+			if key not in item:
+				return False
+			if item[key] != properties[key]:
+				return False
+			
+			continue
+
+		return True
+	
+	return find_in_array(array, test_func)
+
+
 def select_prop_from_matrix(matrix, prop_key, test_func):
 	results = []
 	size = len(matrix)

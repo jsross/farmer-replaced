@@ -12,14 +12,6 @@ def create_farmer(drone, farm):
 	get_regions = farm["get_regions"]
 	select_coords = farm["select_coords"]
 
-	needed_item_counts = {
-		Items.Carrot_Seed: 0,
-		Items.Cactus_Seed: 0,
-		Items.Fertilizer: 0,
-		Items.Pumpkin_Seed: 0,
-		Items.Sunflower_Seed: 0
-	}
-
 	execute_plot_actions = drone["execute_plot_actions"]
 
 	def do_work(iterations):
@@ -42,17 +34,9 @@ def create_farmer(drone, farm):
 			for region in regions:
 				handle_region = region["handler"]
 
-				handle_region(region, iteration)
+				path = handle_region(region, iteration)
 
-			do_trade(needed_item_counts)
-
-			for priority in range(MAX_PRIORITY, 1, -1):
-				properties = {
-					"priority": priority
-				}
-
-				coords = select_coords(properties)
-				execute_plot_actions(coords)
+				execute_plot_actions(path)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 	

@@ -14,16 +14,21 @@ def apply_init_sunflower_plan(region):
     plots = region["plots"]
     plot_count = len(plots)
 
-    item_count = {
+    item_counts = {
         Items.Sunflower_Seed: plot_count,
         Items.Fertilizer: plot_count
     }
 
+    do_trade(item_counts)
+
+    path = []
+
     for plot in plots:
         plot["priority"] = MAX_PRIORITY
         plot["action"] = init_sunflower_plot
+        path.append(plot["coords"])
 
-    return item_count
+    return path
 
 def apply_maintence_sunflower_plan(region):
     plots = region["plots"]
@@ -44,7 +49,6 @@ def apply_maintence_sunflower_plan(region):
         return False
 
     ready = find_in_array(plots, ready_test)
-
     ready_count = len(ready)
 
     if plot_count == ready_count: #If all plots are ready, harvest
@@ -55,10 +59,27 @@ def apply_maintence_sunflower_plan(region):
         for plot in plots:
             plot["priority"] = MAX_PRIORITY
             plot["action"] = plant_sunflower_plot
+
+        item_counts = {
+            Items.Sunflower_Seed: plot_count,
+            Items.Fertilizer: plot_count
+        }
+
+        do_trade(item_counts)
     else:
         for plot in plots:
             plot["priority"] = NO_PRIORITY
             plot["action"] = no_op
+
+    path = []
+
+    for priority in range(MAX_PRIORITY, 1, -1):
+        prioritized = select_object_from_array(plots, {"priority": priority})
+
+        for plot in prioritized:
+            path.append(plot["coords"])
+        
+    return path
 
 def init_sunflower_plot(plot):
     till()

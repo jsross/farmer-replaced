@@ -20,59 +20,79 @@ def apply_initial_pumpkin_plan(region):
 
     do_trade(item_counts)
 
-    for plot in plots:
-        plot["priority"] = MAX_PRIORITY
-        plot["action"] = init_pumpkin_plot
+    path = []
 
-    return item_counts
+    for plot in plots:
+        plot["action"] = init_pumpkin_plot
+        path.append(plot["coords"])
+
+    return path
 
 def apply_maintence_pumpkin_plan(region):
     plots = region["plots"]
-
 
     def not_ready_test(plot, _):
         return not plot["can_harvest"]
 
     not_ready = find_in_array(plots, not_ready_test)
     not_ready_count = len(not_ready)
-    plot_count = len(plots)
-    index = 0
 
     if not_ready_count == 0:
-        item_counts = {
-            Items.Pumpkin_Seed: plot_count,
-            Items.Fertilizer: plot_count
-        }
-        
-        do_trade(item_counts)
-
-        harvest_plot = plots[0]
-        harvest_plot["priority"] = MAX_PRIORITY
-        harvest_plot["action"] = harvest_and_replant_pumpkin_plot
-        
-        for index in range(1, plot_count):
-            plot = plots[index]
-            plot ["priority"] = MAX_PRIORITY - 1
-            plot ["action"] = plant_and_scan_pumpkin_plot
-
-            item_counts[Items.Pumpkin_Seed] += len(not_ready)
+        return apply_harvest_and_replant_pumpkin_plan(region)
     else:
-        item_counts = {
-            Items.Pumpkin_Seed: not_ready_count,
-            Items.Fertilizer: not_ready_count
-        }
-        
-        do_trade(item_counts)
+        return apply_scan_and_replant_pumpkin_plan(region, not_ready)
 
-        for plot in plots:
-            if not plot["can_harvest"]:
-                plot["priority"] = MAX_PRIORITY
-                plot["action"] = plant_and_scan_pumpkin_plot
+def apply_scan_and_replant_pumpkin_plan(region, not_ready):
+    not_ready_count = len(not_ready)
+    plots = region["plots"]
+    
+    item_counts = {
+        Items.Pumpkin_Seed: not_ready_count,
+        Items.Fertilizer: not_ready_count
+    }
+    
+    do_trade(item_counts)
 
-                item_counts[Items.Pumpkin_Seed] += len(not_ready)
-            else:
-                plot["priority"] = NO_PRIORITY
-                plot["action"] = no_op
+    path = []
+
+    for plot in plots:
+        if not plot["can_harvest"]:
+            plot["priority"] = MAX_PRIORITY
+            plot["action"] = plant_and_scan_pumpkin_plot
+            
+            path.append(plot["coords"])
+        else:
+            plot["priority"] = NO_PRIORITY
+            plot["action"] = no_op
+
+    return path
+
+def apply_harvest_and_replant_pumpkin_plan(region):
+    plots = region["plots"]
+    plot_count = len(plots)
+    path = []
+
+    item_counts = {
+        Items.Pumpkin_Seed: plot_count,
+        Items.Fertilizer: plot_count
+    }
+
+    do_trade(item_counts)
+
+    harvest_plot = plots[0]
+    harvest_plot["priority"] = MAX_PRIORITY
+    harvest_plot["action"] = harvest_and_replant_pumpkin_plot
+
+    path.append(harvest_plot["coords"])
+
+    for index in range(1, plot_count):
+        plot = plots[index]
+        plot ["priority"] = MAX_PRIORITY - 1
+        plot ["action"] = plant_and_scan_pumpkin_plot
+
+        path.append(plot["coords"])
+
+    return path
 
 def harvest_and_replant_pumpkin_plot(plot):
     harvest()
