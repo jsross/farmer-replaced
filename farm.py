@@ -6,17 +6,18 @@ def create_farm(size):
 
     regions = []
 
-    def create_region(type, anchor_coords, width, height, fill_strategy):
+    def create_region(anchor_coords, width, height, handler, options):
         end_coords = (anchor_coords[0] + width, anchor_coords[1] + height)
-        plots = select_from_matrix(matrix, anchor_coords, end_coords, fill_strategy)
+        plots = select_from_matrix(matrix, anchor_coords, end_coords)
 
         region = {
-            "type": type,
             "plots": plots,
             "anchor_coords": anchor_coords,
             "end_coords": end_coords,
             "width": width,
-            "height": height
+            "height": height,
+            "handler": handler,
+            "options": options
         }
 
         regions.append(region)

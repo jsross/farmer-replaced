@@ -28,49 +28,21 @@ def create_farmer(drone, farm):
 		size = get_world_size()
 		start_op_count = get_op_count()
 
-		#create_region(Entities.Carrots, (0,0), (size,size), fill_strategy_solid)
- 
-		width = size/2
-		height = size/2
+		width = size / 2
+		height = size / 2
 
-		#create_region(Entities.Carrots, (0,0), width, height, fill_strategy_checkerd)
-		#create_region(Entities.Tree, (0,0), width, height, fill_strategy_checkerd_alt)
-		create_region(Entities.Pumpkin, (0, 0), size, size, fill_strategy_solid)
-		#create_region(Entities.Sunflower, (size/2, 0), width, height, fill_strategy_solid)
-		#create_region(Entities.Bush, (size/2, size/2), width, height, fill_strategy_solid)
+		create_region((0, 0), width, height, handle_sunflower_region, None)
+		create_region((0, size/2), width, height, handle_basic_region, {"entity_type":Entities.Bush})
+		create_region((size/2, 0), width, height, handle_basic_region, {"entity_type":Entities.Bush})
+		create_region((size/2, size/2), width, height, handle_pumpkin_region, None )
 
 		regions = get_regions()
 
-		for region in regions:
-			region_type = region["type"]
-			region_plots = region["plots"]
-
-			if region_type in init_plan_factories:
-				create_plan = init_plan_factories[region_type]
-				create_plan(region)
-
-			if region_type in static_handlers:
-				region_handler = static_handlers[region_type]
-
-				for plot in region_plots:
-					plot["priority"] = MAX_PRIORITY
-					plot["action"] = region_handler
-		
-		for priority in range(MAX_PRIORITY, 1, -1):
-			properties = {
-				"priority": priority
-			}
-
-			coords = select_coords(properties)
-			execute_plot_actions(coords)
-
-		for _ in range(1, iterations):
+		for iteration in range(iterations):
 			for region in regions:
-				region_type = region["type"]
+				handle_region = region["handler"]
 
-				if region_type in mid_plan_factories:
-					create_plan = mid_plan_factories[region_type]
-					create_plan(region)
+				handle_region(region, iteration)
 
 			do_trade(needed_item_counts)
 
@@ -84,23 +56,6 @@ def create_farmer(drone, farm):
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 	
-	static_handlers = {
-		Entities.Bush:handle_bush,
-		Entities.Carrots: handle_carrot,
-		Entities.Grass: handle_grass,
-		Entities.Tree: handle_tree
-	}
-
-	init_plan_factories = {
-		Entities.Pumpkin: apply_initial_pumpkin_plan,
-		Entities.Sunflower: apply_init_sunflower_plan
-	}
-
-	mid_plan_factories = {
-		Entities.Pumpkin: apply_maintence_pumpkin_plan,
-		Entities.Sunflower: apply_maintence_sunflower_plan
-	}
-
 	new_farmer = {
 		"do_work": do_work
 	}

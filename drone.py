@@ -7,7 +7,9 @@ def create_drone(farm):
     get_plot = farm["get_plot"]
 
     def follow_path(path):
-        for index in range(len(path)):
+        path_length = len(path)
+        
+        for index in range(path_length):
             direction = path[index]
 
             if not do_move(direction):

@@ -3,12 +3,22 @@ from __test_harness__ import *
 from Utility import *
 from drone import *
 
+def handle_pumpkin_region(region, iteration):
+    if iteration == 0:
+        return apply_initial_pumpkin_plan(region)
+    else:
+        return apply_maintence_pumpkin_plan(region)
+
 def apply_initial_pumpkin_plan(region):
     plots = region["plots"]
-    
+    plot_count = len(plots)
+
     item_counts = {
-        Items.Pumpkin_Seed: len(plots)
+        Items.Pumpkin_Seed: plot_count,
+        Items.Fertilizer: plot_count
     }
+
+    do_trade(item_counts)
 
     for plot in plots:
         plot["priority"] = MAX_PRIORITY
@@ -19,9 +29,6 @@ def apply_initial_pumpkin_plan(region):
 def apply_maintence_pumpkin_plan(region):
     plots = region["plots"]
 
-    item_counts = {
-        Items.Pumpkin_Seed: len(plots)
-    }
 
     def not_ready_test(plot, _):
         return not plot["can_harvest"]
@@ -32,6 +39,13 @@ def apply_maintence_pumpkin_plan(region):
     index = 0
 
     if not_ready_count == 0:
+        item_counts = {
+            Items.Pumpkin_Seed: plot_count,
+            Items.Fertilizer: plot_count
+        }
+        
+        do_trade(item_counts)
+
         harvest_plot = plots[0]
         harvest_plot["priority"] = MAX_PRIORITY
         harvest_plot["action"] = harvest_and_replant_pumpkin_plot
@@ -43,6 +57,13 @@ def apply_maintence_pumpkin_plan(region):
 
             item_counts[Items.Pumpkin_Seed] += len(not_ready)
     else:
+        item_counts = {
+            Items.Pumpkin_Seed: not_ready_count,
+            Items.Fertilizer: not_ready_count
+        }
+        
+        do_trade(item_counts)
+
         for plot in plots:
             if not plot["can_harvest"]:
                 plot["priority"] = MAX_PRIORITY

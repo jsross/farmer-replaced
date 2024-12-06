@@ -1,4 +1,23 @@
 from __builtins__ import *
+from __test_harness__ import *
+from Utility import *
+
+def handle_basic_region(region, _):
+    static_handlers = {
+        Entities.Bush:handle_bush,
+        Entities.Carrots: handle_carrot,
+        Entities.Grass: handle_grass,
+        Entities.Tree: handle_tree
+    }
+
+    plots = region["plots"]
+    options = region["options"]
+    entity_type = options["entity_type"]
+
+    for plot in plots:
+        plot["priority"] = MAX_PRIORITY
+        plot["action"] = static_handlers[entity_type]
+
 
 def handle_carrot(plot):
     harvest()
@@ -37,3 +56,4 @@ def handle_tree(plot):
         till()
 
     plant(Entities.Tree)
+

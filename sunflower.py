@@ -4,6 +4,12 @@ from Utility import *
 from drone import *
 from farm import *
 
+def handle_sunflower_region(region, iteration):
+    if iteration == 0:
+        return apply_init_sunflower_plan(region)
+    else:
+        return apply_maintence_sunflower_plan(region)
+
 def apply_init_sunflower_plan(region):
     plots = region["plots"]
     plot_count = len(plots)
