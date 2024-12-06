@@ -3,11 +3,15 @@ from __test_harness__ import *
 from Utility import *
 from drone import *
 
-def handle_pumpkin_region(region, iteration):
+def handle_pumpkin_region(drone, region, iteration):
+    path = []
+
     if iteration == 0:
-        return apply_initial_pumpkin_plan(region)
+        path = apply_initial_pumpkin_plan(region)
     else:
-        return apply_maintence_pumpkin_plan(region)
+        path = apply_maintence_pumpkin_plan(region)
+    
+    drone["execute_plot_actions"](path)
 
 def apply_initial_pumpkin_plan(region):
     plots = region["plots"]

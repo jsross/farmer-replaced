@@ -34,9 +34,7 @@ def create_farmer(drone, farm):
 			for region in regions:
 				handle_region = region["handler"]
 
-				path = handle_region(region, iteration)
-
-				execute_plot_actions(path)
+				handle_region(drone, region, iteration)
 
 		quick_print("do_work: ", get_op_count() - start_op_count)
 	

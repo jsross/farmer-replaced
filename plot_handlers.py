@@ -2,7 +2,7 @@ from __builtins__ import *
 from __test_harness__ import *
 from Utility import *
 
-def handle_basic_region(region, _):
+def handle_basic_region(drone, region, _):
     static_handlers = {
         Entities.Bush:handle_bush,
         Entities.Carrots: handle_carrot,
@@ -21,7 +21,7 @@ def handle_basic_region(region, _):
         plot["action"] = static_handlers[entity_type]
         path.append(plot["coords"])
 
-    return path
+    drone["execute_plot_actions"](path)
 
 
 def handle_carrot(plot):
