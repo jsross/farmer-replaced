@@ -1,9 +1,9 @@
-def create_matrix(size, create_item):
+def create_matrix(width, height, create_item):
 	matrix = []
 
-	for x_index in range(size):
+	for x_index in range(width):
 		matrix.append([])
-		for y_index in range(size):
+		for y_index in range(height):
 			matrix[x_index].append(create_item(x_index, y_index))
 	
 	return matrix
@@ -31,6 +31,20 @@ def find_in_matrix(matrix, test_func):
 
 	return items
 
+def select_coords_from_matrix(matrix, test_func):
+	coords = []
+	width = len(matrix)
+
+	for x_index in range(width):
+		height = len(matrix[x_index])
+		for y_index in range(height):
+			item = matrix[x_index][y_index]
+
+			if test_func(item, x_index,y_index):
+				coords.append((x_index, y_index))
+	
+	return coords
+
 def find_in_array(array, test_func):
 	items = []
 
@@ -55,7 +69,6 @@ def select_object_from_array(array, properties):
 		return True
 	
 	return find_in_array(array, test_func)
-
 
 def select_prop_from_matrix(matrix, prop_key, test_func):
 	results = []
