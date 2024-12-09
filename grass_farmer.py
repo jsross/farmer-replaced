@@ -20,6 +20,7 @@ def create_grass_farmer(drone, width, height, x_offset, y_offset):
 
                 harvest()
         
+        return 0
 
     def maintain_farm():
         for x_index in range(width):
@@ -27,7 +28,8 @@ def create_grass_farmer(drone, width, height, x_offset, y_offset):
                 go_to(x_index + x_offset, y_index + y_offset)
 
                 harvest()
-        
+
+        return 0
 
     new_farmer = {
         "init_farm": init_farm,

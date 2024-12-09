@@ -8,56 +8,43 @@ from farm import *
 from maze import *
 from carrot_farmer import *
 from dual_farmer import *
+from pumpkin_farmer import *
+from sunflower_farmer import *
 
 MAX_PRIORITY = 15
 NO_PRIORITY = 0
 
-farm_size = get_world_size()
-
-my_drone = create_drone()
-my_farm = create_farm(farm_size, farm_size)
-
-grass_farmer = create_grass_farmer(my_drone, farm_size, farm_size, 0, 0)
-grass_farmer["init_farm"]()
-
-bush_farmer = create_bush_farmer(my_drone, farm_size, farm_size, 0, 0)
-bush_farmer["init_farm"]()
-bush_farmer["maintain_farm"]()
-
-carrot_farmer = create_carrot_farmer(my_drone, farm_size, farm_size, 0, 0)
-carrot_farmer["init_farm"]()
-carrot_farmer["maintain_farm"]()
-
-tree_farmer = create_dual_farmer(my_drone, farm_size, farm_size, 0, 0, (Entities.Tree, Entities.Carrots))
-tree_farmer["init_farm"]()
-tree_farmer["maintain_farm"]()
-
 if num_items(Items.Empty_Tank) == 0:
     trade(Items.Empty_Tank, 1000)
 
-pumpkin_farm = create_farm(get_world_size(), get_world_size())
+farm_size = get_world_size()
+my_farm = create_farm(farm_size, farm_size)
 
-pumpkin_farmer = create_pumpkin_farmer(pumpkin_farm, my_drone, 0, 0)
+my_drone = create_drone()
 
-pumpkin_farmer["init_farm"]()
+farmers_only = []
 
-iterations = 4
+farmers_only.append(create_grass_farmer(my_drone, farm_size, farm_size, 0, 0))
+farmers_only.append(create_bush_farmer(my_drone, farm_size, farm_size, 0, 0))
+farmers_only.append(create_carrot_farmer(my_drone, farm_size, farm_size, 0, 0))
+farmers_only.append(create_dual_farmer(my_drone, farm_size, farm_size, 0, 0, (Entities.Tree, Entities.Carrots)))
+farmers_only.append(create_pumpkin_farmer(my_farm, my_drone, 0, 0))
+farmers_only.append(create_sunflower_farmer(my_farm, my_drone, 0, 0))
 
-for iteration in range(iterations):
-    pumpkin_farmer["maintain_farm"]()
+for farmer in farmers_only:
+    farmer["init_farm"]()
 
-clear()
+    for iteration in range(4):
+        result = farmer["maintain_farm"]()
 
-sunflower_farm = create_farm(get_world_size(), get_world_size())
-sunflower_farmer = create_sunflower_farmer(sunflower_farm, my_drone, 0, 0)
+        if result < 0:
+            print("Farmer Failed")
 
-sunflower_farmer["init_farm"]()
+            break
 
-iterations = 100
+        if result > 0:
+            wait_till(result)
 
-for iteration in range(iterations):
-    sunflower_farmer["maintain_farm"]()
-        
 
 #maze_plan = create_maze_plan(my_drone, my_farm)
 

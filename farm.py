@@ -19,6 +19,30 @@ def create_farm(width, height):
     def get_plot(x, y):
         return matrix[x][y]
     
+    def find_first(test_func):
+        for x_index in range(width):
+            for y_index in range(height):
+                plot = matrix[x_index][y_index]
+
+                if test_func(plot, x_index, y_index):
+                    return plot
+        
+        return None
+    
+    def get_max_value(property):
+        current_max = None
+
+        for x_index in range(width):
+            for y_index in range(height):
+                plot = matrix[x_index][y_index]
+
+                if current_max == None:
+                    current_max = plot[property]
+                elif plot[property] != None:
+                    current_max = max(current_max, plot[property])
+        
+        return current_max
+    
     def get_plot_count():
         return width * height
 
@@ -35,6 +59,8 @@ def create_farm(width, height):
     new_farm = {
         "apply_property_value": apply_property_value,
         "height": height,
+        "find_first": find_first,
+        "get_max_value": get_max_value,
         "get_plot": get_plot,
         "get_plot_count": get_plot_count,
         "width": width,

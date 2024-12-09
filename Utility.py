@@ -95,3 +95,10 @@ def select_from_matrix(matrix, coords_1, coords_2):
 def merge(target, source):
 	for key in source:
 		target[key] = source[key]
+
+def wait_till(timestamp):
+	while True:
+		current_timestamp = get_time()
+
+		if current_timestamp > timestamp:
+			break

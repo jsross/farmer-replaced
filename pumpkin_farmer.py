@@ -35,6 +35,8 @@ def create_pumpkin_farmer(farm, drone, x_offset, y_offset):
                 plot = get_plot(x_index, y_index)
                 plot["can_harvest"] = can_harvest()
                 plot["timestamp"] = get_time()
+        
+        return 0
     
     def maintain_farm():
         not_ready_coords = select_coords({"can_harvest" : False })
@@ -83,6 +85,8 @@ def create_pumpkin_farmer(farm, drone, x_offset, y_offset):
                     plot = get_plot(x_index, y_index)
                     plot["can_harvest"] = can_harvest()
                     plot["timestamp"] = get_time()
+                    
+        return 0
 
     new_farmer = {
         "init_farm": init_farm,
