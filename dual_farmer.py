@@ -27,8 +27,6 @@ def create_dual_farmer(drone, width, height, x_offset, y_offset, entities):
     maintain_plot_funcs = (maintain_plot_map[entities[0]], maintain_plot_map[entities[1]])
 
     def init_farm():
-        clear()
-
         for x_index in range(width):
             for y_index in range(height):
                 go_to(x_index + x_offset, y_index + y_offset)

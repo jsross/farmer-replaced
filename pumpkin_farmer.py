@@ -13,8 +13,6 @@ def create_pumpkin_farmer(farm, drone, x_offset, y_offset):
     plot_count = width * height
 
     def init_farm():
-        clear()
-        
         item_counts = {
             Items.Pumpkin_Seed: plot_count,
             Items.Fertilizer: plot_count
