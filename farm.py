@@ -3,6 +3,7 @@ from Utility import *
 
 def create_farm(width, height):
     matrix = create_matrix(width, height, create_plot)
+    plot_count = width * height
     
     def apply_property_value(coord_1, coord_2, property_name, property_value, fill_test):
         x1 = coord_1[0]
@@ -44,7 +45,7 @@ def create_farm(width, height):
         return current_max
     
     def get_plot_count():
-        return width * height
+        return plot_count
 
     def select_coords(properties):
         def test_func(item, _x, _y):
@@ -123,6 +124,7 @@ def get_neighbors(x, y):
     return neighbors
 
 def add_connections(graph):
+    size = get_world_size()
     start_op_count = get_op_count()
 
     graph_add_edge = graph["add_edge"]

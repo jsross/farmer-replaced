@@ -5,6 +5,7 @@ from drone import *
 from farm import *
 
 def create_sunflower_farmer(farm, drone, x_offset, y_offset):
+    GROW_TIME = 4
     go_to = drone["go_to"]
     select_coords = farm["select_coords"]
     find_first = farm["find_first"]
@@ -40,8 +41,6 @@ def create_sunflower_farmer(farm, drone, x_offset, y_offset):
                 plot["can_harvest"] = can_harvest()
                 plot["timestamp"] = get_time()
 
-        
-        
         return 0
     
     def replant_farm():
@@ -74,8 +73,8 @@ def create_sunflower_farmer(farm, drone, x_offset, y_offset):
     def maintain_farm():
         max_timestamp = get_max_value("timestamp")
 
-        if max_timestamp + 6 > get_time():
-            return max_timestamp + 6
+        if max_timestamp + GROW_TIME > get_time():
+            return max_timestamp + GROW_TIME
         
         #All Ready
 
@@ -86,7 +85,7 @@ def create_sunflower_farmer(farm, drone, x_offset, y_offset):
                 x_index = coords[0]
                 y_index = coords[1]
 
-                go_to(x_index, y_index)
+                go_to(x_index + x_offset, y_index + y_offset)
                 plot = get_plot(x_index, y_index)
 
                 harvest()

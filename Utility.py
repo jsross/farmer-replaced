@@ -1,3 +1,11 @@
+def create_array(length, default):
+	array = []
+
+	for _ in range(length):
+		array.append(default)
+	
+	return array
+
 def create_matrix(width, height, create_item):
 	matrix = []
 
@@ -17,6 +25,12 @@ def create_matrix_with_default(width, height, default):
 			matrix[x_index].append(default)
 	
 	return matrix
+
+def copy_array(src_array, dest_array):
+	count = len(src_array)
+
+	for index in range(count):
+		dest_array[index] = src_array[index]
 
 def find_in_matrix(matrix, test_func):
 	items = []

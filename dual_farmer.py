@@ -8,6 +8,7 @@ from grass_farmer import *
 
 def create_dual_farmer(drone, width, height, x_offset, y_offset, entities):
     go_to = drone["go_to"]
+    plot_count = width * height
 
     init_plot_map = {
         Entities.Carrots: init_carrot_plot,
@@ -27,6 +28,8 @@ def create_dual_farmer(drone, width, height, x_offset, y_offset, entities):
     maintain_plot_funcs = (maintain_plot_map[entities[0]], maintain_plot_map[entities[1]])
 
     def init_farm():
+        trade(Items.Fertilizer, plot_count)
+
         for x_index in range(width):
             for y_index in range(height):
                 go_to(x_index + x_offset, y_index + y_offset)
@@ -41,6 +44,8 @@ def create_dual_farmer(drone, width, height, x_offset, y_offset, entities):
         return 0
 
     def maintain_farm():
+        trade(Items.Fertilizer, plot_count)
+
         for x_index in range(width):
             for y_index in range(height):
                 go_to(x_index + x_offset, y_index + y_offset)

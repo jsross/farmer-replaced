@@ -1,7 +1,7 @@
 from navigator import *
 
 def create_maze_plan(drone, farm):
-    navigator = create_navigator(drone, farm)
+    navigator = create_navigator(drone)
 
     search = navigator["search"]
     seak =  navigator["seak"]
