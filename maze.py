@@ -1,7 +1,7 @@
 from navigator import *
 
 def create_maze_plan(drone, farm):
-    navigator = create_navigator(drone, farm)
+    navigator = create_navigator(drone)
 
     search = navigator["search"]
     seak =  navigator["seak"]
@@ -10,7 +10,6 @@ def create_maze_plan(drone, farm):
         return get_entity_type() == Entities.Treasure
     
     def do_create_maze():
-        clear()
         plant(Entities.Bush)
     
         while not can_harvest():

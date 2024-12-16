@@ -2,9 +2,8 @@ from __builtins__ import *
 from Utility import *
 from farm import *
 
-def create_drone(farm):
+def create_drone():
     move_history = []
-    get_plot = farm["get_plot"]
 
     def follow_path(path):
         path_length = len(path)
@@ -48,28 +47,12 @@ def create_drone(farm):
 
         return follow_path(path)
 
-    def execute_plot_actions(coords_list):
-        for coords in coords_list:
-            current_x = coords[0]
-            current_y = coords[1]
-
-            success = go_to(current_x, current_y)
-
-            if not success:
-                return False
-            
-            plot = get_plot(current_x, current_y)
-            plot_action = plot["action"]
-            plot_action(plot)
-        
-        return True
-
     new_drone = {
         "do_move": do_move,
         "follow_path": follow_path,
         "get_coords": get_coords,
         "get_last_move": get_last_move,
-        "execute_plot_actions": execute_plot_actions
+        "go_to": go_to
     }
 
     return new_drone
@@ -85,3 +68,14 @@ def do_scan():
     }
 
     return scan_results
+
+def do_trade(needed_seed_counts):
+	for item_type in needed_seed_counts:
+		current_count = num_items(item_type)
+		needed_count = needed_seed_counts[item_type]
+		to_buy = needed_count - current_count
+
+		if to_buy > 0:
+			trade(item_type, to_buy)
+
+		needed_seed_counts[item_type] = 0
