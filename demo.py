@@ -13,21 +13,21 @@ def basic_demo():
     world_size = get_world_size()
 
     for _ in range(2):
-        handle_grass_farm(world_size, world_size)
+        handle_grass_farm(world_size, world_size, 0, 0)
 
     clear()
 
-    init_bush_farm(world_size, world_size)
+    init_bush_farm(world_size, world_size, 0, 0)
 
     for _ in range(1):
-        maintain_bush_farm(world_size, world_size)
+        maintain_bush_farm(world_size, world_size, 0, 0)
 
     clear()
 
-    init_carrot_farm(world_size, world_size)
+    init_carrot_farm(world_size, world_size, 0, 0)
 
     for _ in range(2):
-        maintain_carrot_farm(world_size, world_size)
+        maintain_carrot_farm(world_size, world_size, 0, 0)
 
     clear()
 
@@ -38,11 +38,11 @@ def basic_demo():
 
     clear()
 
-    init_pumpkin_farm(world_size, world_size)
+    init_pumpkin_farm(world_size, world_size, 0, 0)
 
     pumpkin_matrix = create_matrix_with_default(world_size, world_size, False)
 
-    for _ in range(4):
+    for _ in range(10):
         maintain_pumpkin_farm(pumpkin_matrix, world_size, world_size, 0, 0)
 
     clear()
@@ -51,7 +51,7 @@ def single_farmer_demo():
     world_size = get_world_size()
 
     clear()
-    create_grass_farmer(world_size, world_size)["init_farm"]()
+    create_grass_farmer(world_size, world_size, 0, 0)["init_farm"]()
 
     clear()
     
@@ -64,7 +64,7 @@ def single_farmer_demo():
     carrot_farm["init_farm"]()
     carrot_farm["maintain_farm"]()
 
-    clear()
+    clear() 
     tree_farm = create_dual_farmer(world_size, world_size, 0, 0, (Entities.Tree, Entities.Bush))
     tree_farm["init_farm"]()
     tree_farm["maintain_farm"]()
@@ -108,7 +108,7 @@ def region_demo():
         farmer = region[1]
         region[0] = farmer["init_farm"]()
 
-    for _ in range(3):
+    for _ in range(5): 
         TopDownMergeSort(regions, 0)
 
         for region in regions:

@@ -6,10 +6,14 @@ from farmer import *
 def create_bush_farmer(width, height, x_offset, y_offset):
     
     def init_farm():
-        return init_bush_farm(width, height)
+        go_to(x_offset, y_offset)
+
+        return init_bush_farm(width, height, x_offset, y_offset)
 
     def maintain_farm():
-        return maintain_bush_farm(width, height)
+        go_to(x_offset, y_offset)
+        
+        return maintain_bush_farm(width, height, x_offset, y_offset)
         
     new_farmer = {
         "init_farm": init_farm,
@@ -18,13 +22,13 @@ def create_bush_farmer(width, height, x_offset, y_offset):
      
     return new_farmer
 
-def init_bush_farm(width, height):
-    execute_scan_pass(width, height, init_bush_plot, None)
+def init_bush_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, init_bush_plot, None, x_offset, y_offset)
 
     return 0
 
-def maintain_bush_farm(width, height):
-    execute_scan_pass(width, height, maintain_bush_plot, None)
+def maintain_bush_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, maintain_bush_plot, None, x_offset, y_offset)
 
     return 0
 

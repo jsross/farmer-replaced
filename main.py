@@ -30,7 +30,6 @@ from sort import *
 #    plant(Entities.Bush)
 #    move(North)
 
-
 MAX_PRIORITY = 15
 NO_PRIORITY = 0
 

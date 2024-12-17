@@ -8,8 +8,7 @@ from grass_farmer import *
 from drone import *
 
 def create_dual_farmer(width, height, x_offset, y_offset, entities):
-    plot_count = width * height
-
+    
     init_plot_map = {
         Entities.Carrot: init_carrot_plot,
         Entities.Tree: init_tree_plot,

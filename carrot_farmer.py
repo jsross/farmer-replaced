@@ -16,22 +16,22 @@ def maintain_carrot_plot():
         use_item(Items.Water)
         plant(Entities.Carrot)
 
-def init_carrot_farm(width, height):
-    execute_scan_pass(width, height, init_carrot_plot, None)
+def init_carrot_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, init_carrot_plot, None, x_offset, y_offset)
 
     return 0
 
-def maintain_carrot_farm(width, height):
-    execute_scan_pass(width, height, maintain_carrot_plot, None)
+def maintain_carrot_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, maintain_carrot_plot, None, x_offset, y_offset)
 
     return 0
 
 def create_carrot_farmer(width, height, x_offset, y_offset):
     def init_farm():
-        return init_carrot_farm(width, height)
+        return init_carrot_farm(width, height, x_offset, y_offset)
 
     def maintain_farm():
-        return maintain_carrot_farm(width, height)
+        return maintain_carrot_farm(width, height, x_offset, y_offset)
         
     new_farmer = {
         "init_farm": init_farm,
