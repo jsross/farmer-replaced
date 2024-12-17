@@ -47,16 +47,6 @@ def create_farm(width, height):
     def get_plot_count():
         return plot_count
 
-    def select_coords(properties):
-        def test_func(item, _x, _y):
-            for property_key in properties:
-                if not item[property_key] == properties[property_key]:
-                    return False
-            
-            return True
-
-        return select_coords_from_matrix(matrix, test_func)
-
     new_farm = {
         "apply_property_value": apply_property_value,
         "height": height,
@@ -64,13 +54,12 @@ def create_farm(width, height):
         "get_max_value": get_max_value,
         "get_plot": get_plot,
         "get_plot_count": get_plot_count,
-        "width": width,
-        "select_coords": select_coords
+        "width": width
     }
 
     return new_farm
                      
-def create_plot(_, _):
+def create_plot(_x, _y):
     return {}
 
 def no_op(_):

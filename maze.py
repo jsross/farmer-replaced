@@ -16,8 +16,6 @@ def create_maze_plan(drone, farm):
             pass
             
         while get_entity_type() == Entities.Bush:
-            if num_items(Items.Fertilizer) == 0:
-                trade(Items.Fertilizer, 100)
             use_item(Items.Fertilizer)
 
     def execute_plan(iterations):
@@ -34,9 +32,6 @@ def create_maze_plan(drone, farm):
             success = False
 
             while get_entity_type() == Entities.Treasure:
-                if(num_items(Items.Fertilizer) == 0):
-                    trade(Items.Fertilizer, get_world_size() * get_world_size())
-					
                 use_item(Items.Fertilizer)
 
             success = seak(next_coords, 5)
