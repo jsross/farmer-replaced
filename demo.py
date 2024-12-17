@@ -8,6 +8,7 @@ from dual_farmer import *
 from sunflower_farmer import *
 
 def basic_demo():
+    print("Basic Demo")
     clear()
 
     world_size = get_world_size()
@@ -42,55 +43,48 @@ def basic_demo():
 
     pumpkin_matrix = create_matrix_with_default(world_size, world_size, False)
 
-    for _ in range(10):
+    for _ in range(5):
         maintain_pumpkin_farm(pumpkin_matrix, world_size, world_size, 0, 0)
 
     clear()
 
-def single_farmer_demo():
+def farmer_demo():
+    print("Farmer Demo")
     world_size = get_world_size()
 
     clear()
-    create_grass_farmer(world_size, world_size, 0, 0)["init_farm"]()
-
-    clear()
     
-    bush_farm = create_bush_farmer(world_size, world_size, 0, 0)
-    bush_farm["init_farm"]()
-    bush_farm["maintain_farm"]()
-
-    clear()
-    carrot_farm = create_carrot_farmer(world_size, world_size, 0, 0)
-    carrot_farm["init_farm"]()
-    carrot_farm["maintain_farm"]()
-
-    clear() 
-    tree_farm = create_dual_farmer(world_size, world_size, 0, 0, (Entities.Tree, Entities.Bush))
-    tree_farm["init_farm"]()
-    tree_farm["maintain_farm"]()
-    tree_farm["maintain_farm"]()
-
-    farmers_only = []
+    farm_plans = []
+    farm_plans.append((create_grass_farmer(world_size, world_size, 0, 0),1))
+    farm_plans.append((create_bush_farmer(world_size, world_size, 0, 0), 2))
+    farm_plans.append((create_carrot_farmer(world_size, world_size, 0, 0),2))
+    farm_plans.append((create_dual_farmer(world_size, world_size, 0, 0, (Entities.Tree, Entities.Bush)),2))
+    farm_plans.append((create_pumpkin_farmer(world_size, world_size, 0, 0),4))
+    farm_plans.append((create_sunflower_farmer(world_size, world_size, 0, 0),1))
     
-    farmers_only.append(create_pumpkin_farmer(world_size, world_size, 0, 0))
-    farmers_only.append(create_sunflower_farmer(world_size, world_size, 0, 0))
+    for _ in range(2):
+        for farm_plan in farm_plans:
+            farmer = farm_plan[0]
+            iterations = farm_plan[1]
 
-    for farmer in farmers_only:
-        clear()
-        farmer["init_farm"]()
+            clear()
 
-        for _ in range(3):
-            result = farmer["maintain_farm"]()
+            farmer["init_farm"]()
 
-            if result < 0:
-                print("Farmer Failed")
+            for _ in range(iterations):
+                result = farmer["maintain_farm"]()
 
-                break
+                if result < 0:
+                    print("Farmer Failed")
 
-            if result > 0:
-                wait_till(result)
+                    break
+
+                if result > 0:
+                    wait_till(result)
+    
 
 def region_demo():
+    print("Region Demo")
     clear()
 
     world_size = get_world_size()
@@ -126,6 +120,7 @@ def region_demo():
                 break
 
 def maze_demo():
+    print("Maze Demo")
     clear()
     maze_plan = create_maze_plan(my_drone, my_farm)
 
