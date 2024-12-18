@@ -38,11 +38,11 @@ my_farm = create_farm(farm_size, farm_size)
 
 my_drone = create_drone()
 
-basic_demo()
-farmer_demo()
-region_demo()
+# basic_demo()
+# farmer_demo()
+# region_demo()
 
-#maze_demo()
+maze_demo()
 
 def do_work():
     print("Do Work Demo")

@@ -5,7 +5,7 @@ def create_graph():
     connections = {}
 
     def add_edge(coord_1, coord_2):
-        start_op_count = get_op_count()
+        start_op_count = get_tick_count()
 
         if not coord_1 in connections:
             connections[coord_1] = set()
@@ -16,12 +16,12 @@ def create_graph():
         connections[coord_1].add(coord_2)
         connections[coord_2].add(coord_1)
 
-        quick_print("add_edge: ", get_op_count() - start_op_count)
+        quick_print("add_edge: ", get_tick_count() - start_op_count)
         
         return True
     
     def remove_edge(coord_1, coord_2):
-        start_op_count = get_op_count()
+        start_op_count = get_tick_count()
 
         if coord_1 in connections:
             coord_1_connections = connections[coord_1]
@@ -35,7 +35,7 @@ def create_graph():
             if coord_1 in coord_2_connections:
                 coord_2_connections.remove(coord_1)
 
-        quick_print("remove_edge: ", get_op_count() - start_op_count)
+        quick_print("remove_edge: ", get_tick_count() - start_op_count)
 
         return True
     

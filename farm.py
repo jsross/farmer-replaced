@@ -114,7 +114,7 @@ def get_neighbors(x, y):
 
 def add_connections(graph):
     size = get_world_size()
-    start_op_count = get_op_count()
+    start_op_count = get_tick_count()
 
     graph_add_edge = graph["add_edge"]
 
@@ -138,17 +138,17 @@ def add_connections(graph):
             if y_index > 0:
                 graph_add_edge(current_coords, (x_index, y_index-1))
 
-    quick_print("add_connections: ", get_op_count() - start_op_count)
+    quick_print("add_connections: ", get_tick_count() - start_op_count)
 
 def get_distance(coords_1, coords_2):
-    start_op_count = get_op_count()
+    start_op_count = get_tick_count()
     
     if coords_2 == None:
         print("oops")
 
     distance = calculate_dist(coords_1[0], coords_1[1], coords_2[0],coords_2[1])
 
-    quick_print("get_distance: ", get_op_count() - start_op_count)
+    quick_print("get_distance: ", get_tick_count() - start_op_count)
 
     return distance
     
@@ -163,7 +163,7 @@ def get_distance_map(x, y):
     return result
 
 def get_neighbor(x, y, direction):
-    start_op_count = get_op_count()
+    start_op_count = get_tick_count()
     size = get_world_size()
 
     neighbor_x = 0
@@ -184,6 +184,6 @@ def get_neighbor(x, y, direction):
 
     neighbor_coords = (neighbor_x % size, neighbor_y % size)
     
-    quick_print("get_neighbor: ", get_op_count() - start_op_count)
+    quick_print("get_neighbor: ", get_tick_count() - start_op_count)
 
     return neighbor_coords

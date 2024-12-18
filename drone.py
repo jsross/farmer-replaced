@@ -17,7 +17,7 @@ def create_drone():
         return True
     
     def do_move(direction):
-        start_op_count = get_op_count()
+        start_op_count = get_tick_count()
 
         success = move(direction)
 
@@ -27,7 +27,7 @@ def create_drone():
         if success:
             move_history.append(direction)
             
-        quick_print("do_move: ", get_op_count() - start_op_count)
+        quick_print("do_move: ", get_tick_count() - start_op_count)
 
         return success
     
@@ -65,7 +65,7 @@ def do_scan():
     return scan_results
 
 def go_to(dest_x, dest_y):
-    # start_op_count = get_op_count()
+    # start_op_count = get_tick_count()
 
     current_x = get_pos_x()
     current_y = get_pos_y()
@@ -117,4 +117,4 @@ def go_to(dest_x, dest_y):
             path.append(South)
             current_y -= 1
 
-    # quick_print("go_to: ", get_op_count() - start_op_count)
+    # quick_print("go_to: ", get_tick_count() - start_op_count)
