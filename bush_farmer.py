@@ -1,32 +1,19 @@
 from __builtins__ import *
 from __test_harness__ import *
 from Utility import *
+from farmer import *
 
-def create_bush_farmer(drone, width, height, x_offset, y_offset):
-    go_to = drone["go_to"]
-    plot_count = width * height
-
+def create_bush_farmer(width, height, x_offset, y_offset):
+    
     def init_farm():
-        trade(Items.Fertilizer, plot_count)
+        go_to(x_offset, y_offset)
 
-        for x_index in range(width):
-            for y_index in range(height):
-                go_to(x_index + x_offset, y_index + y_offset)
-                
-                init_bush_plot()
-        
-        return 0
+        return init_bush_farm(width, height, x_offset, y_offset)
 
     def maintain_farm():
-        trade(Items.Fertilizer, plot_count)
-
-        for x_index in range(width):
-            for y_index in range(height):
-                go_to(x_index + x_offset, y_index + y_offset)
-
-                maintain_bush_plot()
-
-        return 0
+        go_to(x_offset, y_offset)
+        
+        return maintain_bush_farm(width, height, x_offset, y_offset)
         
     new_farmer = {
         "init_farm": init_farm,
@@ -35,17 +22,31 @@ def create_bush_farmer(drone, width, height, x_offset, y_offset):
      
     return new_farmer
 
+def init_bush_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, init_bush_plot, None, x_offset, y_offset)
+
+    return 0
+
+def maintain_bush_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, maintain_bush_plot, None, x_offset, y_offset)
+
+    return 0
+
 def init_bush_plot():
-    use_item(Items.Fertilizer)
-    use_item(Items.Water_Tank)
+    if get_water() < 0.25:
+        use_item(Items.Water)
 
     plant(Entities.Bush)
+    use_item(Items.Fertilizer)
 
 def maintain_bush_plot():
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
     if(can_harvest()):
         harvest()
-        use_item(Items.Fertilizer)
-        use_item(Items.Water_Tank)
+
         plant(Entities.Bush)
+        use_item(Items.Fertilizer)
 
     

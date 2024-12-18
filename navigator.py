@@ -3,7 +3,7 @@ from graph import *
 from farm import *
 
 def create_navigator(drone):
-
+    
     graph = create_graph()
     
     add_edge = graph["add_edge"]
@@ -18,7 +18,7 @@ def create_navigator(drone):
     follow_path = drone["follow_path"]
 
     def search(check_goal):
-        start_op_count = get_op_count()
+        start_op_count = get_tick_count()
         
         last_move = None
 
@@ -26,7 +26,7 @@ def create_navigator(drone):
 
         while True:
             if check_goal():
-                quick_print("do_wall_follow: ", get_op_count() - start_op_count)
+                quick_print("do_wall_follow: ", get_tick_count() - start_op_count)
 
                 return True
 
@@ -69,7 +69,7 @@ def create_navigator(drone):
         return success
 
     def best_guess_strategy(dest_coords):
-        start_op_count = get_op_count()
+        start_op_count = get_tick_count()
 
         last_coords = None
         dead_ends = set()
@@ -81,7 +81,7 @@ def create_navigator(drone):
             
         while True:
             if current_coords == dest_coords:
-                quick_print("best_guess_strategy: ", get_op_count() - start_op_count)
+                quick_print("best_guess_strategy: ", get_tick_count() - start_op_count)
 
                 return True
 
@@ -122,7 +122,7 @@ def create_navigator(drone):
 
                 if current_coords in visited and visited[current_coords] == direction:
                     quick_print("Looping")
-                    quick_print("best_guess_strategy: ", get_op_count() - start_op_count)
+                    quick_print("best_guess_strategy: ", get_tick_count() - start_op_count)
                     
                     return False
 
@@ -147,7 +147,7 @@ def create_navigator(drone):
                     remove_edge(current_coords, target_coords)
 
     def get_a_star_path(coord_start, coord_end):
-        start_op_count = get_op_count()
+        start_op_count = get_tick_count()
         
         distances_from_start = {}
                 
@@ -182,10 +182,10 @@ def create_navigator(drone):
             for neighbor in neighbors:
                 #if this is the first time visiting this node, set some defaults
                 if not neighbor in distances_from_start:
-                    distances_from_start[neighbor] = Infinity
+                    distances_from_start[neighbor] = 9999999999999
 
                 if not neighbor in weights:
-                    weights[neighbor] = Infinity
+                    weights[neighbor] = 9999999999999
 
                 # d(current,neighbor) is the weight of the edge from current to neighbor
                 # tentative_gScore is the distance from start to the neighbor through current
@@ -202,7 +202,7 @@ def create_navigator(drone):
 
                     set_open_coords.add(neighbor)
 
-        quick_print("a_star: ", get_op_count() - start_op_count)
+        quick_print("a_star: ", get_tick_count() - start_op_count)
         
         return result_path
     
@@ -259,7 +259,7 @@ def reconstruct_path(current, came_from):
 
 def find_lightest_node(coords, weights):
     lightest = None
-    lightest_weight = Infinity
+    lightest_weight = 9999999999999
 
     for current_coords in coords:
         current_weight = weights[current_coords]
@@ -271,7 +271,7 @@ def find_lightest_node(coords, weights):
     return lightest
 
 def create_path(src_x, src_y, dest_x, dest_y):
-    start_op_count = get_op_count()
+    start_op_count = get_tick_count()
 
     current_x = src_x
     current_y = src_y
@@ -315,7 +315,7 @@ def create_path(src_x, src_y, dest_x, dest_y):
             path.append(South)
             current_y -= 1
 
-    quick_print("go_to: ", get_op_count() - start_op_count)
+    quick_print("go_to: ", get_tick_count() - start_op_count)
 
     return path
 

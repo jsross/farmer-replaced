@@ -1,32 +1,43 @@
 from __builtins__ import *
 from __test_harness__ import *
 from Utility import *
+from farmer import *
 
-def create_carrot_farmer(drone, width, height, x_offset, y_offset):
-    go_to = drone["go_to"]
-    plot_count = width * height
+def init_carrot_plot():
+    till()
 
-    def init_farm():
-        trade(Items.Fertilizer, plot_count)
+    if get_water() < 0.25:
+        use_item(Items.Water)
 
-        for x_index in range(width):
-            for y_index in range(height):
-                go_to(x_index + x_offset, y_index + y_offset)
+    plant(Entities.Carrot)
+    use_item(Items.Fertilizer)
 
-                init_carrot_plot()
+def maintain_carrot_plot():
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
+    if(can_harvest()):
+        harvest()
         
-        return 0
+        plant(Entities.Carrot)
+        use_item(Items.Fertilizer)
+
+def init_carrot_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, init_carrot_plot, None, x_offset, y_offset)
+
+    return 0
+
+def maintain_carrot_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, maintain_carrot_plot, None, x_offset, y_offset)
+
+    return 0
+
+def create_carrot_farmer(width, height, x_offset, y_offset):
+    def init_farm():
+        return init_carrot_farm(width, height, x_offset, y_offset)
 
     def maintain_farm():
-        trade(Items.Fertilizer, plot_count)
-        
-        for x_index in range(width):
-            for y_index in range(height):
-                go_to(x_index + x_offset, y_index + y_offset)
-
-                maintain_carrot_plot()
-        
-        return 0
+        return maintain_carrot_farm(width, height, x_offset, y_offset)
         
     new_farmer = {
         "init_farm": init_farm,
@@ -35,15 +46,3 @@ def create_carrot_farmer(drone, width, height, x_offset, y_offset):
      
     return new_farmer
 
-def init_carrot_plot():
-    till()
-    use_item(Items.Fertilizer)
-    use_item(Items.Water_Tank)
-    plant(Entities.Carrots)
-
-def maintain_carrot_plot():
-    if(can_harvest()):
-        harvest()
-        use_item(Items.Fertilizer)
-        use_item(Items.Water_Tank)
-        plant(Entities.Carrots)

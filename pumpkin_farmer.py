@@ -1,90 +1,59 @@
 from __builtins__ import *
 from __test_harness__ import *
 from Utility import *
+from farmer import *
 from drone import *
+from farm import *
 
-def create_pumpkin_farmer(farm, drone, x_offset, y_offset):
-    go_to = drone["go_to"]
-    select_coords = farm["select_coords"]
-    get_plot = farm["get_plot"]
+def init_pumpkin_plot():
+    till()
     
-    width = farm["width"]
-    height = farm["height"]
-    plot_count = width * height
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
+    plant(Entities.Pumpkin)
+
+def replant_pumpkin_plot():
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
+    plant(Entities.Pumpkin)
+
+def maintain_pumpkin_plot():
+    if get_water() < 0.25:
+        use_item(Items.Water)
+    
+    plant(Entities.Pumpkin)
+
+    return can_harvest()
+
+def init_pumpkin_farm(width, height, x_offset, y_offset):
+    execute_scan_pass(width, height, init_pumpkin_plot, None, x_offset, y_offset)
+
+    return 0
+
+def maintain_pumpkin_farm(matrix, width, height, x_offset, y_offset):
+    coords = select_coords_from_matrix_with_value(matrix, False)
+
+    if(len(coords)==0):
+        go_to(x_offset, y_offset)
+        harvest()
+        
+        execute_scan_pass(width, height, replant_pumpkin_plot, matrix, x_offset, y_offset)
+
+    execute_path_action(coords, maintain_pumpkin_plot, x_offset, y_offset, matrix)
+
+    return 0
+
+def create_pumpkin_farmer(width, height, x_offset, y_offset):
+
+    can_harvest_matrix = create_matrix_with_default(width, height, False) 
 
     def init_farm():
-        item_counts = {
-            Items.Pumpkin_Seed: plot_count,
-            Items.Fertilizer: plot_count
-        }
-
-        do_trade(item_counts)
-
-        for x_index in range(width):
-            for y_index in range(height):
-                go_to(x_offset + x_index, y_offset + y_index)
-                
-                till()
-    
-                use_item(Items.Fertilizer)
-                use_item(Items.Water_Tank)
-                plant(Entities.Pumpkin)
-
-                plot = get_plot(x_index, y_index)
-                plot["can_harvest"] = can_harvest()
-                plot["timestamp"] = get_time()
-        
-        return 0
+        return init_pumpkin_farm(width, height, x_offset, y_offset)
     
     def maintain_farm():
-        not_ready_coords = select_coords({"can_harvest" : False })
-        not_ready_count = len(not_ready_coords)
-
-        if not_ready_count > 0:
-            item_counts = {
-                Items.Pumpkin_Seed: not_ready_count,
-                Items.Fertilizer: not_ready_count
-            }
-            
-            do_trade(item_counts)
-
-            for coords in not_ready_coords:
-                x_index = coords[0]
-                y_index = coords[1]
-
-                go_to(x_offset + x_index, y_offset + y_index)
-
-                plant(Entities.Pumpkin)
-                use_item(Items.Fertilizer)
-                use_item(Items.Water_Tank)
-
-                plot = get_plot(x_index, y_index)
-                plot["can_harvest"] = can_harvest()
-                plot["timestamp"] = get_time()
-        else:
-            item_counts = {
-                Items.Pumpkin_Seed: plot_count,
-                Items.Fertilizer: plot_count
-            }
-
-            do_trade(item_counts)
-
-            for x_index in range(width):
-                for y_index in range(height):
-                    go_to(x_offset + x_index, y_offset + y_index)
-
-                    if x_index == 0 and y_index == 0:
-                        harvest()
-
-                    use_item(Items.Fertilizer)
-                    use_item(Items.Water_Tank)
-                    plant(Entities.Pumpkin)
-
-                    plot = get_plot(x_index, y_index)
-                    plot["can_harvest"] = can_harvest()
-                    plot["timestamp"] = get_time()
-                    
-        return 0
+        return maintain_pumpkin_farm(can_harvest_matrix, width, height, x_offset, y_offset)
 
     new_farmer = {
         "init_farm": init_farm,
@@ -92,3 +61,5 @@ def create_pumpkin_farmer(farm, drone, x_offset, y_offset):
     }
 
     return new_farmer
+
+             

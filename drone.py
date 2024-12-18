@@ -17,7 +17,7 @@ def create_drone():
         return True
     
     def do_move(direction):
-        start_op_count = get_op_count()
+        start_op_count = get_tick_count()
 
         success = move(direction)
 
@@ -27,7 +27,7 @@ def create_drone():
         if success:
             move_history.append(direction)
             
-        quick_print("do_move: ", get_op_count() - start_op_count)
+        quick_print("do_move: ", get_tick_count() - start_op_count)
 
         return success
     
@@ -42,11 +42,6 @@ def create_drone():
         else:
             return None
         
-    def go_to(x, y):
-        path = create_path(get_pos_x(), get_pos_y(), x, y)
-
-        return follow_path(path)
-
     new_drone = {
         "do_move": do_move,
         "follow_path": follow_path,
@@ -69,13 +64,57 @@ def do_scan():
 
     return scan_results
 
-def do_trade(needed_seed_counts):
-	for item_type in needed_seed_counts:
-		current_count = num_items(item_type)
-		needed_count = needed_seed_counts[item_type]
-		to_buy = needed_count - current_count
+def go_to(dest_x, dest_y):
+    # start_op_count = get_tick_count()
 
-		if to_buy > 0:
-			trade(item_type, to_buy)
+    current_x = get_pos_x()
+    current_y = get_pos_y()
 
-		needed_seed_counts[item_type] = 0
+    world_size = get_world_size()
+    radius = world_size / 2
+    
+    x_multiplier = 0
+    y_multiplier = 0
+
+    if current_x < radius and dest_x > radius:
+        x_multiplier = -1
+    if current_x > radius and dest_x < radius:
+        x_multiplier = 1
+    
+    if current_y < radius and dest_y > radius:
+        y_multiplier = -1
+    if current_y > radius and dest_y < radius:
+        y_multiplier = 1
+
+    dest_x += world_size * x_multiplier
+    dest_y += world_size * y_multiplier
+
+    path = []
+
+    while True:
+        if current_x == dest_x and current_y == dest_y:
+            break
+        
+        if current_x < dest_x:
+            move(East)
+            path.append(East)
+
+            current_x += 1
+
+        elif current_x > dest_x:
+            move(West)
+            path.append(West)
+
+            current_x -= 1
+
+        if current_y < dest_y:
+            move(North)
+            path.append(North)
+
+            current_y += 1
+        elif current_y > dest_y:
+            move(South)
+            path.append(South)
+            current_y -= 1
+
+    # quick_print("go_to: ", get_tick_count() - start_op_count)
