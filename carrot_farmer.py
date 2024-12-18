@@ -5,16 +5,22 @@ from farmer import *
 
 def init_carrot_plot():
     till()
-    use_item(Items.Fertilizer)
-    use_item(Items.Water)
+
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
     plant(Entities.Carrot)
+    use_item(Items.Fertilizer)
 
 def maintain_carrot_plot():
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
     if(can_harvest()):
         harvest()
-        use_item(Items.Fertilizer)
-        use_item(Items.Water)
+        
         plant(Entities.Carrot)
+        use_item(Items.Fertilizer)
 
 def init_carrot_farm(width, height, x_offset, y_offset):
     execute_scan_pass(width, height, init_carrot_plot, None, x_offset, y_offset)

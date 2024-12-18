@@ -21,12 +21,14 @@ def create_sunflower_farmer(width, height, x_offset, y_offset):
         for x_index in range(width):
             for y_index in range(height):
                 go_to(x_index + x_offset, y_index + y_offset)
-                
+
+                if get_water() < 0.25:
+                    use_item(Items.Water)
+
                 till()
     
-                use_item(Items.Fertilizer)
-                use_item(Items.Water)
                 plant(Entities.Sunflower)
+                use_item(Items.Fertilizer)
 
                 plot = plot_matrix[x_index][y_index]
 
@@ -41,10 +43,12 @@ def create_sunflower_farmer(width, height, x_offset, y_offset):
         for x_index in range(width):
             for y_index in range(height):
                 go_to(x_index + x_offset, y_index + y_offset)
+
+                if get_water() < 0.25:
+                    use_item(Items.Water)
     
-                use_item(Items.Fertilizer)
-                use_item(Items.Water)
                 plant(Entities.Sunflower)
+                use_item(Items.Fertilizer)
 
                 plot = plot_matrix[x_index][y_index]
 
@@ -66,6 +70,10 @@ def create_sunflower_farmer(width, height, x_offset, y_offset):
                 y_index = coords[1]
 
                 go_to(x_index + x_offset, y_index + y_offset)
+
+                if get_water() < 0.25:
+                    use_item(Items.Water)
+
                 harvest()
 
                 plot = plot_matrix[x_index][y_index]
@@ -85,14 +93,3 @@ def create_sunflower_farmer(width, height, x_offset, y_offset):
     }
 
     return new_farmer
-
-def plant_sunflower_plot(plot):
-    use_item(Items.Fertilizer)
-    use_item(Items.Water)
-    plant(Entities.Sunflower)
-
-    merge(plot, do_scan())
-
-def harvest_sunflower_plot(plot):
-    harvest()
-    merge(plot, do_scan())

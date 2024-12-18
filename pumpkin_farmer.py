@@ -8,15 +8,21 @@ from farm import *
 def init_pumpkin_plot():
     till()
     
-    use_item(Items.Water)
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
     plant(Entities.Pumpkin)
 
 def replant_pumpkin_plot():
-    use_item(Items.Water)
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
     plant(Entities.Pumpkin)
 
 def maintain_pumpkin_plot():
-    use_item(Items.Water)
+    if get_water() < 0.25:
+        use_item(Items.Water)
+    
     plant(Entities.Pumpkin)
 
     return can_harvest()

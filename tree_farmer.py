@@ -14,13 +14,18 @@ def maintain_tree_farm(width, height):
     return 0
 
 def init_tree_plot():
-    use_item(Items.Fertilizer)
-    use_item(Items.Water)
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
     plant(Entities.Tree)
+    use_item(Items.Fertilizer)
 
 def maintain_tree_plot():
+    if get_water() < 0.25:
+        use_item(Items.Water)
+
     if(can_harvest()):
         harvest()
-        use_item(Items.Fertilizer)
-        use_item(Items.Water)
+        
         plant(Entities.Tree)
+        use_item(Items.Fertilizer)
