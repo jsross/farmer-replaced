@@ -36,8 +36,6 @@ NO_PRIORITY = 0
 farm_size = get_world_size()
 my_farm = create_farm(farm_size, farm_size)
 
-my_drone = create_drone()
-
 # basic_demo()
 # farmer_demo()
 # region_demo()

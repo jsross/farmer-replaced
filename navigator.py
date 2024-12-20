@@ -2,7 +2,7 @@ from __builtins__ import *
 from graph import *
 from farm import *
 
-def create_navigator(drone):
+def create_navigator():
     
     graph = create_graph()
     
@@ -12,12 +12,9 @@ def create_navigator(drone):
     get_edge_count = graph["get_edge_count"]
     reset_connections = graph["reset_connections"]
     
-    get_last_move = drone["get_last_move"]
-    get_coords = drone["get_coords"]
-    do_move = drone["do_move"]
-    follow_path = drone["follow_path"]
-
     def search(check_goal):
+        print("Wall Follow")
+
         start_op_count = get_tick_count()
         
         last_move = None
@@ -31,120 +28,86 @@ def create_navigator(drone):
                 return True
 
             if last_move == North:
-                try_moves([West, North, East, South])
+                last_move = try_moves([West, North, East, South])
             elif last_move == East:
-                try_moves([North, East, South, West])
+                last_move = try_moves([North, East, South, West])
             elif last_move == South:
-                try_moves([East, South, West, North])
+                last_move = try_moves([East, South, West, North])
             elif last_move == West:
-                try_moves([South, West, North, East])
+                last_move = try_moves([South, West, North, East])
             else:
-                try_moves([West, North, East, South])
+                last_move = try_moves([West, North, East, South])
                 
-            current_coords = get_coords()
-
-            last_move = get_last_move()
+            current_coords = (get_pos_x(), get_pos_y())
 
             if current_coords in visited and visited[current_coords] == last_move:
                 return False
 
-            visited[get_coords()] = get_last_move()
-
-    def seak(dest_coords, max_tries):
-        success = False
-
-        for _ in range(max_tries):
-            path = get_a_star_path(get_coords(), dest_coords)
-
-            if path != None:
-                success = follow_path(path)
-
-            if not success:
-                print("Reset Connections")
-                reset_connections()
-                add_connections(graph)
-
-                success = best_guess_strategy(dest_coords)
-
-        return success
+            visited[(get_pos_x(), get_pos_y())] = last_move
 
     def best_guess_strategy(dest_coords):
+        print("Best Guess")
         start_op_count = get_tick_count()
 
-        last_coords = None
-        dead_ends = set()
-        visited = {}
+        banned_edges = []
 
-        weights =  get_distance_map(dest_coords[0], dest_coords[1])
-        
-        current_coords = get_coords()
+        # weights =  get_distance_map(dest_coords[0], dest_coords[1])
+
+        last_coords = None
             
         while True:
+            current_coords = (get_pos_x(), get_pos_y())
+
             if current_coords == dest_coords:
                 quick_print("best_guess_strategy: ", get_tick_count() - start_op_count)
 
                 return True
 
-            neighbors = list(get_connected(current_coords))
-            
-            if len(neighbors) == 0:
-                exit(1)
+            #Dead end check
+            if last_coords != None:
+                last_neighbors = get_neighbors(last_coords[0],last_coords[1])
+                last_neighbors.remove(current_coords)
 
-            if last_coords in neighbors:
+                allowed_count = 0
+
+                for last_neighbor in last_neighbors:
+                    if not set([last_coords, last_neighbor]) in banned_edges:
+                        allowed_count += 1
+                
+                if allowed_count == 0:
+                    banned_edges.append(set([current_coords,last_coords]))
+
+            neighbors = get_neighbors(current_coords[0], current_coords[1])
+
+            if last_coords != None:
                 neighbors.remove(last_coords)
-    
-            for dead_end in dead_ends:
-                if dead_end in neighbors:
-                    neighbors.remove(dead_end)
 
-            if len(neighbors) == 0:
-                direction = get_direction(current_coords, last_coords)
-            else:
-                unvisited = []
+            # TODO: Sort neighbords by distance to goal
 
-                for neighbor in neighbors:
-                    if not neighbor in visited:
-                        unvisited.append(neighbor)
+            success = False
 
-                if len(unvisited) > 0:
-                    lightest = find_lightest_node(unvisited, weights)
+            for neighbor in neighbors:
+                edge = set([current_coords, neighbor])
+
+                if edge in banned_edges:
+                    continue
+
+                success = go_to(neighbor[0], neighbor[1])
+
+                if success:
+                    break
+                
+                banned_edges.append(edge)
+
+            if not success:
+                if last_coords != None:
+                    go_to(last_coords[0], last_coords[1])
                 else:
-                    lightest = find_lightest_node(neighbors, weights)
-            
-                direction = get_direction(current_coords, lightest)
-
-            success = do_move(direction)
-            
-            if success:
-                last_coords = current_coords
-                current_coords = get_coords()
-                add_edge(last_coords, current_coords)
-
-                if current_coords in visited and visited[current_coords] == direction:
-                    quick_print("Looping")
-                    quick_print("best_guess_strategy: ", get_tick_count() - start_op_count)
-                    
+                    print("Error")
                     return False
 
-                visited[current_coords] = direction
-
-                if last_coords != None and not last_coords in dead_ends:
-                    Last_neighbors = list(get_connected(last_coords))
-                    Last_neighbors.remove(current_coords)
-
-                    dead_end_count = 0
-
-                    for neighbor in Last_neighbors:
-                        if neighbor in dead_ends:
-                            dead_end_count += 1
-                    
-                    if dead_end_count >= len(Last_neighbors):
-                        dead_ends.add(last_coords)
-            else:
-                target_coords = get_neighbor(current_coords[0], current_coords[1], direction)
-
-                if target_coords != None:
-                    remove_edge(current_coords, target_coords)
+            last_coords = current_coords
+            
 
     def get_a_star_path(coord_start, coord_end):
         start_op_count = get_tick_count()
@@ -207,24 +170,23 @@ def create_navigator(drone):
         return result_path
     
     def try_moves(directions):
-        success = False
-        last_coords = get_coords()
+        last_coords = (get_pos_x(), get_pos_y())
         
         for direction in directions:
-            success = do_move(direction)
             
-            if success:
-                add_edge(last_coords, get_coords())
+            if move(direction):
+                add_edge(last_coords, (get_pos_x(), get_pos_y()))
 
-                break
+                return direction
             else:
-                remove_edge(get_coords(), get_neighbor(get_pos_x(), get_pos_y(), direction))
+                remove_edge((get_pos_x(), get_pos_y()), get_neighbor(get_pos_x(), get_pos_y(), direction))
     
-        return success
+        return False
 
     new_navigator = {
+        "get_path": get_a_star_path,
         "search": search,
-        "seak": seak
+        "seak": best_guess_strategy
     }
 
     return new_navigator
@@ -233,24 +195,9 @@ def reconstruct_path(current, came_from):
     total_path = []
 
     while current in came_from:
-        current_x = current[0]
-        current_y = current[1]
-
-        next = came_from[current]
+        total_path.insert(0, current)
         
-        next_x = next[0]
-        next_y = next[1]
-        
-        if next_x > current_x:
-            total_path.insert(0, West)
-        elif next_x < current_x:
-            total_path.insert(0, East)
-        elif next_y > current_y:
-            total_path.insert(0, South)
-        elif next_y < current_y:
-            total_path.insert(0, North)
-        
-        current = next
+        current = came_from[current]
     
     if len(total_path) > 0:
         return total_path

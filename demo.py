@@ -122,10 +122,9 @@ def region_demo():
 def maze_demo():
     print("Maze Demo")
     clear()
-    maze_plan = create_maze_plan(my_drone, my_farm)
+    maze_plan = create_maze_plan()
 
-    for _ in range(10):
+    for _ in range(5):
         maze_plan["do_create_maze"]()
         maze_plan["execute_plan"](5)
-
-    harvest()
+        harvest()
