@@ -6,6 +6,7 @@ from tree_farmer import *
 from pumpkin_farmer import *
 from dual_farmer import *
 from sunflower_farmer import *
+from maze_navigator import *
 
 def basic_demo():
     print("Basic Demo")
@@ -122,9 +123,9 @@ def region_demo():
 def maze_demo():
     print("Maze Demo")
     clear()
-    maze_plan = create_maze_plan()
+    maze_navigator = create_maze_navigator() 
 
     for _ in range(5):
-        maze_plan["do_create_maze"]()
-        maze_plan["execute_plan"](5)
+        maze_navigator["do_create_maze"]()
+        maze_navigator["execute_plan"](5)
         harvest()

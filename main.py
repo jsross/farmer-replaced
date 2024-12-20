@@ -5,7 +5,7 @@ from drone import *
 from graph import *
 from farm import *
 from farm import *
-from maze import *
+from maze_navigator import *
 from carrot_farmer import *
 from dual_farmer import *
 from pumpkin_farmer import *

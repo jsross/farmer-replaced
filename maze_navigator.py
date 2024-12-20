@@ -1,16 +1,54 @@
-from __builtins__ import *
+from farmer import *
 from graph import *
-from farm import *
 
-def create_navigator():
-    
+def create_maze_navigator():
+
     graph = create_graph()
     
     add_edge = graph["add_edge"]
     remove_edge = graph["remove_edge"]
-    get_connected = graph["get_connected"]
-    get_edge_count = graph["get_edge_count"]
+    has_cycle = graph["has_cycle"]
+    get_path = graph["get_path"]
+
+    def check_is_treasure():
+        return get_entity_type() == Entities.Treasure
     
+    def do_create_maze():
+        clear()
+        plant(Entities.Bush)
+    
+        while not can_harvest():
+            pass
+            
+        while get_entity_type() == Entities.Bush:
+            use_item(Items.Weird_Substance, get_world_size())
+
+    def execute_plan(iterations):
+        success = search(check_is_treasure)
+        
+        if success == False:
+            print("Abort")
+            
+            return
+
+        for _ in range(1, iterations):
+            next_coords = measure()
+            
+            use_item(Items.Weird_Substance, get_world_size())
+            
+            path = get_path((get_pos_x(), get_pos_y()), next_coords)
+            
+            if path != None:
+                follow_result = follow_path(path)
+                
+                if follow_result:
+                    continue
+
+            success = best_guess_strategy(next_coords)
+
+            if not success:
+                print("Failure")
+
     def search(check_goal):
         print("Wall Follow")
 
@@ -206,13 +244,13 @@ def create_navigator():
     
         return False
 
-    new_navigator = {
-        "get_path": get_a_star_path,
-        "search": search,
-        "seak": best_guess_strategy
+           
+    new_maze_plan = {
+        "do_create_maze": do_create_maze,
+        "execute_plan": execute_plan
     }
 
-    return new_navigator
+    return new_maze_plan
 
 def reconstruct_path(current, came_from):
     total_path = []
@@ -239,87 +277,3 @@ def find_lightest_node(coords, weights):
             lightest_weight = current_weight
 
     return lightest
-
-def create_path(src_x, src_y, dest_x, dest_y):
-    start_op_count = get_tick_count()
-
-    current_x = src_x
-    current_y = src_y
-
-    world_size = get_world_size()
-    radius = world_size / 2
-    
-    x_multiplier = 0
-    y_multiplier = 0
-
-    if current_x < radius and dest_x > radius:
-        x_multiplier = -1
-    if current_x > radius and dest_x < radius:
-        x_multiplier = 1
-    
-    if current_y < radius and dest_y > radius:
-        y_multiplier = -1
-    if current_y > radius and dest_y < radius:
-        y_multiplier = 1
-
-    dest_x += world_size * x_multiplier
-    dest_y += world_size * y_multiplier
-
-    path = []
-
-    while True:
-        if current_x == dest_x and current_y == dest_y:
-            break
-        
-        if current_x < dest_x:
-            path.append(East)
-            current_x += 1
-        elif current_x > dest_x:
-            path.append(West)
-            current_x -= 1
-
-        if current_y < dest_y:
-            path.append(North)
-            current_y += 1
-        elif current_y > dest_y:
-            path.append(South)
-            current_y -= 1
-
-    quick_print("go_to: ", get_tick_count() - start_op_count)
-
-    return path
-
-def create_paths(coords_list):
-    last_coords = (get_pos_x(),get_pos_y())
-    paths = []
-
-    for coords in coords_list:
-        paths.append(create_path(last_coords[0],last_coords[1], coords[0], coords[1]))
-        last_coords = coords
-
-    return paths
-
-def create_scan_paths(width, height):
-    paths = []
-
-    current_x = 0
-    current_y = 0
-
-    for x_index in range(width):
-        for y_index in range(height):
-            if x_index % 2 == 0:
-                if y_index < height - 1:
-                    paths.append([North])
-                    current_y += 1
-                else:
-                    paths.append([East])
-                    current_x += 1
-            else:
-                if y_index < height - 1:
-                    paths.append([South])
-                    current_y -= 1
-                else:
-                    paths.append([East])
-                    current_x += 1
-
-    return paths

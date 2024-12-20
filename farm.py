@@ -122,19 +122,19 @@ def add_connections(graph):
         for y_index in range(size):
             current_coords = (x_index, y_index)
 
-            #Add East Neighbor
+            # Add East Neighbor
             if x_index < size - 1:
                 graph_add_edge(current_coords, (x_index + 1, y_index))
 
-            #Add West Neighbor
+            # Add West Neighbor
             if x_index > 0:
                 graph_add_edge(current_coords, (x_index - 1, y_index))
             
-            #Add North Neighbor
+            # Add North Neighbor
             if y_index < size - 1:
                 graph_add_edge(current_coords, (x_index, y_index+1))
 
-            #Add South Neighbor
+            # Add South Neighbor
             if y_index > 0:
                 graph_add_edge(current_coords, (x_index, y_index-1))
 
