@@ -2,70 +2,81 @@ from __builtins__ import *
 from Utility import *
 
 def create_graph():
-    connections = {}
+    edges = []
+    neighbor_map = {}
 
-    def add_edge(coord_1, coord_2):
-        start_op_count = get_tick_count()
+    def add_neighbors(coord_1, coord_2):
+        if not coord_1 in neighbor_map:
+            neighbor_map[coord_1] = []
 
-        if not coord_1 in connections:
-            connections[coord_1] = set()
+        if not coord_2 in neighbor_map:
+            neighbor_map[coord_2] = []
         
-        if not coord_2 in connections:
-            connections[coord_2] = set()
+        neighbor_map[coord_1].append(coord_2)
+        neighbor_map[coord_2].append(coord_1)
+    
+    def remove_neighbors(coord_1, coord_2):
+        if coord_1 in neighbor_map:
+            neighbor_map[coord_1].remove(coord_2)
 
-        connections[coord_1].add(coord_2)
-        connections[coord_2].add(coord_1)
+        if coord_2 in neighbor_map:
+            neighbor_map[coord_2].remove(coord_1)
 
-        quick_print("add_edge: ", get_tick_count() - start_op_count)
+    def add_edge(edge):
+        start_tick = get_tick_count()
+
+        if edge in edges:
+            quick_print("add_edge: ", get_tick_count() - start_tick)
+
+            return False
+        
+        edges.append(edge)
+
+        for coord_1 in edge:
+            for coord_2 in edge:
+                if coord_1 != coord_2:
+                    add_neighbors(coord_1, coord_2)
+
+        quick_print("add_edge: ", get_tick_count() - start_tick)
         
         return True
     
-    def remove_edge(coord_1, coord_2):
-        start_op_count = get_tick_count()
+    def remove_edge(edge):
+        start_tick = get_tick_count()
 
-        if coord_1 in connections:
-            coord_1_connections = connections[coord_1]
+        if not edge in edges:
+            quick_print("add_edge: ", get_tick_count() - start_tick)
 
-            if coord_2 in coord_1_connections:
-                coord_1_connections.remove(coord_2)
+            return False
         
-        if coord_2 in connections:
-            coord_2_connections = connections[coord_2]
-            
-            if coord_1 in coord_2_connections:
-                coord_2_connections.remove(coord_1)
+        edges.remove(edge)
 
-        quick_print("remove_edge: ", get_tick_count() - start_op_count)
+        for coord_1 in edge:
+            for coord_2 in edge:
+                if coord_1 != coord_2:
+                    remove_neighbors(coord_1, coord_2)
+
+        quick_print("remove_edge: ", get_tick_count() - start_tick)
 
         return True
     
     def get_connected(coord):
-        if not coord in connections:
+        if not coord in neighbor_map:
             return set()
         
-        connected_coord = connections[coord]
+        neighbors = neighbor_map[coord]
         
-        return connected_coord
+        return neighbors
     
     def get_edge_count():
-        return len(connections) / 2
+        return len(edges)
     
-    def reset_connections():
-        keys = []
-
-        for key in connections:
-            keys.append(key)
-
-        for key in keys:
-            connections.pop(key)
-        
     new_graph = {
         "add_edge": add_edge,
         "remove_edge": remove_edge,
         "get_edge_count": get_edge_count,
         "get_connected": get_connected,
-        "get_edge_count": get_edge_count,
-        "reset_connections": reset_connections
+        "get_edge_count": get_edge_count
     }
 
     return new_graph

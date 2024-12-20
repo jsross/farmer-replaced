@@ -10,7 +10,6 @@ def create_navigator():
     remove_edge = graph["remove_edge"]
     get_connected = graph["get_connected"]
     get_edge_count = graph["get_edge_count"]
-    reset_connections = graph["reset_connections"]
     
     def search(check_goal):
         print("Wall Follow")
@@ -48,7 +47,7 @@ def create_navigator():
     def best_guess_strategy(dest_coords):
         print("Best Guess")
         start_op_count = get_tick_count()
-
+        visited_coords = []
         banned_edges = []
 
         # weights =  get_distance_map(dest_coords[0], dest_coords[1])
@@ -86,21 +85,27 @@ def create_navigator():
 
             success = False
 
-            for neighbor in neighbors:
-                edge = set([current_coords, neighbor])
+            for neighbor_coords in neighbors:
+                edge = set([current_coords, neighbor_coords])
 
                 if edge in banned_edges:
                     continue
 
-                success = go_to(neighbor[0], neighbor[1])
+                success = go_to(neighbor_coords[0], neighbor_coords[1])
 
                 if success:
-                    break
-                
-                banned_edges.append(edge)
+                    if not neighbor_coords in visited_coords:
+                        visited_coords.append(neighbor_coords)
 
+                    add_edge(edge)
+
+                    break
+                else:
+                    banned_edges.append(edge)
+
+            # If the drone was unable to go to any of the neighbors
             if not success:
-                if last_coords != None:
+                if last_coords != None: # If possible, go back to the last coords
                     go_to(last_coords[0], last_coords[1])
                 else:
                     print("Error")
@@ -169,17 +174,35 @@ def create_navigator():
         
         return result_path
     
+    def try_coords(coords_list):
+        current_coords = (get_pos_x(), get_pos_y())
+
+        for coords in coords_list:
+            if go_to(coords):
+                add_edge(set([coords, current_coords]))
+                
+                return True
+            else:
+                remove_edge(set([coords, current_coords]))
+        
+        return False
+    
     def try_moves(directions):
-        last_coords = (get_pos_x(), get_pos_y())
+        start_coords = (get_pos_x(), get_pos_y())
         
         for direction in directions:
-            
             if move(direction):
-                add_edge(last_coords, (get_pos_x(), get_pos_y()))
+                edge = set([start_coords, (get_pos_x(), get_pos_y())])
+                           
+                add_edge(edge)
 
                 return direction
             else:
-                remove_edge((get_pos_x(), get_pos_y()), get_neighbor(get_pos_x(), get_pos_y(), direction))
+                neighbor = get_neighbor(get_pos_x(), get_pos_y(), direction)
+
+                edge = set([start_coords, neighbor])
+                           
+                remove_edge(edge)
     
         return False
 
