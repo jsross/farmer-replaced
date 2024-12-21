@@ -143,8 +143,10 @@ def add_connections(graph):
 def get_distance(coords_1, coords_2):
     start_op_count = get_tick_count()
     
-    if coords_2 == None:
-        print("oops")
+    if coords_1 == None or coords_2 == None:
+        quick_print("Bad Arguments: coords_1 and coords_2 are both required")
+
+        exit()
 
     distance = calculate_dist(coords_1[0], coords_1[1], coords_2[0],coords_2[1])
 

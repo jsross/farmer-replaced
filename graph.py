@@ -60,9 +60,33 @@ def create_graph():
 
         return True
     
-    def has_cycle():
+    
+    def is_cycle_util(vertex, visited_list, parent):
+        visited_list.append(vertex)
+
+        neighbors = neighbor_map[vertex]
+
+        for neighbor_coords in neighbors:
+            if not neighbor_coords in visited_list:
+                if is_cycle_util(neighbor_coords, visited_list, vertex):
+                    return True
+            elif neighbor_coords != parent:
+                return True
+        
         return False
 
+    def in_cycle(vertex):
+        visited_list = []
+
+        if vertex in neighbor_map:
+            neighbors = neighbor_map[vertex]
+
+            for neighbor in neighbors:
+                if not neighbor in visited_list:
+                    if is_cycle_util(neighbor, visited_list, vertex):
+                        return True
+                    
+        return False 
 
     def get_a_star_path(coord_start, coord_end):
         start_tick = get_tick_count()
@@ -140,7 +164,7 @@ def create_graph():
         "get_connected": get_connected,
         "get_edge_count": get_edge_count,
         "get_path": get_a_star_path,
-        "has_cycle": has_cycle,
+        "in_cycle": in_cycle,
         "remove_edge": remove_edge
     }
 

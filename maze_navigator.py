@@ -7,7 +7,7 @@ def create_maze_navigator():
     
     add_edge = graph["add_edge"]
     remove_edge = graph["remove_edge"]
-    has_cycle = graph["has_cycle"]
+    in_cycle = graph["in_cycle"]
     get_path = graph["get_path"]
 
     def check_is_treasure():
@@ -24,30 +24,33 @@ def create_maze_navigator():
             use_item(Items.Weird_Substance, get_world_size())
 
     def execute_plan(iterations):
-        success = search(check_is_treasure)
         
-        if success == False:
+        if search(check_is_treasure) == False:
             print("Abort")
             
             return
 
         for _ in range(1, iterations):
+            success = False
+
             next_coords = measure()
-            
             use_item(Items.Weird_Substance, get_world_size())
             
             path = get_path((get_pos_x(), get_pos_y()), next_coords)
             
             if path != None:
-                follow_result = follow_path(path)
-                
-                if follow_result:
-                    continue
+                print("Follow Path")
 
-            success = best_guess_strategy(next_coords)
+                follow_path(path)
+
+                success = get_entity_type() == Entities.Treasure
 
             if not success:
+                success = best_guess_strategy(next_coords)
+
+            if get_entity_type() != Entities.Treasure:
                 print("Failure")
+                break
 
     def search(check_goal):
         print("Wall Follow")
@@ -84,6 +87,12 @@ def create_maze_navigator():
 
     def best_guess_strategy(dest_coords):
         print("Best Guess")
+
+        if(dest_coords == None):
+            print("Bad Argument. No dest_coords")
+
+            return False
+
         start_op_count = get_tick_count()
         visited_coords = []
         banned_edges = []
@@ -113,17 +122,32 @@ def create_maze_navigator():
                 
                 if allowed_count == 0:
                     banned_edges.append(set([current_coords,last_coords]))
+            
+            # if current_coords in visited_coords:
+            #    if in_cycle(current_coords):
+            #        print("Cycle!!!!!")
 
-            neighbors = get_neighbors(current_coords[0], current_coords[1])
+            neighbor_coords_list = get_neighbors(current_coords[0], current_coords[1])
+            weighted_neighbors = []
 
-            if last_coords != None:
-                neighbors.remove(last_coords)
+            for neighbor_coords in neighbor_coords_list:
+                weight = 0
 
-            # TODO: Sort neighbords by distance to goal
+                if neighbor_coords == last_coords:
+                    weight = 99
+                elif neighbor_coords in visited_coords:
+                    weight = 98
+                else:
+                    weight = get_distance(neighbor_coords, dest_coords)
+
+                weighted_neighbors.append((weight, neighbor_coords))
+
+            TopDownMergeSort(weighted_neighbors, 0)
 
             success = False
 
-            for neighbor_coords in neighbors:
+            for weighted_neighbor in weighted_neighbors:
+                neighbor_coords = weighted_neighbor[1]
                 edge = set([current_coords, neighbor_coords])
 
                 if edge in banned_edges:
@@ -143,74 +167,11 @@ def create_maze_navigator():
 
             # If the drone was unable to go to any of the neighbors
             if not success:
-                if last_coords != None: # If possible, go back to the last coords
-                    go_to(last_coords[0], last_coords[1])
-                else:
-                    print("Error")
-                    return False
+                print("Error")
+
+                return False
 
             last_coords = current_coords
-            
-
-    def get_a_star_path(coord_start, coord_end):
-        start_op_count = get_tick_count()
-        
-        distances_from_start = {}
-                
-        # The set of discovered nodes that may need to be (re-)expanded.
-        # Initially, only the start node is known.
-        # This is usually implemented as a min-heap or priority queue rather than a hash-set.
-        set_open_coords = {coord_start}
-        distances_from_start[coord_start] = 0
-        weights = {
-            coord_start: get_distance(coord_start, coord_end)
-        }
-
-        # For node n, came_from[n] is the node immediately preceding it on the cheapest path from the start
-        # to n currently known.
-        came_from = {}
-        result_path = None
-    
-        while len(set_open_coords) > 0:
-            # This operation can occur in O(Log(N)) time if openSet is a min-heap or a priority queue
-            
-            coord_current = find_lightest_node(set_open_coords, weights)
-
-            if coord_current == coord_end:
-                result_path = reconstruct_path(coord_current, came_from)
-
-                break
-
-            set_open_coords.remove(coord_current)
-
-            neighbors = get_connected(coord_current)
-
-            for neighbor in neighbors:
-                #if this is the first time visiting this node, set some defaults
-                if not neighbor in distances_from_start:
-                    distances_from_start[neighbor] = 9999999999999
-
-                if not neighbor in weights:
-                    weights[neighbor] = 9999999999999
-
-                # d(current,neighbor) is the weight of the edge from current to neighbor
-                # tentative_gScore is the distance from start to the neighbor through current
-                tenative_distance_from_start = distances_from_start[coord_current]  + 1
-
-                if tenative_distance_from_start < distances_from_start[neighbor]:
-                    # This path to neighbor is better than any previous one. Record it!
-                    came_from[neighbor] = coord_current
-                    distances_from_start[neighbor] = tenative_distance_from_start
-                                    
-                    # For node n, weight := distance_from_start + get_distance. Weight represents our current best guess as to
-                    # how cheap a path could be from start to finish if it goes through n.
-                    weights[neighbor]  = tenative_distance_from_start + get_distance(coord_end, neighbor)
-
-                    set_open_coords.add(neighbor)
-
-        quick_print("a_star: ", get_tick_count() - start_op_count)
-        
-        return result_path
     
     def try_coords(coords_list):
         current_coords = (get_pos_x(), get_pos_y())

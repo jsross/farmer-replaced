@@ -21,9 +21,9 @@ def follow_path(path):
         coords = path[index]
 
         if not go_to(coords[0], coords[1]):
-            return index
+            return -index
 
-    return True
+    return 0
 
 def go_to(dest_x, dest_y):
     # start_op_count = get_tick_count()
