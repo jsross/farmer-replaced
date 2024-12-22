@@ -125,7 +125,7 @@ def maze_demo():
     clear()
     maze_navigator = create_maze_navigator() 
 
-    for _ in range(5):
+    for _ in range(10):
         maze_navigator["do_create_maze"]()
-        maze_navigator["execute_plan"](10)
+        maze_navigator["execute_plan"](20)
         harvest()

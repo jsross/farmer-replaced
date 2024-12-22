@@ -1,7 +1,7 @@
 from __builtins__ import *
 from Utility import *
 
-def create_graph():
+def create_graph(get_weight):
     edges = []
     neighbor_map = {}
 
@@ -60,33 +60,25 @@ def create_graph():
 
         return True
     
-    
-    def is_cycle_util(vertex, visited_list, parent):
-        visited_list.append(vertex)
-
-        neighbors = neighbor_map[vertex]
-
-        for neighbor_coords in neighbors:
-            if not neighbor_coords in visited_list:
-                if is_cycle_util(neighbor_coords, visited_list, vertex):
-                    return True
-            elif neighbor_coords != parent:
-                return True
+    def in_cycle(edge):
+        if not edge in edges:
+            return False
         
-        return False
+        remove_edge(edge)
 
-    def in_cycle(vertex):
-        visited_list = []
+        vertices = []
 
-        if vertex in neighbor_map:
-            neighbors = neighbor_map[vertex]
+        for vertex in edge:
+            vertices.append(vertex)
 
-            for neighbor in neighbors:
-                if not neighbor in visited_list:
-                    if is_cycle_util(neighbor, visited_list, vertex):
-                        return True
-                    
-        return False 
+        vertex_1 = vertices[0]
+        vertex_2 = vertices[1]
+
+        path = get_a_star_path(vertex_1, vertex_2)
+
+        add_edge(edge)
+
+        return path != None
 
     def get_a_star_path(coord_start, coord_end):
         start_tick = get_tick_count()
@@ -99,7 +91,7 @@ def create_graph():
         set_open_coords = {coord_start}
         distances_from_start[coord_start] = 0
         weights = {
-            coord_start: get_distance(coord_start, coord_end)
+            coord_start: get_weight(coord_start, coord_end)
         }
 
         # For node n, came_from[n] is the node immediately preceding it on the cheapest path from the start
@@ -138,9 +130,9 @@ def create_graph():
                     came_from[neighbor] = coord_current
                     distances_from_start[neighbor] = tenative_distance_from_start
                                     
-                    # For node n, weight := distance_from_start + get_distance. Weight represents our current best guess as to
+                    # For node n, weight := distance_from_start + get_weight. Weight represents our current best guess as to
                     # how cheap a path could be from start to finish if it goes through n.
-                    weights[neighbor]  = tenative_distance_from_start + get_distance(coord_end, neighbor)
+                    weights[neighbor]  = tenative_distance_from_start + get_weight(coord_end, neighbor)
 
                     set_open_coords.add(neighbor)
 
@@ -182,3 +174,16 @@ def reconstruct_path(current, came_from):
         return total_path
     
     return None
+
+def find_lightest_node(coords, weights):
+    lightest = None
+    lightest_weight = 9999999999999
+
+    for current_coords in coords:
+        current_weight = weights[current_coords]
+
+        if current_weight < lightest_weight:
+            lightest = current_coords
+            lightest_weight = current_weight
+
+    return lightest

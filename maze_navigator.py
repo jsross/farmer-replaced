@@ -3,7 +3,7 @@ from graph import *
 
 def create_maze_navigator():
 
-    graph = create_graph()
+    graph = create_graph(get_distance)
     
     add_edge = graph["add_edge"]
     remove_edge = graph["remove_edge"]
@@ -39,8 +39,6 @@ def create_maze_navigator():
             path = get_path((get_pos_x(), get_pos_y()), next_coords)
             
             if path != None:
-                print("Follow Path")
-
                 follow_path(path)
 
                 success = get_entity_type() == Entities.Treasure
@@ -53,8 +51,6 @@ def create_maze_navigator():
                 break
 
     def search(check_goal):
-        print("Wall Follow")
-
         start_op_count = get_tick_count()
         
         last_move = None
@@ -86,7 +82,6 @@ def create_maze_navigator():
             visited[(get_pos_x(), get_pos_y())] = last_move
 
     def best_guess_strategy(dest_coords):
-        print("Best Guess")
 
         if(dest_coords == None):
             print("Bad Argument. No dest_coords")
@@ -111,7 +106,7 @@ def create_maze_navigator():
 
             #Dead end check
             if last_coords != None:
-                last_neighbors = get_neighbors(last_coords[0],last_coords[1])
+                last_neighbors = get_neighbors(last_coords[0], last_coords[1])
                 last_neighbors.remove(current_coords)
 
                 allowed_count = 0
@@ -119,13 +114,17 @@ def create_maze_navigator():
                 for last_neighbor in last_neighbors:
                     if not set([last_coords, last_neighbor]) in banned_edges:
                         allowed_count += 1
+
+                last_edge = set([current_coords, last_coords])
                 
                 if allowed_count == 0:
-                    banned_edges.append(set([current_coords,last_coords]))
-            
-            # if current_coords in visited_coords:
-            #    if in_cycle(current_coords):
-            #        print("Cycle!!!!!")
+                    banned_edges.append(last_edge)
+                elif current_coords in visited_coords:
+                    if in_cycle(last_edge):
+                        print("Cycle!!!!!")
+                        banned_edges.append(last_edge)
+
+            visited_coords.append(current_coords)        
 
             neighbor_coords_list = get_neighbors(current_coords[0], current_coords[1])
             weighted_neighbors = []
@@ -156,8 +155,7 @@ def create_maze_navigator():
                 success = go_to(neighbor_coords[0], neighbor_coords[1])
 
                 if success:
-                    if not neighbor_coords in visited_coords:
-                        visited_coords.append(neighbor_coords)
+                    
 
                     add_edge(edge)
 
@@ -204,7 +202,6 @@ def create_maze_navigator():
                 remove_edge(edge)
     
         return False
-
            
     new_maze_plan = {
         "do_create_maze": do_create_maze,
@@ -212,29 +209,3 @@ def create_maze_navigator():
     }
 
     return new_maze_plan
-
-def reconstruct_path(current, came_from):
-    total_path = []
-
-    while current in came_from:
-        total_path.insert(0, current)
-        
-        current = came_from[current]
-    
-    if len(total_path) > 0:
-        return total_path
-    
-    return None
-
-def find_lightest_node(coords, weights):
-    lightest = None
-    lightest_weight = 9999999999999
-
-    for current_coords in coords:
-        current_weight = weights[current_coords]
-
-        if current_weight < lightest_weight:
-            lightest = current_coords
-            lightest_weight = current_weight
-
-    return lightest
