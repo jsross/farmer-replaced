@@ -5,7 +5,7 @@ from drone import *
 from graph import *
 from farm import *
 from farm import *
-from maze import *
+from maze_navigator import *
 from carrot_farmer import *
 from dual_farmer import *
 from pumpkin_farmer import *
@@ -36,13 +36,10 @@ NO_PRIORITY = 0
 farm_size = get_world_size()
 my_farm = create_farm(farm_size, farm_size)
 
-my_drone = create_drone()
-
-# basic_demo()
-# farmer_demo()
-# region_demo()
-
-maze_demo()
+#basic_demo()
+#farmer_demo()
+#region_demo()
+#maze_demo()
 
 def do_work():
     print("Do Work Demo")
@@ -51,10 +48,11 @@ def do_work():
     clear()
     
     farm_plans = []
-    farm_plans.append((create_grass_farmer(world_size, world_size, 0, 0),1))
-    farm_plans.append((create_dual_farmer(world_size, world_size, 0, 0, (Entities.Tree, Entities.Bush)),10))
+    #farm_plans.append((create_grass_farmer(world_size, world_size, 0, 0),1))
+    #farm_plans.append((create_dual_farmer(world_size, world_size, 0, 0, (Entities.Tree, Entities.Bush)),10))
+    farm_plans.append((create_sunflower_farmer(world_size, world_size, 0, 0),2)) # 0,0
     
-    for _ in range(10):
+    for _ in range(1):
         for farm_plan in farm_plans:
             farmer = farm_plan[0]
             iterations = farm_plan[1]
@@ -73,5 +71,13 @@ def do_work():
 
                 if result > 0:
                     wait_till(result)
+    
+    clear()
+    maze_navigator = create_maze_navigator() 
 
-# do_work()
+    for _ in range(10):
+        maze_navigator["do_create_maze"]()
+        maze_navigator["execute_plan"](20)
+        harvest()
+
+do_work()

@@ -122,33 +122,35 @@ def add_connections(graph):
         for y_index in range(size):
             current_coords = (x_index, y_index)
 
-            #Add East Neighbor
+            # Add East Neighbor
             if x_index < size - 1:
                 graph_add_edge(current_coords, (x_index + 1, y_index))
 
-            #Add West Neighbor
+            # Add West Neighbor
             if x_index > 0:
                 graph_add_edge(current_coords, (x_index - 1, y_index))
             
-            #Add North Neighbor
+            # Add North Neighbor
             if y_index < size - 1:
                 graph_add_edge(current_coords, (x_index, y_index+1))
 
-            #Add South Neighbor
+            # Add South Neighbor
             if y_index > 0:
                 graph_add_edge(current_coords, (x_index, y_index-1))
 
     quick_print("add_connections: ", get_tick_count() - start_op_count)
 
 def get_distance(coords_1, coords_2):
-    start_op_count = get_tick_count()
+    # start_op_count = get_tick_count()
     
-    if coords_2 == None:
-        print("oops")
+    if coords_1 == None or coords_2 == None:
+        quick_print("Bad Arguments: coords_1 and coords_2 are both required")
+
+        exit()
 
     distance = calculate_dist(coords_1[0], coords_1[1], coords_2[0],coords_2[1])
 
-    quick_print("get_distance: ", get_tick_count() - start_op_count)
+    # quick_print("get_distance: ", get_tick_count() - start_op_count)
 
     return distance
     

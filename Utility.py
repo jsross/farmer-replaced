@@ -36,6 +36,14 @@ def create_matrix_with_default_object(width, height, default):
 	
 	return matrix
 
+def new_array(src_array):
+	dest_array = []
+
+	for item in src_array:
+		dest_array.append(item)
+	
+	return dest_array
+
 def copy_array(src_array, dest_array):
 	count = len(src_array)
 
@@ -107,6 +115,13 @@ def find_in_array(array, test_func):
 			items.append(item)
 	
 	return items
+
+def remove_range(array, to_remove):
+	for item in to_remove:
+		if item in array:
+			array.remove(item)
+
+	return array
 
 def select_object_from_array(array, properties):
 	def test_func(item, _):
