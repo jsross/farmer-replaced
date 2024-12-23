@@ -26,7 +26,7 @@ def follow_path(path):
     return 0
 
 def go_to(dest_x, dest_y):
-    # start_op_count = get_tick_count()
+    start_op_count = get_tick_count()
 
     current_x = get_pos_x()
     current_y = get_pos_y()
@@ -49,30 +49,36 @@ def go_to(dest_x, dest_y):
     dest_x += world_size * x_multiplier
     dest_y += world_size * y_multiplier
 
+    success = False
+
     while True:
         if current_x == dest_x and current_y == dest_y:
-            return True
+            success = True
+            break
         
         if current_x < dest_x:
-            if move(East):
-                current_x += 1
-            else:
-                return False
+            if not move(East):
+                break
+
+            current_x += 1
+
         elif current_x > dest_x:
-            if move(West):
-                current_x -= 1
-            else:
-                return False
+            if not move(West):
+                break
+
+            current_x -= 1
 
         if current_y < dest_y:
-            if move(North):
-                current_y += 1
-            else:
-                return False
-        elif current_y > dest_y:
-            if move(South):
-                current_y -= 1
-            else:
-                return False
+            if not move(North):
+                break
 
-    # quick_print("go_to: ", get_tick_count() - start_op_count)
+            current_y += 1
+           
+        elif current_y > dest_y:
+            if not move(South):
+                break
+            current_y -= 1
+
+    quick_print("go_to: ", get_tick_count() - start_op_count)
+
+    return success

@@ -5,22 +5,22 @@ def create_graph(get_weight):
     edges = []
     neighbor_map = {}
 
-    def add_neighbors(coord_1, coord_2):
-        if not coord_1 in neighbor_map:
-            neighbor_map[coord_1] = []
+    def add_neighbors(vertex_1, vertex_2):
+        if not vertex_1 in neighbor_map:
+            neighbor_map[vertex_1] = set()
 
-        if not coord_2 in neighbor_map:
-            neighbor_map[coord_2] = []
+        if not vertex_2 in neighbor_map:
+            neighbor_map[vertex_2] = set()
         
-        neighbor_map[coord_1].append(coord_2)
-        neighbor_map[coord_2].append(coord_1)
+        neighbor_map[vertex_1].add(vertex_2)
+        neighbor_map[vertex_2].add(vertex_1)
     
-    def remove_neighbors(coord_1, coord_2):
-        if coord_1 in neighbor_map:
-            neighbor_map[coord_1].remove(coord_2)
+    def remove_neighbors(vertex_1, vertex_2):
+        if vertex_1 in neighbor_map and vertex_2 in neighbor_map[vertex_1]:
+            neighbor_map[vertex_1].remove(vertex_2)
 
-        if coord_2 in neighbor_map:
-            neighbor_map[coord_2].remove(coord_1)
+        if vertex_2 in neighbor_map and vertex_1 in neighbor_map[vertex_2]:
+            neighbor_map[vertex_2].remove(vertex_1)
 
     def add_edge(edge):
         start_tick = get_tick_count()
@@ -32,10 +32,10 @@ def create_graph(get_weight):
         
         edges.append(edge)
 
-        for coord_1 in edge:
-            for coord_2 in edge:
-                if coord_1 != coord_2:
-                    add_neighbors(coord_1, coord_2)
+        for vertex_1 in edge:
+            for vertex_2 in edge:
+                if vertex_1 != vertex_2:
+                    add_neighbors(vertex_1, vertex_2)
 
         quick_print("add_edge: ", get_tick_count() - start_tick)
         
@@ -51,16 +51,18 @@ def create_graph(get_weight):
         
         edges.remove(edge)
 
-        for coord_1 in edge:
-            for coord_2 in edge:
-                if coord_1 != coord_2:
-                    remove_neighbors(coord_1, coord_2)
+        for vertex_1 in edge:
+            for vertex_2 in edge:
+                if vertex_1 != vertex_2:
+                    remove_neighbors(vertex_1, vertex_2)
 
         quick_print("remove_edge: ", get_tick_count() - start_tick)
 
         return True
     
     def in_cycle(edge):
+        start_tick = get_tick_count()
+
         if not edge in edges:
             return False
         
@@ -78,9 +80,16 @@ def create_graph(get_weight):
 
         add_edge(edge)
 
-        return path != None
+        is_in_cycle = path != None
 
-    def get_a_star_path(coord_start, coord_end):
+        if is_in_cycle:
+            quick_print("Contains Cycle: ", path)
+
+        quick_print("in_cycle: ", get_tick_count() - start_tick)
+
+        return is_in_cycle
+
+    def get_a_star_path(vertex_start, vertex_end):
         start_tick = get_tick_count()
         
         distances_from_start = {}
@@ -88,10 +97,11 @@ def create_graph(get_weight):
         # The set of discovered nodes that may need to be (re-)expanded.
         # Initially, only the start node is known.
         # This is usually implemented as a min-heap or priority queue rather than a hash-set.
-        set_open_coords = {coord_start}
-        distances_from_start[coord_start] = 0
+        set_open_vertex = {vertex_start}
+        distances_from_start[vertex_start] = 0
+
         weights = {
-            coord_start: get_weight(coord_start, coord_end)
+            vertex_start: get_weight(vertex_start, vertex_end)
         }
 
         # For node n, came_from[n] is the node immediately preceding it on the cheapest path from the start
@@ -99,19 +109,19 @@ def create_graph(get_weight):
         came_from = {}
         result_path = None
     
-        while len(set_open_coords) > 0:
+        while len(set_open_vertex) > 0:
             # This operation can occur in O(Log(N)) time if openSet is a min-heap or a priority queue
             
-            coord_current = find_lightest_node(set_open_coords, weights)
+            current_vertex = find_lightest_node(set_open_vertex, weights)
 
-            if coord_current == coord_end:
-                result_path = reconstruct_path(coord_current, came_from)
+            if current_vertex == vertex_end:
+                result_path = reconstruct_path(current_vertex, came_from)
 
                 break
 
-            set_open_coords.remove(coord_current)
-
-            neighbors = get_connected(coord_current)
+            set_open_vertex.remove(current_vertex)
+            
+            neighbors = get_connected(current_vertex)
 
             for neighbor in neighbors:
                 #if this is the first time visiting this node, set some defaults
@@ -123,28 +133,28 @@ def create_graph(get_weight):
 
                 # d(current,neighbor) is the weight of the edge from current to neighbor
                 # tentative_gScore is the distance from start to the neighbor through current
-                tenative_distance_from_start = distances_from_start[coord_current]  + 1
+                tenative_distance_from_start = distances_from_start[current_vertex]  + 1
 
                 if tenative_distance_from_start < distances_from_start[neighbor]:
                     # This path to neighbor is better than any previous one. Record it!
-                    came_from[neighbor] = coord_current
+                    came_from[neighbor] = current_vertex
                     distances_from_start[neighbor] = tenative_distance_from_start
                                     
                     # For node n, weight := distance_from_start + get_weight. Weight represents our current best guess as to
                     # how cheap a path could be from start to finish if it goes through n.
-                    weights[neighbor]  = tenative_distance_from_start + get_weight(coord_end, neighbor)
+                    weights[neighbor]  = tenative_distance_from_start + get_weight(vertex_end, neighbor)
 
-                    set_open_coords.add(neighbor)
+                    set_open_vertex.add(neighbor)
 
         quick_print("a_star: ", get_tick_count() - start_tick)
         
         return result_path
     
-    def get_connected(coord):
-        if not coord in neighbor_map:
+    def get_connected(vertex):
+        if not vertex in neighbor_map:
             return set()
         
-        neighbors = neighbor_map[coord]
+        neighbors = neighbor_map[vertex]
         
         return neighbors
     
@@ -175,15 +185,15 @@ def reconstruct_path(current, came_from):
     
     return None
 
-def find_lightest_node(coords, weights):
+def find_lightest_node(vertices, weights):
     lightest = None
     lightest_weight = 9999999999999
 
-    for current_coords in coords:
-        current_weight = weights[current_coords]
+    for vertex in vertices:
+        current_weight = weights[vertex]
 
         if current_weight < lightest_weight:
-            lightest = current_coords
+            lightest = vertex
             lightest_weight = current_weight
 
     return lightest

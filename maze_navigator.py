@@ -14,19 +14,29 @@ def create_maze_navigator():
         return get_entity_type() == Entities.Treasure
     
     def do_create_maze():
+        world_size = get_world_size()
         clear()
         plant(Entities.Bush)
     
         while not can_harvest():
             pass
             
-        while get_entity_type() == Entities.Bush:
-            use_item(Items.Weird_Substance, get_world_size())
+        use_item(Items.Weird_Substance, world_size)
+
+        for index in range(world_size):
+            south_coords = (index, 0)
+            east_coords = (0, index)
+
+            south_neighbor = get_neighbor(south_coords[0], south_coords[1], South)
+            remove_edge(set([south_coords, south_neighbor]))
+
+            east_neighbor = get_neighbor(east_coords[0], east_coords[1], East)
+            remove_edge(set([east_coords, east_neighbor]))
 
     def execute_plan(iterations):
         
         if search(check_is_treasure) == False:
-            print("Abort")
+            print("Treasure not found: Abort!")
             
             return
 
@@ -47,7 +57,7 @@ def create_maze_navigator():
                 success = best_guess_strategy(next_coords)
 
             if get_entity_type() != Entities.Treasure:
-                print("Failure")
+                print("Treasure Not Found! Abort!")
                 break
 
     def search(check_goal):
@@ -123,6 +133,7 @@ def create_maze_navigator():
                     if in_cycle(last_edge):
                         print("Cycle!!!!!")
                         banned_edges.append(last_edge)
+                        remove_edge(last_edge)
 
             visited_coords.append(current_coords)        
 

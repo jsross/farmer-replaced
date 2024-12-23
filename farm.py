@@ -141,7 +141,7 @@ def add_connections(graph):
     quick_print("add_connections: ", get_tick_count() - start_op_count)
 
 def get_distance(coords_1, coords_2):
-    start_op_count = get_tick_count()
+    # start_op_count = get_tick_count()
     
     if coords_1 == None or coords_2 == None:
         quick_print("Bad Arguments: coords_1 and coords_2 are both required")
@@ -150,7 +150,7 @@ def get_distance(coords_1, coords_2):
 
     distance = calculate_dist(coords_1[0], coords_1[1], coords_2[0],coords_2[1])
 
-    quick_print("get_distance: ", get_tick_count() - start_op_count)
+    # quick_print("get_distance: ", get_tick_count() - start_op_count)
 
     return distance
     
