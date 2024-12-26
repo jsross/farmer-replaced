@@ -102,8 +102,6 @@ def create_maze_navigator():
         visited_coords = []
         banned_edges = []
 
-        # weights =  get_distance_map(dest_coords[0], dest_coords[1])
-
         last_coords = None
             
         while True:

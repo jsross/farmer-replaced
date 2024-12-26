@@ -1,18 +1,5 @@
 from __builtins__ import *
 from Utility import *
-from farm import *
-
-def do_scan():
-    scan_results = {
-        "entity_type": get_entity_type(),
-        "ground_type": get_ground_type(),
-        "measure": measure(),
-        "can_harvest": can_harvest(),
-        "water": get_water(),
-        "timestamp": get_time()
-    }
-
-    return scan_results
 
 def follow_path(path):
     path_length = len(path)
