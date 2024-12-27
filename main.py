@@ -9,6 +9,7 @@ from dual_farmer import *
 from pumpkin_farmer import *
 from sunflower_farmer import *
 from catcus_farmer import *
+from dino_farmer import *
 from sort import *
 
 # clear()
@@ -47,10 +48,13 @@ def do_work():
     
     farm_plans = []
 
-    farm_plans.append((create_sunflower_farmer(world_size, world_size, 0, 0),2)) # 0,0
-    farm_plans.append((create_cactus_farmer(world_size, world_size, 0, 0), 20)) # 0,0
+    # farm_plans.append((create_grass_farmer(world_size, world_size, 0, 0),10))
+    # farm_plans.append((create_carrot_farmer(world_size, world_size, 0, 0),4))
+    # farm_plans.append((create_pumpkin_farmer(world_size, world_size, 0, 0), 5))
+    # farm_plans.append((create_sunflower_farmer(world_size, world_size, 0, 0),3))
+    farm_plans.append((create_dino_farmer(),5))
     
-    for _ in range(1):
+    for _ in range(10):
         for farm_plan in farm_plans:
             farmer = farm_plan[0]
             iterations = farm_plan[1]
@@ -72,7 +76,7 @@ def do_work():
     
     clear()
     
-    # maze_navigator = create_maze_navigator() 
+    # maze_navigator = create_maze_navigator()
 
     # for _ in range(10):
     #    maze_navigator["do_create_maze"]()

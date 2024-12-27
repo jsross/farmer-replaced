@@ -43,7 +43,7 @@ def maintain_pumpkin_farm(matrix, width, height, x_offset, y_offset):
 
     execute_path_action(coords, maintain_pumpkin_plot, x_offset, y_offset, matrix)
 
-    return 0
+    return get_time() + 2
 
 def create_pumpkin_farmer(width, height, x_offset, y_offset):
 
