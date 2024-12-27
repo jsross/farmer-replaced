@@ -1,8 +1,8 @@
 from __builtins__ import *
 from __test_harness__ import *
 from Utility import *
+from matrix import *
 from drone import *
-from farm import *
 
 def create_sunflower_farmer(width, height, x_offset, y_offset):
     GROW_TIME = 4
