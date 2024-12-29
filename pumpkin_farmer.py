@@ -45,21 +45,31 @@ def maintain_pumpkin_farm(matrix, width, height, x_offset, y_offset):
 
     return 0
 
-def create_pumpkin_farmer(width, height, x_offset, y_offset):
+def create_pumpkin_farmer(width, height, x_offset, y_offset, goal):
 
     can_harvest_matrix = create_matrix_with_default(width, height, False) 
 
     def init_farm():
-        return init_pumpkin_farm(width, height, x_offset, y_offset)
+        init_pumpkin_farm(width, height, x_offset, y_offset)
+
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": 0
+        }
     
     def maintain_farm():
-        return maintain_pumpkin_farm(can_harvest_matrix, width, height, x_offset, y_offset)
+        maintain_pumpkin_farm(can_harvest_matrix, width, height, x_offset, y_offset)
 
-    new_farmer = {
-        "init_farm": init_farm,
-        "maintain_farm": maintain_farm
-    }
+        if num_items(Items.Pumpkin) > goal:
+            return None
 
-    return new_farmer
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": 0
+        }
+
+    return init_farm
 
              

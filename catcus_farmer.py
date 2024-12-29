@@ -4,10 +4,10 @@ from Utility import *
 from matrix import *
 from farmer import *
 
-def create_cactus_farmer(width, height, x_offset, y_offset):
-    plot_count = width * height
+def create_cactus_farmer(width, height, x_offset, y_offset, goal):
     size_matrix = create_matrix_with_default(width, height, 0)
     harvest_matrix = create_matrix_with_default(width, height, False)
+
     farm_stats = {
         "harvest_count": 0
     }
@@ -47,7 +47,11 @@ def create_cactus_farmer(width, height, x_offset, y_offset):
     def init_farm():
         execute_scan_pass(width, height, init_cactus_plot, None, x_offset, y_offset)
 
-        return 0
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": 0
+        }
 
     def maintain_farm():
         quick_print(size_matrix)
@@ -80,7 +84,14 @@ def create_cactus_farmer(width, height, x_offset, y_offset):
         else:
             execute_scan_pass(width, height, maintain_cactus_plot, None, x_offset, y_offset)
 
-        return 0
+        if num_items(Items.Cactus) > goal:
+            return None
+
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": 0
+        }
     
     def maintain_cactus_plot():
         x = get_pos_x()
@@ -127,11 +138,6 @@ def create_cactus_farmer(width, height, x_offset, y_offset):
 
             if not swap_happened:
                 break
-        
-    new_farmer = {
-        "init_farm": init_farm,
-        "maintain_farm": maintain_farm
-    }
-     
-    return new_farmer
+            
+    return init_farm
 

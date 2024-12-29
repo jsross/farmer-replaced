@@ -4,7 +4,7 @@ from Utility import *
 from matrix import *
 from drone import *
 
-def create_sunflower_farmer(width, height, x_offset, y_offset):
+def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
     GROW_TIME = 4
     plot_count = width * height
 
@@ -37,7 +37,11 @@ def create_sunflower_farmer(width, height, x_offset, y_offset):
                 plot["can_harvest"] = can_harvest()
                 plot["timestamp"] = get_time()
 
-        return 0
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": GROW_TIME
+        }
     
     def replant_farm():
         for x_index in range(width):
@@ -57,9 +61,11 @@ def create_sunflower_farmer(width, height, x_offset, y_offset):
                 plot["can_harvest"] = can_harvest()
                 plot["timestamp"] = get_time()
 
-        new_farmer["maintain_farm"] = maintain_farm
-        
-        return get_time() + GROW_TIME
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": GROW_TIME
+        }
         
     def maintain_farm():
         for priority in range(MAX_PRIORITY, 1, -1):
@@ -82,14 +88,13 @@ def create_sunflower_farmer(width, height, x_offset, y_offset):
                 plot["can_harvest"] = can_harvest()
                 plot["timestamp"] = get_time()
 
+        if num_items(Items.Power) > goal:
+            return None
 
-        new_farmer["maintain_farm"] = replant_farm
+        return {
+            "status": 0,
+            "next_pass": replant_farm,
+            "delay": 0
+        }
 
-        return 0
-
-    new_farmer = {
-        "init_farm": init_farm,
-        "maintain_farm": maintain_farm
-    }
-
-    return new_farmer
+    return init_farm
