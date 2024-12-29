@@ -14,33 +14,39 @@ def create_dino_farmer():
         state["path_history"] = []
         state["path_history"].append((0,0))
 
-        next_coords = measure()
-
-        if not go_to(next_coords[0], next_coords[1]):
-            return -1
-
-        state["path_history"].append(next_coords)
-
-        return 0
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": 0
+        }
     
     def maintain_farm():
         next_coords = measure()
 
         if next_coords == None:
             change_hat(Hats.Straw_Hat)
-            return -1
+
+            return {
+                "status": -1,
+                "next_pass": None,
+                "delay": 0
+            }
 
         if not go_to(next_coords[0], next_coords[1]):
             change_hat(Hats.Straw_Hat)
-            return -1
+
+            return {
+                "status": -1,
+                "next_pass": None,
+                "delay": 0
+            }
         
         state["path_history"].append(next_coords)
 
-        return 0
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": 0
+        }
 
-    new_farmer = {
-        "init_farm": init_farm,
-        "maintain_farm": maintain_farm
-    }
-
-    return new_farmer
+    return init_farm
