@@ -70,7 +70,7 @@ def farmer_demo():
 
             clear()
 
-            farmer["init_farm"]()
+            farmer["execute_pass"]()
 
             for _ in range(iterations):
                 result = farmer["maintain_farm"]()
@@ -101,7 +101,7 @@ def region_demo():
  
     for region in regions:
         farmer = region[1]
-        region[0] = farmer["init_farm"]()
+        region[0] = farmer["execute_pass"]()
 
     for _ in range(5): 
         TopDownMergeSort(regions, 0)

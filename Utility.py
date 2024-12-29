@@ -58,8 +58,5 @@ def merge(target, source):
 		target[key] = source[key]
 
 def wait_till(timestamp):
-	while True:
-		current_timestamp = get_time()
-
-		if current_timestamp > timestamp:
-			break
+	while get_time() < timestamp:
+		pass

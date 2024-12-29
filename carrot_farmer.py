@@ -32,17 +32,28 @@ def maintain_carrot_farm(width, height, x_offset, y_offset):
 
     return 0
 
-def create_carrot_farmer(width, height, x_offset, y_offset):
+def create_carrot_farmer(width, height, x_offset, y_offset, goal):
+    
     def init_farm():
-        return init_carrot_farm(width, height, x_offset, y_offset)
+        init_carrot_farm(width, height, x_offset, y_offset)
+
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": 0
+        }
 
     def maintain_farm():
-        return maintain_carrot_farm(width, height, x_offset, y_offset)
-        
-    new_farmer = {
-        "init_farm": init_farm,
-        "maintain_farm": maintain_farm
-    }
+        maintain_carrot_farm(width, height, x_offset, y_offset)
+
+        if num_items(Items.Carrot) > goal:
+            return None
+
+        return {
+            "status": 0,
+            "next_pass": maintain_farm,
+            "delay": 0
+        }
      
-    return new_farmer
+    return init_farm
 

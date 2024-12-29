@@ -3,12 +3,11 @@ from __builtins__ import *
 from Utility import *
 from drone import *
 from graph import *
-from maze_navigator import *
 from carrot_farmer import *
-from dual_farmer import *
 from pumpkin_farmer import *
 from sunflower_farmer import *
 from catcus_farmer import *
+from maze_farmer import *
 from sort import *
 
 # clear()
@@ -45,30 +44,36 @@ def do_work():
 
     clear()
     
-    farm_plans = []
+    farmers = []
 
-    farm_plans.append((create_sunflower_farmer(world_size, world_size, 0, 0),2)) # 0,0
-    farm_plans.append((create_cactus_farmer(world_size, world_size, 0, 0), 20)) # 0,0
+    farmers.append(create_grass_farmer(world_size, world_size, 0, 0, 1000)) # 0,0
+    farmers.append(create_bush_farmer(world_size, world_size, 0, 0, 1000))
+    farmers.append(create_carrot_farmer(world_size, world_size, 0, 0, 1000))
+    farmers.append(create_tree_farmer(world_size, world_size, 0, 0, 1000))
+    farmers.append(create_pumpkin_farmer(world_size, world_size, 0, 0, 1000))
+    farmers.append(create_sunflower_farmer(world_size, world_size, 0, 0, 200))
+    farmers.append(create_cactus_farmer(world_size, world_size, 0, 0, 1000))
+    farmers.append(create_maze_farmer(350))
     
-    for _ in range(1):
-        for farm_plan in farm_plans:
-            farmer = farm_plan[0]
-            iterations = farm_plan[1]
+    for farmer in farmers:
+        clear()
 
-            clear()
+        result = farmer()
 
-            farmer["init_farm"]()
+        while result != None:
+            status = result["status"]
+            next_pass = result["next_pass"]
+            delay = result["delay"]
+            
+            if status < 0:
+                print("Farmer Failed")
 
-            for _ in range(iterations):
-                result = farmer["maintain_farm"]()
+                break
 
-                if result < 0:
-                    print("Farmer Failed")
+            if delay > 0:
+                wait_till(get_time() + delay)
 
-                    break
-
-                if result > 0:
-                    wait_till(result)
+            result = next_pass()
     
     clear()
     
