@@ -11,13 +11,19 @@ def handle_grass_farm(width, height, x_offset, y_offset):
 
     return 0
 
-def create_grass_farmer(width, height, x_offset, y_offset):
+def create_grass_farmer(width, height, x_offset, y_offset, goal):
+
     def handle_farm():
-        return handle_grass_farm(width, height, x_offset, y_offset)
+        
+        handle_grass_farm(width, height, x_offset, y_offset)
 
-    new_farmer = {
-        "init_farm": handle_farm,
-        "maintain_farm": handle_farm
-    }
+        if num_items(Items.Hay) > goal:
+            return None
 
-    return new_farmer
+        return {
+            "status": 0,
+            "next_pass": handle_farm,
+            "delay": 0
+        }
+
+    return handle_farm

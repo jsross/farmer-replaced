@@ -1,64 +1,11 @@
 from farmer import *
 from graph import *
 
-def create_maze_navigator():
+def create_maze_navigator(graph):
 
-    graph = create_graph(get_distance)
-    
     add_edge = graph["add_edge"]
     remove_edge = graph["remove_edge"]
     in_cycle = graph["in_cycle"]
-    get_path = graph["get_path"]
-
-    def check_is_treasure():
-        return get_entity_type() == Entities.Treasure
-    
-    def do_create_maze():
-        world_size = get_world_size()
-        clear()
-        plant(Entities.Bush)
-    
-        while not can_harvest():
-            pass
-            
-        use_item(Items.Weird_Substance, world_size)
-
-        for index in range(world_size):
-            south_coords = (index, 0)
-            east_coords = (0, index)
-
-            south_neighbor = get_neighbor(south_coords[0], south_coords[1], South)
-            remove_edge(set([south_coords, south_neighbor]))
-
-            east_neighbor = get_neighbor(east_coords[0], east_coords[1], East)
-            remove_edge(set([east_coords, east_neighbor]))
-
-    def execute_plan(iterations):
-        
-        if search(check_is_treasure) == False:
-            print("Treasure not found: Abort!")
-            
-            return
-
-        for _ in range(1, iterations):
-            success = False
-
-            next_coords = measure()
-            use_item(Items.Weird_Substance, get_world_size())
-            
-            path = get_path((get_pos_x(), get_pos_y()), next_coords)
-            
-            if path != None:
-                follow_path(path)
-
-                success = get_entity_type() == Entities.Treasure
-
-            if not success:
-                success = best_guess_strategy(next_coords)
-
-            if get_entity_type() != Entities.Treasure:
-                print("Treasure Not Found! Abort!")
-                break
 
     def search(check_goal):
         start_op_count = get_tick_count()
@@ -92,7 +39,6 @@ def create_maze_navigator():
             visited[(get_pos_x(), get_pos_y())] = last_move
 
     def best_guess_strategy(dest_coords):
-
         if(dest_coords == None):
             print("Bad Argument. No dest_coords")
 
@@ -213,8 +159,8 @@ def create_maze_navigator():
         return False
            
     new_maze_plan = {
-        "do_create_maze": do_create_maze,
-        "execute_plan": execute_plan
+        "search": search,
+        "seak": best_guess_strategy
     }
 
     return new_maze_plan
