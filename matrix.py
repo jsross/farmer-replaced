@@ -105,14 +105,21 @@ def get_neighbor(x, y, direction):
 
 def get_neighbors(x, y):
     size = get_world_size()
+	
+    neighbors = {}
     
-    neighbors = [
-        (x, (y + 1) % size), # North
-        ((x + 1) % size, y), # East
-        (x, (y - 1) % size), # South
-        ((x - 1) % size, y)  # West
-    ]
-
+    if y + 1 < size:
+        neighbors[North] = (x, y + 1)
+    
+    if x + 1 < size:
+        neighbors[East] = (x + 1, y)
+    
+    if y - 1 >= 0:
+        neighbors[South] = (x, y - 1)
+    
+    if x - 1 >= 0:
+        neighbors[West] = (x - 1, y)
+	
     return neighbors
 
 def get_distance(coords_1, coords_2):

@@ -61,12 +61,16 @@ def create_maze_navigator(graph):
             #Dead end check
             if last_coords != None:
                 last_neighbors = get_neighbors(last_coords[0], last_coords[1])
-                last_neighbors.remove(current_coords)
 
                 allowed_count = 0
 
-                for last_neighbor in last_neighbors:
-                    if not set([last_coords, last_neighbor]) in banned_edges:
+                for direction in last_neighbors:
+                    neighbor_coords = last_neighbors[direction]
+
+                    if neighbor_coords == current_coords:
+                        continue
+
+                    if not set([last_coords, neighbor_coords]) in banned_edges:
                         allowed_count += 1
 
                 last_edge = set([current_coords, last_coords])
@@ -81,11 +85,12 @@ def create_maze_navigator(graph):
 
             visited_coords.append(current_coords)        
 
-            neighbor_coords_list = get_neighbors(current_coords[0], current_coords[1])
+            neighbors = get_neighbors(current_coords[0], current_coords[1])
             weighted_neighbors = []
 
-            for neighbor_coords in neighbor_coords_list:
+            for direction in neighbors:
                 weight = 0
+                neighbor_coords = neighbors[direction]
 
                 if neighbor_coords == last_coords:
                     weight = 99
@@ -110,8 +115,6 @@ def create_maze_navigator(graph):
                 success = go_to(neighbor_coords[0], neighbor_coords[1])
 
                 if success:
-                    
-
                     add_edge(edge)
 
                     break
@@ -125,19 +128,6 @@ def create_maze_navigator(graph):
                 return False
 
             last_coords = current_coords
-    
-    def try_coords(coords_list):
-        current_coords = (get_pos_x(), get_pos_y())
-
-        for coords in coords_list:
-            if go_to(coords):
-                add_edge(set([coords, current_coords]))
-                
-                return True
-            else:
-                remove_edge(set([coords, current_coords]))
-        
-        return False
     
     def try_moves(directions):
         start_coords = (get_pos_x(), get_pos_y())
