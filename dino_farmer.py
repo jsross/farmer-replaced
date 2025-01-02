@@ -4,7 +4,7 @@ from Utility import *
 from matrix import *
 from drone import *
 
-def create_dino_farmer():
+def create_dino_farmer(goal):
     state = {
         "path_history": [],
         "iteration": 0
@@ -19,12 +19,12 @@ def create_dino_farmer():
         if len(path_history) > iteration + 1:
             path_history.pop(-1)
 
-    def go_to_neighbor(neighbor):
-        get_direction()
+
 
     def init_farm():
         change_hat(Hats.Dinosaur_Hat)
         state["path_history"] = []
+        state["iteration"] = 0
 
         add_to_path_history((get_pos_x(), get_pos_y()))
 
@@ -92,11 +92,14 @@ def create_dino_farmer():
         if not success:
             change_hat(Hats.Straw_Hat)
 
-            return {
-                "status": -1,
-                "next_pass": None,
-                "delay": 0
-            }
+            if num_items(Items.Bone) > goal:
+                return None
+            else:
+                return {
+                    "status": 0,
+                    "next_pass": init_farm,
+                    "delay": 0
+                }
 
         return {
             "status": 0,
