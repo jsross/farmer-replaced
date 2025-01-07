@@ -53,12 +53,12 @@ def do_work():
     # farmers.append(create_carrot_farmer(world_size, world_size, 0, 0, 1000))
     # farmers.append(create_tree_farmer(world_size, world_size, 0, 0, 1000))
     # farmers.append(create_pumpkin_farmer(world_size, world_size, 0, 0, 1000))
-    # farmers.append(create_sunflower_farmer(world_size, world_size, 0, 0, 200))
+    farmers.append(create_sunflower_farmer(world_size, world_size, 0, 0, num_items(Items.Power) + 20000))
     # farmers.append(create_cactus_farmer(world_size, world_size, 0, 0, 5000))
-    # farmers.append(create_maze_farmer(10))
-    # farmers.append(create_dino_farmer(64000))
+    farmers.append(create_maze_farmer(1000))
+    farmers.append(create_dino_farmer(64000))
 
-    farmers.append(create_poly_farmer())
+    # farmers.append(create_poly_farmer())
     
     for farmer in farmers:
         clear()
