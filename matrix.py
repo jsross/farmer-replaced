@@ -60,6 +60,9 @@ def select_coords_from_matrix_with_value(matrix, value):
 
 def select_coords_with_properties(matrix, properties):
     def test_func(item, _x, _y):
+        if item == None:
+              return False
+        
         for property_key in properties:
             if not item[property_key] == properties[property_key]:
                 return False
