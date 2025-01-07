@@ -5,6 +5,7 @@ from matrix import *
 from drone import *
 
 def create_maze_farmer(goal):
+    world_size = get_world_size()
     graph = create_graph(get_distance)
     navigator = create_maze_navigator(graph)
 
@@ -19,10 +20,9 @@ def create_maze_farmer(goal):
     }
 
     def init_farm():
-        world_size = get_world_size()
         plant(Entities.Bush)
     
-        use_item(Items.Weird_Substance, world_size)
+        use_item(Items.Weird_Substance, world_size * 2)
 
         for index in range(world_size):
             south_coords = (index, 0)
@@ -76,7 +76,7 @@ def create_maze_farmer(goal):
                 "delay": 0
             }
         
-        use_item(Items.Weird_Substance, get_world_size())
+        use_item(Items.Weird_Substance, world_size * 2)
         
         path = get_path((get_pos_x(), get_pos_y()), next_coords)
         

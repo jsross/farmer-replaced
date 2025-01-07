@@ -32,3 +32,8 @@ def execute_dual_scan_pass(width, height, action1, action2):
             move(North)
         
         move(East)
+
+def calculate_adjusted_grow_time(base_grow_time, water_level):
+    speed = (4 * water_level) + 1
+
+    return base_grow_time / speed

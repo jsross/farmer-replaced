@@ -3,93 +3,52 @@ from __test_harness__ import *
 from Utility import *
 from matrix import *
 from drone import *
+from farmer import *
 
 def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
-    GROW_TIME = 4
-    plot_count = width * height
+    MAX_GROW_TIME = 8.4
 
-    default_plot = {
-        "entity_type": None,
-        "priority": 0,
-        "can_harvest": False,
-        "timestamp": 0
-    }
-
-    plot_matrix = create_matrix_with_default_object(width, height, default_plot)
+    plot_matrix = create_matrix_with_default(width, height, None)
 
     def init_farm():
-        for x_index in range(width):
-            for y_index in range(height):
-                go_to(x_index + x_offset, y_index + y_offset)
-
-                if get_water() < 0.25:
-                    use_item(Items.Water)
-
-                till()
-    
-                plant(Entities.Sunflower)
-                use_item(Items.Fertilizer)
-
-                plot = plot_matrix[x_index][y_index]
-
-                plot["entity_type"] = get_entity_type()
-                plot["priority"] = measure()
-                plot["can_harvest"] = can_harvest()
-                plot["timestamp"] = get_time()
+        execute_scan_pass(width, height, _init_plot, None, x_offset, y_offset)
 
         return {
             "status": 0,
             "next_pass": maintain_farm,
-            "delay": GROW_TIME
+            "delay": 0
         }
     
     def replant_farm():
-        for x_index in range(width):
-            for y_index in range(height):
-                go_to(x_index + x_offset, y_index + y_offset)
-
-                if get_water() < 0.25:
-                    use_item(Items.Water)
-    
-                plant(Entities.Sunflower)
-                use_item(Items.Fertilizer)
-
-                plot = plot_matrix[x_index][y_index]
-
-                plot["entity_type"] = get_entity_type()
-                plot["priority"] = measure()
-                plot["can_harvest"] = can_harvest()
-                plot["timestamp"] = get_time()
+        execute_scan_pass(width, height, _replant_plot, None, x_offset, y_offset)
 
         return {
             "status": 0,
             "next_pass": maintain_farm,
-            "delay": GROW_TIME
+            "delay": 0
         }
         
     def maintain_farm():
-        for priority in range(MAX_PRIORITY, 1, -1):
-            priority_plot_coords = select_coords_with_properties(plot_matrix, { "priority" : priority })
+        for priority in range(MAX_PRIORITY, 6, -1):
+            ready_by = _harvest_priority(priority)
 
-            for coords in priority_plot_coords:
-                x_index = coords[0]
-                y_index = coords[1]
-
-                go_to(x_index + x_offset, y_index + y_offset)
-
-                if get_water() < 0.25:
-                    use_item(Items.Water)
-
-                harvest()
-
-                plot = plot_matrix[x_index][y_index]
-                plot["entity_type"] = get_entity_type()
-                plot["priority"] = measure()
-                plot["can_harvest"] = can_harvest()
-                plot["timestamp"] = get_time()
+            if len(ready_by) > 0:
+                break
 
         if num_items(Items.Power) > goal:
             return None
+        
+        if len(ready_by) > 0:
+            min_ready = min(ready_by)
+            delay = max((min_ready - get_time()), 0)
+
+            quick_print("delay: ", delay)
+
+            return {
+                "status": 0,
+                "next_pass": maintain_farm,
+                "delay": delay
+            }
 
         return {
             "status": 0,
@@ -97,4 +56,52 @@ def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
             "delay": 0
         }
 
+    def _create_plot():
+        plot = {
+            "entity_type": get_entity_type(),
+            "priority": measure(),
+        }
+
+        if plot["entity_type"] != None:
+            plot["ready_by"] = get_time() + calculate_adjusted_grow_time(MAX_GROW_TIME, get_water())
+
+        return plot
+
+    def _harvest_priority(priority):
+        quick_print("handling priority: ", priority)
+        ready_by_list = []
+        priority_plot_coords = select_coords_with_properties(plot_matrix, { "priority" : priority })
+
+        for coords in priority_plot_coords:
+            x_index = coords[0]
+            y_index = coords[1]
+
+            go_to(x_index + x_offset, y_index + y_offset)
+            plot = plot_matrix[x_index][y_index]
+            
+            if can_harvest():
+                harvest()
+                quick_print("harvest: ", (x_index, y_index), plot["priority"])
+                plot_matrix[x_index][y_index] = None
+            else:
+                ready_by_list.append(plot["ready_by"])
+
+        return ready_by_list
+    
+    def _init_plot():
+        if get_water() < 0.25:
+            use_item(Items.Water)
+
+        till()
+        plant(Entities.Sunflower)
+        plot_matrix[get_pos_x()][get_pos_y()] = _create_plot()
+
+    def _replant_plot():
+        if get_water() < 0.25:
+            use_item(Items.Water)
+
+        plant(Entities.Sunflower)
+        plot_matrix[get_pos_x()][get_pos_y()] = _create_plot()
+    
+    
     return init_farm

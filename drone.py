@@ -66,6 +66,6 @@ def go_to(dest_x, dest_y):
                 break
             current_y -= 1
 
-    quick_print("go_to: ", get_tick_count() - start_op_count)
+    # quick_print("go_to: ", get_tick_count() - start_op_count)
 
     return success
