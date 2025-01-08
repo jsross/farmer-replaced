@@ -18,11 +18,14 @@ def create_maze_farmer(goal):
     seak = navigator["seak"]
 
     maze_state = {
-        "total_pending": 0
+        "total_pending": 0,
+        "iteration": 0
     }
 
-    def init_farm():
+    def init_maze():
         maze_state["total_pending"] = 0
+        maze_state["iteration"] = 0
+
         plant(Entities.Bush)
         use_item(Items.Weird_Substance, n_substance)
 
@@ -39,10 +42,11 @@ def create_maze_farmer(goal):
         return {
             "status": 0,
             "next_pass": search_for_treasure,
-            "delay": 2
+            "delay": 0
         }
     
     def search_for_treasure():
+        maze_state["iteration"] += 1
         result = search(check_is_treasure)
 
         if result == False:
@@ -58,12 +62,13 @@ def create_maze_farmer(goal):
         
         return {
             "status": 0,
-            "next_pass": maintain_farm,
+            "next_pass": seak_next_treasure,
             "delay": 0
         }
-        
-    
-    def maintain_farm():
+
+
+    def seak_next_treasure():
+        maze_state["iteration"] += 1
         success = False
 
         next_coords = measure()
@@ -73,19 +78,22 @@ def create_maze_farmer(goal):
 
             return {
                 "status": 0,
-                "next_pass": init_farm,
+                "next_pass": init_maze,
                 "delay": 0
             }
         
         use_item(Items.Weird_Substance, n_substance)
-        
-        path = get_path((get_pos_x(), get_pos_y()), next_coords)
-        
-        if path != None:
-            follow_path(path)
 
-            success = get_entity_type() == Entities.Treasure
+        if 10 *  random() // 1 > 2:
+            path = get_path((get_pos_x(), get_pos_y()), next_coords)
+        
+            if path != None:
+                follow_path(path)
 
+                success = get_entity_type() == Entities.Treasure
+        else:
+            quick_print("Pathing Randomly skipped")
+            
         if not success:
             success = seak(next_coords)
 
@@ -104,11 +112,11 @@ def create_maze_farmer(goal):
         
         return {
             "status": 0,
-            "next_pass": maintain_farm,
+            "next_pass": seak_next_treasure,
             "delay": 0
         }
 
-    return init_farm
+    return init_maze
 
 def check_is_treasure():
     return get_entity_type() == Entities.Treasure

@@ -26,7 +26,7 @@ def create_graph(get_weight):
         start_tick = get_tick_count()
 
         if edge in edges:
-            quick_print("add_edge: ", get_tick_count() - start_tick)
+            # quick_print("add_edge: ", get_tick_count() - start_tick)
 
             return False
         
@@ -37,7 +37,7 @@ def create_graph(get_weight):
                 if vertex_1 != vertex_2:
                     add_neighbors(vertex_1, vertex_2)
 
-        quick_print("add_edge: ", get_tick_count() - start_tick)
+        # quick_print("add_edge: ", get_tick_count() - start_tick)
         
         return True
     

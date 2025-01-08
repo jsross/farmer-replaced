@@ -48,7 +48,6 @@ def do_work():
     
     farmers = []
 
-
     farmers.append(create_maze_farmer(512000))
     unlock(Unlocks.Dinosaurs)
 
@@ -59,12 +58,9 @@ def do_work():
     # farmers.append(create_pumpkin_farmer(world_size, world_size, 0, 0, 100000))
     # farmers.append(create_sunflower_farmer(world_size, world_size, 0, 0, num_items(Items.Power) + 20000))
     # farmers.append(create_poly_farmer())
-    #farmers.append(create_cactus_farmer(world_size, world_size, 0, 0, 1000))
-    #farmers.append(create_dino_farmer(1000))
-    
-    #farmers.append(create_maze_farmer(256000))
-
-    
+    # farmers.append(create_cactus_farmer(world_size, world_size, 0, 0, 1000))
+    # farmers.append(create_dino_farmer(1000))
+    # farmers.append(create_maze_farmer(256000))
     
     for farmer in farmers:
         clear()

@@ -79,7 +79,7 @@ def create_maze_navigator(graph):
                     banned_edges.append(last_edge)
                 elif current_coords in visited_coords:
                     if in_cycle(last_edge):
-                        print("Cycle!!!!!")
+                        quick_print("Cycle Found")
                         banned_edges.append(last_edge)
                         remove_edge(last_edge)
 
