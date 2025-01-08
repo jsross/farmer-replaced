@@ -5,9 +5,11 @@ from matrix import *
 from drone import *
 
 def create_maze_farmer(goal):
-    world_size = get_world_size()
     graph = create_graph(get_distance)
     navigator = create_maze_navigator(graph)
+    world_size = get_world_size()
+    n_substance = world_size * num_unlocked(Unlocks.Mazes)
+    chest_value = (world_size ** 2) * num_unlocked(Unlocks.Mazes)
 
     get_path = graph["get_path"]
     remove_edge = graph["remove_edge"]
@@ -15,14 +17,14 @@ def create_maze_farmer(goal):
     search = navigator["search"]
     seak = navigator["seak"]
 
-    farm_state = {
-        "iteration": 0 
+    maze_state = {
+        "total_pending": 0
     }
 
     def init_farm():
+        maze_state["total_pending"] = 0
         plant(Entities.Bush)
-    
-        use_item(Items.Weird_Substance, world_size * 2)
+        use_item(Items.Weird_Substance, n_substance)
 
         for index in range(world_size):
             south_coords = (index, 0)
@@ -33,8 +35,6 @@ def create_maze_farmer(goal):
 
             east_neighbor = get_neighbor(east_coords[0], east_coords[1], East)
             remove_edge(set([east_coords, east_neighbor]))
-
-        
         
         return {
             "status": 0,
@@ -43,7 +43,6 @@ def create_maze_farmer(goal):
         }
     
     def search_for_treasure():
-        farm_state["iteration"] += 1
         result = search(check_is_treasure)
 
         if result == False:
@@ -55,6 +54,8 @@ def create_maze_farmer(goal):
                 "delay": 0
             }
         
+        maze_state["total_pending"] += chest_value
+        
         return {
             "status": 0,
             "next_pass": maintain_farm,
@@ -63,20 +64,20 @@ def create_maze_farmer(goal):
         
     
     def maintain_farm():
-        farm_state["iteration"] += 1
         success = False
 
         next_coords = measure()
 
         if next_coords == None:
             harvest()
+
             return {
-                "status": -1,
-                "next_pass": None,
+                "status": 0,
+                "next_pass": init_farm,
                 "delay": 0
             }
         
-        use_item(Items.Weird_Substance, world_size * 2)
+        use_item(Items.Weird_Substance, n_substance)
         
         path = get_path((get_pos_x(), get_pos_y()), next_coords)
         
@@ -95,7 +96,9 @@ def create_maze_farmer(goal):
                 "delay": 0
             }
         
-        if farm_state["iteration"] >= goal:
+        maze_state["total_pending"] += chest_value
+
+        if num_items(Items.Gold) + maze_state["total_pending"] >= goal:
             harvest()
             return None
         
