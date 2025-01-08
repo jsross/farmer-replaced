@@ -3,19 +3,17 @@ from __test_harness__ import *
 from Utility import *
 from matrix import *
 from drone import *
+from maze_navigator import *
 
 def create_maze_farmer(goal):
     graph = create_graph(get_distance)
-    navigator = create_maze_navigator(graph)
+
     world_size = get_world_size()
     n_substance = world_size * num_unlocked(Unlocks.Mazes)
     chest_value = (world_size ** 2) * num_unlocked(Unlocks.Mazes)
 
     get_path = graph["get_path"]
     remove_edge = graph["remove_edge"]
-
-    search = navigator["search"]
-    seak = navigator["seak"]
 
     maze_state = {
         "total_pending": 0,
@@ -47,7 +45,7 @@ def create_maze_farmer(goal):
     
     def search_for_treasure():
         maze_state["iteration"] += 1
-        result = search(check_is_treasure)
+        result = search_for_goal(check_is_treasure, graph)
 
         if result == False:
             print("Treasure not found: Abort!")
@@ -84,7 +82,7 @@ def create_maze_farmer(goal):
         
         use_item(Items.Weird_Substance, n_substance)
 
-        if 10 *  random() // 1 > 2:
+        if 10 *  random() // 1 > 3:
             path = get_path((get_pos_x(), get_pos_y()), next_coords)
         
             if path != None:
@@ -95,7 +93,7 @@ def create_maze_farmer(goal):
             quick_print("Pathing Randomly skipped")
             
         if not success:
-            success = seak(next_coords)
+            success = seak_coords(next_coords, graph)
 
         if get_entity_type() != Entities.Treasure:
             return {
