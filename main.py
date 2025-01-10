@@ -41,14 +41,18 @@ farm_size = get_world_size()
 #maze_demo()
 
 def do_work():
+    print("▢") 
     print("Do Work Demo")
+    set_world_size(10)
     world_size = get_world_size()
+
+    print(world_size)
 
     clear()
     
     farmers = []
 
-    farmers.append(create_maze_farmer(512000))
+    farmers.append(create_maze_farmer(1512000))
     unlock(Unlocks.Dinosaurs)
 
     # farmers.append(create_grass_farmer(world_size, world_size, 0, 0, 1000)) # 0,0

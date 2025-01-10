@@ -6,14 +6,11 @@ from drone import *
 from maze_navigator import *
 
 def create_maze_farmer(goal):
-    graph = create_graph(get_distance)
+    graph = create_graph()
 
     world_size = get_world_size()
     n_substance = world_size * num_unlocked(Unlocks.Mazes)
     chest_value = (world_size ** 2) * num_unlocked(Unlocks.Mazes)
-
-    get_path = graph["get_path"]
-    remove_edge = graph["remove_edge"]
 
     maze_state = {
         "total_pending": 0,
@@ -26,16 +23,6 @@ def create_maze_farmer(goal):
 
         plant(Entities.Bush)
         use_item(Items.Weird_Substance, n_substance)
-
-        for index in range(world_size):
-            south_coords = (index, 0)
-            east_coords = (0, index)
-
-            south_neighbor = get_neighbor(south_coords[0], south_coords[1], South)
-            remove_edge(set([south_coords, south_neighbor]))
-
-            east_neighbor = get_neighbor(east_coords[0], east_coords[1], East)
-            remove_edge(set([east_coords, east_neighbor]))
         
         return {
             "status": 0,
@@ -60,15 +47,15 @@ def create_maze_farmer(goal):
         
         return {
             "status": 0,
-            "next_pass": seak_next_treasure,
+            "next_pass": goto_next_treasure,
             "delay": 0
         }
 
-
-    def seak_next_treasure():
+    def goto_next_treasure():
         maze_state["iteration"] += 1
         success = False
-
+        
+        current_coords = (get_pos_x(), get_pos_y())
         next_coords = measure()
 
         if next_coords == None:
@@ -82,8 +69,8 @@ def create_maze_farmer(goal):
         
         use_item(Items.Weird_Substance, n_substance)
 
-        if 10 *  random() // 1 > 3:
-            path = get_path((get_pos_x(), get_pos_y()), next_coords)
+        if 100 *  random() // 1 > 30:
+            path = get_path(graph, current_coords, next_coords, get_distance)
         
             if path != None:
                 follow_path(path)
@@ -110,7 +97,7 @@ def create_maze_farmer(goal):
         
         return {
             "status": 0,
-            "next_pass": seak_next_treasure,
+            "next_pass": goto_next_treasure,
             "delay": 0
         }
 

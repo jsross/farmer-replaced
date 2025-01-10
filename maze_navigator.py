@@ -1,3 +1,4 @@
+from matrix import *
 from farmer import *
 from graph import *
 
@@ -9,51 +10,16 @@ def seak_coords(dest_coords, graph):
 
         return False
     
-    add_edge = graph["add_edge"]
-    remove_edge = graph["remove_edge"]
-    in_cycle = graph["in_cycle"]
-    
-    visited_coords = []
+    visited_coords = set()
     banned_edges = []
 
     last_coords = None
-        
+    current_coords = (get_pos_x(), get_pos_y())
+
     while True:
-        current_coords = (get_pos_x(), get_pos_y())
+        visited_coords.add(current_coords)
 
-        if current_coords == dest_coords:
-            quick_print("best_guess_strategy: ", get_tick_count() - start_op_count)
-
-            return True
-
-        #Dead end check
-        if last_coords != None:
-            last_neighbors = get_neighbors(last_coords[0], last_coords[1])
-
-            allowed_count = 0
-
-            for direction in last_neighbors:
-                neighbor_coords = last_neighbors[direction]
-
-                if neighbor_coords == current_coords:
-                    continue
-
-                if not set([last_coords, neighbor_coords]) in banned_edges:
-                    allowed_count += 1
-
-            last_edge = set([current_coords, last_coords])
-            
-            if allowed_count == 0:
-                banned_edges.append(last_edge)
-            elif current_coords in visited_coords:
-                if in_cycle(last_edge):
-                    quick_print("Cycle Found")
-                    banned_edges.append(last_edge)
-                    remove_edge(last_edge)
-
-        visited_coords.append(current_coords)        
-
-        neighbors = get_neighbors(current_coords[0], current_coords[1])
+        neighbors = get_neighbor_map(current_coords[0], current_coords[1])
         weighted_neighbors = []
 
         for direction in neighbors:
@@ -83,19 +49,43 @@ def seak_coords(dest_coords, graph):
             success = go_to(neighbor_coords[0], neighbor_coords[1])
 
             if success:
-                add_edge(edge)
+                add_edge(graph, edge)
 
                 break
             else:
-                banned_edges.append(edge)
+                remove_edge(graph, edge)
+
+                if not edge in banned_edges:
+                    banned_edges.append(edge)
 
         # If the drone was unable to go to any of the neighbors
         if not success:
             print("Error")
 
             return False
-
+        
         last_coords = current_coords
+        last_edge = set([current_coords, last_coords])
+        current_coords = (get_pos_x(), get_pos_y())
+        
+        if current_coords == dest_coords:
+            return True
+        
+        # Cycle Check
+        if current_coords in visited_coords:
+            neighbors = get_neighbors(graph, current_coords)
+
+            if len(neighbors) > 2:
+                if in_cycle(graph, last_edge):
+                    quick_print("Cycle Found")
+                    banned_edges.append(last_edge)
+
+        #Dead end check
+        last_neighbors = get_neighbors(graph, last_coords)
+        remove_range(last_neighbors, banned_edges)
+        
+        if len(last_neighbors) < 2:
+            banned_edges.append(last_edge)
 
 def try_directions(directions):
     length = len(directions)
@@ -110,9 +100,6 @@ def try_directions(directions):
 
 def search_for_goal(check_goal, graph):
     start_op_count = get_tick_count()
-
-    remove_edge = graph["remove_edge"]
-    add_edge = graph["add_edge"]
 
     search_order = {
         North: [West, North, East, South],
@@ -142,8 +129,12 @@ def search_for_goal(check_goal, graph):
         
         for index in range(result):
             blocked_direction = directions[index]
-
             neighbor_coords = get_neighbor(start_coords[0], start_coords[1], blocked_direction)
-            remove_edge(set([start_coords, neighbor_coords]))
+            
+            if neighbor_coords != None:
+                neighbor_edge = set([start_coords, neighbor_coords])
+                remove_edge(graph, neighbor_edge)
 
-        add_edge(set([start_coords, (get_pos_x(), get_pos_y())]))
+        current_coords = (get_pos_x(), get_pos_y())
+        new_edge = set([start_coords, current_coords])
+        add_edge(graph, new_edge)

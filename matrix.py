@@ -102,11 +102,11 @@ def get_neighbor(x, y, direction):
 
     neighbor_coords = (neighbor_x, neighbor_y)
     
-    quick_print("get_neighbor: ", get_tick_count() - start_op_count)
+    # quick_print("get_neighbor: ", get_tick_count() - start_op_count)
 
     return neighbor_coords
 
-def get_neighbors(x, y):
+def get_neighbor_map(x, y):
     size = get_world_size()
 	
     neighbors = {}
