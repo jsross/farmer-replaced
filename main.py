@@ -41,7 +41,6 @@ farm_size = get_world_size()
 #maze_demo()
 
 def do_work():
-    print("▢") 
     print("Do Work Demo")
     set_world_size(10)
     world_size = get_world_size()

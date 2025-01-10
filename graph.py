@@ -73,8 +73,6 @@ def get_neighbors(graph, vertex):
 def in_cycle(graph, edge):
     start_tick = get_tick_count()
 
-    print_graph(graph)
-
     has_edge = contains_edge(graph, edge)
 
     if not has_edge:
@@ -202,8 +200,9 @@ def convert_edge_to_tuple(edge):
     
     return (vert_1, vert_2)
 
-def print_graph(graph):
+def print_graph(graph, banned_edges):
     size = get_world_size()
+    drone_coords = (get_pos_x(), get_pos_y())
 
     for y_index in range(size - 1, -1, -1):
         nodes_and_edges = " "
@@ -213,20 +212,42 @@ def print_graph(graph):
             current_coords = (x_index, y_index)
 
             west_coords = (x_index + 1, y_index)
+            west_edge = set([current_coords, west_coords])
 
-            if contains_edge(graph, set([current_coords, west_coords])):
-                nodes_and_edges += "▢-"
+            if current_coords == drone_coords:
+                nodes_and_edges += "0"
             else:
-                nodes_and_edges += "▢ "
+                nodes_and_edges += "O"
+
+            if contains_edge(graph, west_edge):
+                if not west_edge in banned_edges:
+                    nodes_and_edges += "-"
+                else:
+                    nodes_and_edges += "X"
+            else:
+                nodes_and_edges += " "
 
             south_coords = (x_index, y_index - 1)
+            south_edge = set([current_coords, south_coords])
 
-            if contains_edge(graph, set([current_coords, south_coords])):
-                edges_only += " |"
+            if contains_edge(graph, south_edge):
+                if not south_edge in banned_edges:
+                    edges_only += " |"
+                else:
+                    edges_only += " X"
             else:
                 edges_only += "  "
 
         quick_print(y_index, nodes_and_edges)
-        quick_print(edges_only)
+        
+        if y_index > 1:
+            quick_print(edges_only)
+
+    bottom = []
+    for index in range(size):
+        bottom.append(index)
     
-    quick_print("------------")
+    quick_print(" ", bottom)
+
+    quick_print("--------------------------------")
+

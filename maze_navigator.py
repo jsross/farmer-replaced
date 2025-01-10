@@ -19,6 +19,8 @@ def seak_coords(dest_coords, graph):
     while True:
         visited_coords.add(current_coords)
 
+        print_graph(graph, banned_edges)
+
         neighbors = get_neighbor_map(current_coords[0], current_coords[1])
         weighted_neighbors = []
 
@@ -55,9 +57,6 @@ def seak_coords(dest_coords, graph):
             else:
                 remove_edge(graph, edge)
 
-                if not edge in banned_edges:
-                    banned_edges.append(edge)
-
         # If the drone was unable to go to any of the neighbors
         if not success:
             print("Error")
@@ -65,9 +64,9 @@ def seak_coords(dest_coords, graph):
             return False
         
         last_coords = current_coords
-        last_edge = set([current_coords, last_coords])
         current_coords = (get_pos_x(), get_pos_y())
-        
+        last_edge = set([current_coords, last_coords])
+
         if current_coords == dest_coords:
             return True
         
@@ -78,14 +77,22 @@ def seak_coords(dest_coords, graph):
             if len(neighbors) > 2:
                 if in_cycle(graph, last_edge):
                     quick_print("Cycle Found")
-                    banned_edges.append(last_edge)
+                    if not last_edge in banned_edges:
+                        banned_edges.append(last_edge)
 
         #Dead end check
         last_neighbors = get_neighbors(graph, last_coords)
-        remove_range(last_neighbors, banned_edges)
+        last_neighbors.remove(current_coords)
+
+        last_neighbor_count = 0
+
+        for last_neighbor in last_neighbors:
+            if not set([last_coords, last_neighbor]) in banned_edges:
+                last_neighbor_count += 1
         
-        if len(last_neighbors) < 2:
-            banned_edges.append(last_edge)
+        if last_neighbor_count == 0:
+            if not last_edge in banned_edges:
+                banned_edges.append(last_edge)
 
 def try_directions(directions):
     length = len(directions)
