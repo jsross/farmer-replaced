@@ -70,15 +70,19 @@ def get_neighbors(graph, vertex):
     
     return neighbors
 
-def in_cycle(graph, edge):
+def in_cycle(graph, edge, banned_edges):
     start_tick = get_tick_count()
 
-    has_edge = contains_edge(graph, edge)
-
-    if not has_edge:
+    if not contains_edge(graph, edge):
+        return False
+    
+    if edge in banned_edges:
         return False
     
     remove_edge(graph, edge)
+
+    for banned_edge in banned_edges:
+        remove_edge(graph, banned_edge)
 
     vertices = []
 
@@ -92,10 +96,10 @@ def in_cycle(graph, edge):
 
     is_in_cycle = path != None
 
-    if is_in_cycle:
-        quick_print("Contains Cycle: ", path)
-
     add_edge(graph, edge)
+
+    for banned_edge in banned_edges:
+        add_edge(graph, banned_edge)
 
     # quick_print("in_cycle: ", get_tick_count() - start_tick)
 
@@ -215,7 +219,7 @@ def print_graph(graph, banned_edges):
             west_edge = set([current_coords, west_coords])
 
             if current_coords == drone_coords:
-                nodes_and_edges += "0"
+                nodes_and_edges += "■"
             else:
                 nodes_and_edges += "O"
 

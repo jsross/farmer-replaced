@@ -51,8 +51,7 @@ def do_work():
     
     farmers = []
 
-    farmers.append(create_maze_farmer(1512000))
-    unlock(Unlocks.Dinosaurs)
+    farmers.append(create_maze_farmer(num_items(Items.Gold) + 500000))
 
     # farmers.append(create_grass_farmer(world_size, world_size, 0, 0, 1000)) # 0,0
     # farmers.append(create_bush_farmer(world_size, world_size, 0, 0, 1000))

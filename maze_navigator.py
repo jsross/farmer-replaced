@@ -18,7 +18,7 @@ def seak_coords(dest_coords, graph):
     current_coords = (get_pos_x(), get_pos_y())
 
     while True:
-        #print_graph(graph, banned_edges)
+        #sprint_graph(graph, banned_edges)
 
         neighbor_map = get_neighbor_map(current_coords[0], current_coords[1])
         weighted_neighbors = []
@@ -106,7 +106,7 @@ def seak_coords(dest_coords, graph):
         # Cycle Check
         if last_edge in traversed_edges:
             if len(weighted_neighbors) > 2:
-                if in_cycle(graph, last_edge):
+                if in_cycle(graph, last_edge, banned_edges):
                     quick_print("Cycle Found")
                     if not last_edge in banned_edges:
                         banned_edges.append(last_edge)
