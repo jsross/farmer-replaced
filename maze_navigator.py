@@ -10,45 +10,54 @@ def seak_coords(dest_coords, graph):
 
         return False
     
-    visited_coords = set()
+    tested_edges = []
+    traversed_edges = []
     banned_edges = []
 
     last_coords = None
     current_coords = (get_pos_x(), get_pos_y())
 
     while True:
-        visited_coords.add(current_coords)
+        #print_graph(graph, banned_edges)
 
-        print_graph(graph, banned_edges)
-
-        neighbors = get_neighbor_map(current_coords[0], current_coords[1])
+        neighbor_map = get_neighbor_map(current_coords[0], current_coords[1])
         weighted_neighbors = []
 
-        for direction in neighbors:
-            weight = 0
-            neighbor_coords = neighbors[direction]
+        for direction in neighbor_map:
+            neighbor_coords = neighbor_map[direction]
+            neighbor_coords = neighbor_map[direction]
+            neighbor_edge = set([current_coords, neighbor_coords])
+
+            if neighbor_edge in banned_edges:
+                continue
+
+            weighted_neighbor = {
+                "coords": neighbor_coords,
+                "direction": direction,
+                "weight": get_distance(neighbor_coords, dest_coords),
+                "edge": neighbor_edge
+            }
 
             if neighbor_coords == last_coords:
-                weight = 99
-            elif neighbor_coords in visited_coords:
-                weight = 98
-            else:
-                weight = get_distance(neighbor_coords, dest_coords)
+                weighted_neighbor["weight"] = 999
+            elif neighbor_edge in tested_edges:
+                weighted_neighbor["weight"] =  997
 
-            weighted_neighbors.append((weight, neighbor_coords))
+            weighted_neighbors.append(weighted_neighbor)
 
-        TopDownMergeSort(weighted_neighbors, 0)
+        TopDownMergeSort(weighted_neighbors, "weight")
 
         success = False
 
         for weighted_neighbor in weighted_neighbors:
-            neighbor_coords = weighted_neighbor[1]
-            edge = set([current_coords, neighbor_coords])
+            neighbor_coords = weighted_neighbor["coords"]
+            direction = weighted_neighbor["direction"]
+            edge = weighted_neighbor["edge"]
 
-            if edge in banned_edges:
-                continue
+            success = move(direction)
 
-            success = go_to(neighbor_coords[0], neighbor_coords[1])
+            if not edge in tested_edges:
+                tested_edges.append(edge)
 
             if success:
                 add_edge(graph, edge)
@@ -69,16 +78,6 @@ def seak_coords(dest_coords, graph):
 
         if current_coords == dest_coords:
             return True
-        
-        # Cycle Check
-        if current_coords in visited_coords:
-            neighbors = get_neighbors(graph, current_coords)
-
-            if len(neighbors) > 2:
-                if in_cycle(graph, last_edge):
-                    quick_print("Cycle Found")
-                    if not last_edge in banned_edges:
-                        banned_edges.append(last_edge)
 
         #Dead end check
         last_neighbors = get_neighbors(graph, last_coords)
@@ -86,13 +85,33 @@ def seak_coords(dest_coords, graph):
 
         last_neighbor_count = 0
 
-        for last_neighbor in last_neighbors:
-            if not set([last_coords, last_neighbor]) in banned_edges:
-                last_neighbor_count += 1
+        for direction in neighbor_map:
+            neighbor_coords = neighbor_map[direction]
+            neighbor_edge = set([last_coords, neighbor_coords])
+
+            if neighbor_coords == current_coords:
+                continue
+
+            if neighbor_edge in banned_edges:
+                continue
+
+            if not neighbor_coords in last_neighbors and neighbor_edge in tested_edges:
+                continue
+
+            last_neighbor_count += 1
         
-        if last_neighbor_count == 0:
-            if not last_edge in banned_edges:
-                banned_edges.append(last_edge)
+        if last_neighbor_count == 0 and not last_edge in banned_edges:
+            banned_edges.append(last_edge)
+
+        # Cycle Check
+        if last_edge in traversed_edges:
+            if len(weighted_neighbors) > 2:
+                if in_cycle(graph, last_edge):
+                    quick_print("Cycle Found")
+                    if not last_edge in banned_edges:
+                        banned_edges.append(last_edge)
+        else:
+            traversed_edges.append(last_edge)
 
 def try_directions(directions):
     length = len(directions)
