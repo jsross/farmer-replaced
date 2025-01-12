@@ -1,156 +1,166 @@
+from matrix import *
 from farmer import *
 from graph import *
 
-def create_maze_navigator(graph):
+def seak_coords(dest_coords, graph):
+    start_op_count = get_tick_count()
 
-    add_edge = graph["add_edge"]
-    remove_edge = graph["remove_edge"]
-    in_cycle = graph["in_cycle"]
+    if(dest_coords == None):
+        print("Bad Argument. No dest_coords")
 
-    def search(check_goal):
-        start_op_count = get_tick_count()
-        
-        last_move = None
+        return False
+    
+    tested_edges = []
+    traversed_edges = []
+    banned_edges = []
 
-        visited = {}
+    last_coords = None
+    current_coords = (get_pos_x(), get_pos_y())
 
-        while True:
-            if check_goal():
-                quick_print("do_wall_follow: ", get_tick_count() - start_op_count)
+    while True:
+        #sprint_graph(graph, banned_edges)
 
-                return True
+        neighbor_map = get_neighbor_map(current_coords[0], current_coords[1])
+        weighted_neighbors = []
 
-            if last_move == North:
-                last_move = try_moves([West, North, East, South])
-            elif last_move == East:
-                last_move = try_moves([North, East, South, West])
-            elif last_move == South:
-                last_move = try_moves([East, South, West, North])
-            elif last_move == West:
-                last_move = try_moves([South, West, North, East])
+        for direction in neighbor_map:
+            neighbor_coords = neighbor_map[direction]
+            neighbor_coords = neighbor_map[direction]
+            neighbor_edge = set([current_coords, neighbor_coords])
+
+            if neighbor_edge in banned_edges:
+                continue
+
+            weighted_neighbor = {
+                "coords": neighbor_coords,
+                "direction": direction,
+                "weight": get_distance(neighbor_coords, dest_coords),
+                "edge": neighbor_edge
+            }
+
+            if neighbor_coords == last_coords:
+                weighted_neighbor["weight"] = 999
+            elif neighbor_edge in tested_edges:
+                weighted_neighbor["weight"] =  997
+
+            weighted_neighbors.append(weighted_neighbor)
+
+        TopDownMergeSort(weighted_neighbors, "weight")
+
+        success = False
+
+        for weighted_neighbor in weighted_neighbors:
+            neighbor_coords = weighted_neighbor["coords"]
+            direction = weighted_neighbor["direction"]
+            edge = weighted_neighbor["edge"]
+
+            success = move(direction)
+
+            if not edge in tested_edges:
+                tested_edges.append(edge)
+
+            if success:
+                add_edge(graph, edge)
+
+                break
             else:
-                last_move = try_moves([West, North, East, South])
-                
-            current_coords = (get_pos_x(), get_pos_y())
+                remove_edge(graph, edge)
 
-            if current_coords in visited and visited[current_coords] == last_move:
-                return False
-
-            visited[(get_pos_x(), get_pos_y())] = last_move
-
-    def best_guess_strategy(dest_coords):
-        if(dest_coords == None):
-            print("Bad Argument. No dest_coords")
+        # If the drone was unable to go to any of the neighbors
+        if not success:
+            print("Error")
 
             return False
+        
+        last_coords = current_coords
+        current_coords = (get_pos_x(), get_pos_y())
+        last_edge = set([current_coords, last_coords])
 
-        start_op_count = get_tick_count()
-        visited_coords = []
-        banned_edges = []
+        if current_coords == dest_coords:
+            return True
 
-        last_coords = None
-            
-        while True:
-            current_coords = (get_pos_x(), get_pos_y())
+        #Dead end check
+        last_neighbors = get_neighbors(graph, last_coords)
+        last_neighbors.remove(current_coords)
 
-            if current_coords == dest_coords:
-                quick_print("best_guess_strategy: ", get_tick_count() - start_op_count)
+        last_neighbor_count = 0
 
-                return True
+        for direction in neighbor_map:
+            neighbor_coords = neighbor_map[direction]
+            neighbor_edge = set([last_coords, neighbor_coords])
 
-            #Dead end check
-            if last_coords != None:
-                last_neighbors = get_neighbors(last_coords[0], last_coords[1])
+            if neighbor_coords == current_coords:
+                continue
 
-                allowed_count = 0
+            if neighbor_edge in banned_edges:
+                continue
 
-                for direction in last_neighbors:
-                    neighbor_coords = last_neighbors[direction]
+            if not neighbor_coords in last_neighbors and neighbor_edge in tested_edges:
+                continue
 
-                    if neighbor_coords == current_coords:
-                        continue
+            last_neighbor_count += 1
+        
+        if last_neighbor_count == 0 and not last_edge in banned_edges:
+            banned_edges.append(last_edge)
 
-                    if not set([last_coords, neighbor_coords]) in banned_edges:
-                        allowed_count += 1
-
-                last_edge = set([current_coords, last_coords])
-                
-                if allowed_count == 0:
-                    banned_edges.append(last_edge)
-                elif current_coords in visited_coords:
-                    if in_cycle(last_edge):
-                        print("Cycle!!!!!")
+        # Cycle Check
+        if last_edge in traversed_edges:
+            if len(weighted_neighbors) > 2:
+                if in_cycle(graph, last_edge, banned_edges):
+                    quick_print("Cycle Found")
+                    if not last_edge in banned_edges:
                         banned_edges.append(last_edge)
-                        remove_edge(last_edge)
+        else:
+            traversed_edges.append(last_edge)
 
-            visited_coords.append(current_coords)        
+def try_directions(directions):
+    length = len(directions)
 
-            neighbors = get_neighbors(current_coords[0], current_coords[1])
-            weighted_neighbors = []
+    for index in range(length):
+        direction = directions[index]
 
-            for direction in neighbors:
-                weight = 0
-                neighbor_coords = neighbors[direction]
+        if move(direction):
+            return index
 
-                if neighbor_coords == last_coords:
-                    weight = 99
-                elif neighbor_coords in visited_coords:
-                    weight = 98
-                else:
-                    weight = get_distance(neighbor_coords, dest_coords)
+    return -1
 
-                weighted_neighbors.append((weight, neighbor_coords))
+def search_for_goal(check_goal, graph):
+    start_op_count = get_tick_count()
 
-            TopDownMergeSort(weighted_neighbors, 0)
-
-            success = False
-
-            for weighted_neighbor in weighted_neighbors:
-                neighbor_coords = weighted_neighbor[1]
-                edge = set([current_coords, neighbor_coords])
-
-                if edge in banned_edges:
-                    continue
-
-                success = go_to(neighbor_coords[0], neighbor_coords[1])
-
-                if success:
-                    add_edge(edge)
-
-                    break
-                else:
-                    banned_edges.append(edge)
-
-            # If the drone was unable to go to any of the neighbors
-            if not success:
-                print("Error")
-
-                return False
-
-            last_coords = current_coords
+    search_order = {
+        North: [West, North, East, South],
+        East: [North, East, South, West],
+        South: [East, South, West, North],
+        West: [South, West, North, East],
+        None: [West, North, East, South]
+    }
     
-    def try_moves(directions):
+    last_move = None
+
+    while True:
+        if check_goal():
+            quick_print("search: ", get_tick_count() - start_op_count)
+
+            return True
+        
         start_coords = (get_pos_x(), get_pos_y())
         
-        for direction in directions:
-            if move(direction):
-                edge = set([start_coords, (get_pos_x(), get_pos_y())])
-                           
-                add_edge(edge)
+        directions = search_order[last_move]
+        result = try_directions(directions)
 
-                return direction
-            else:
-                neighbor = get_neighbor(get_pos_x(), get_pos_y(), direction)
+        if result < 0:
+            return False
+        
+        last_move = directions[result]
+        
+        for index in range(result):
+            blocked_direction = directions[index]
+            neighbor_coords = get_neighbor(start_coords[0], start_coords[1], blocked_direction)
+            
+            if neighbor_coords != None:
+                neighbor_edge = set([start_coords, neighbor_coords])
+                remove_edge(graph, neighbor_edge)
 
-                edge = set([start_coords, neighbor])
-                           
-                remove_edge(edge)
-    
-        return False
-           
-    new_maze_plan = {
-        "search": search,
-        "seak": best_guess_strategy
-    }
-
-    return new_maze_plan
+        current_coords = (get_pos_x(), get_pos_y())
+        new_edge = set([start_coords, current_coords])
+        add_edge(graph, new_edge)

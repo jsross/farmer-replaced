@@ -64,7 +64,7 @@ def create_dino_farmer(goal):
                 success = True
                 break
 
-            neighbors = get_neighbors(current_x, current_y)
+            neighbors = get_neighbor_map(current_x, current_y)
 
             min_distance = 1000000
             next_direction = None

@@ -42,23 +42,27 @@ farm_size = get_world_size()
 
 def do_work():
     print("Do Work Demo")
+    set_world_size(10)
     world_size = get_world_size()
+
+    print(world_size)
 
     clear()
     
-    farmers = [] 
+    farmers = []
+
+    farmers.append(create_maze_farmer(num_items(Items.Gold) + 500000))
 
     # farmers.append(create_grass_farmer(world_size, world_size, 0, 0, 1000)) # 0,0
     # farmers.append(create_bush_farmer(world_size, world_size, 0, 0, 1000))
     # farmers.append(create_carrot_farmer(world_size, world_size, 0, 0, 1000))
     # farmers.append(create_tree_farmer(world_size, world_size, 0, 0, 1000))
-    # farmers.append(create_pumpkin_farmer(world_size, world_size, 0, 0, 1000))
-    farmers.append(create_sunflower_farmer(world_size, world_size, 0, 0, num_items(Items.Power) + 20000))
-    # farmers.append(create_cactus_farmer(world_size, world_size, 0, 0, 5000))
-    farmers.append(create_maze_farmer(1000))
-    farmers.append(create_dino_farmer(64000))
-
+    # farmers.append(create_pumpkin_farmer(world_size, world_size, 0, 0, 100000))
+    # farmers.append(create_sunflower_farmer(world_size, world_size, 0, 0, num_items(Items.Power) + 20000))
     # farmers.append(create_poly_farmer())
+    # farmers.append(create_cactus_farmer(world_size, world_size, 0, 0, 1000))
+    # farmers.append(create_dino_farmer(1000))
+    # farmers.append(create_maze_farmer(256000))
     
     for farmer in farmers:
         clear()
