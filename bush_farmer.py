@@ -32,12 +32,12 @@ def create_bush_farmer(width, height, x_offset, y_offset, goal):
     return init_farm
 
 def init_bush_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, init_bush_plot, None, x_offset, y_offset)
+    execute_scan_pass(width, height, init_bush_plot, x_offset, y_offset)
 
     return 0
 
 def maintain_bush_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, maintain_bush_plot, None, x_offset, y_offset)
+    execute_scan_pass(width, height, maintain_bush_plot, x_offset, y_offset)
 
     return 0
 

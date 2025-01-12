@@ -5,6 +5,9 @@ from matrix import *
 from drone import *
 from maze_navigator import *
 
+MAX_PRIORITY = 15
+NO_PRIORITY = 0
+
 def create_maze_farmer(goal):
     graph = create_graph()
 

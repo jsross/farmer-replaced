@@ -7,7 +7,7 @@ def handle_grass_plot():
     harvest()
 
 def handle_grass_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, handle_grass_plot, None, x_offset, y_offset)
+    execute_scan_pass(width, height, handle_grass_plot, x_offset, y_offset)
 
     return 0
 

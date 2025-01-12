@@ -51,7 +51,7 @@ def create_poly_farmer():
             }
 
     def handle_farm():
-        execute_scan_pass(world_size, world_size, handle_plot, None, 0, 0)
+        execute_scan_pass(world_size, world_size, handle_plot, 0, 0)
 
         return {
             "status": 0,

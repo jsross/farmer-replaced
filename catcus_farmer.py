@@ -45,7 +45,7 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
             farm_stats["harvest_count"] += 1
 
     def init_farm():
-        execute_scan_pass(width, height, init_cactus_plot, None, x_offset, y_offset)
+        execute_scan_pass(width, height, init_cactus_plot, x_offset, y_offset)
 
         return {
             "status": 0,
@@ -80,9 +80,9 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
         if(sorted):
             go_to(0,0)
             harvest()
-            execute_scan_pass(width, height, replant_catcus_plot, None, x_offset, y_offset)
+            execute_scan_pass(width, height, replant_catcus_plot, x_offset, y_offset)
         else:
-            execute_scan_pass(width, height, maintain_cactus_plot, None, x_offset, y_offset)
+            execute_scan_pass(width, height, maintain_cactus_plot, x_offset, y_offset)
 
         if num_items(Items.Cactus) > goal:
             return None

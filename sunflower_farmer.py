@@ -6,12 +6,14 @@ from drone import *
 from farmer import *
 
 def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
+    MAX_PRIORITY = 15
+    NO_PRIORITY = 0
     MAX_GROW_TIME = 8.4
 
     plot_matrix = create_matrix_with_default(width, height, None)
 
     def init_farm():
-        execute_scan_pass(width, height, _init_plot, None, x_offset, y_offset)
+        execute_scan_pass(width, height, _init_plot, x_offset, y_offset)
 
         return {
             "status": 0,
@@ -20,7 +22,7 @@ def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
         }
     
     def replant_farm():
-        execute_scan_pass(width, height, _replant_plot, None, x_offset, y_offset)
+        execute_scan_pass(width, height, _replant_plot, x_offset, y_offset)
 
         return {
             "status": 0,

@@ -23,12 +23,12 @@ def maintain_carrot_plot():
         use_item(Items.Fertilizer)
 
 def init_carrot_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, init_carrot_plot, None, x_offset, y_offset)
+    execute_scan_pass(width, height, init_carrot_plot, x_offset, y_offset)
 
     return 0
 
 def maintain_carrot_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, maintain_carrot_plot, None, x_offset, y_offset)
+    execute_scan_pass(width, height, maintain_carrot_plot, x_offset, y_offset)
 
     return 0
 

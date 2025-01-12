@@ -28,7 +28,7 @@ def maintain_pumpkin_plot():
     return can_harvest()
 
 def init_pumpkin_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, init_pumpkin_plot, None, x_offset, y_offset)
+    execute_scan_pass_with_matrix(width, height, init_pumpkin_plot, None, x_offset, y_offset)
 
     return 0
 
@@ -39,7 +39,7 @@ def maintain_pumpkin_farm(matrix, width, height, x_offset, y_offset):
         go_to(x_offset, y_offset)
         harvest()
         
-        execute_scan_pass(width, height, replant_pumpkin_plot, matrix, x_offset, y_offset)
+        execute_scan_pass_with_matrix(width, height, replant_pumpkin_plot, matrix, x_offset, y_offset)
 
     execute_path_action(coords, maintain_pumpkin_plot, x_offset, y_offset, matrix)
 
