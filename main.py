@@ -12,7 +12,7 @@ from dino_farmer import *
 from sort import *
 from poly_farmer import *
 
-
+leaderboard_run(Leaderboards.Pumpkins, "leaderboard_pumpkin", 1)
 leaderboard_run(Leaderboards.Carrots, "leaderboard_carrot", 1000)
 leaderboard_run(Leaderboards.Wood, "leaderboard_wood_run", 1000)
 leaderboard_run(Leaderboards.Hay, "leaderboard_hay_run", 1000)
