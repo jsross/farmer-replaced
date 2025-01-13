@@ -1,3 +1,4 @@
+from farmer import *
 from tree_farmer import *
 
 farm_size = get_world_size()

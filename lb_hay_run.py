@@ -1,5 +1,5 @@
+from farmer import *
 from grass_farmer import *
-from sunflower_farmer import *
 
 farm_size = get_world_size()
 

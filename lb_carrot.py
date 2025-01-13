@@ -1,3 +1,4 @@
+from farmer import *
 from carrot_farmer import *
 
 farm_size = get_world_size()

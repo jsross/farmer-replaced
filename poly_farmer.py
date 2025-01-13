@@ -8,7 +8,7 @@ from bush_farmer import *
 from tree_farmer import *
 from carrot_farmer import *
 
-def create_poly_farmer():
+def create_poly_farmer(goal):
     init_plot_map = {
         Entities.Grass: handle_grass_plot,
         Entities.Bush: init_bush_plot,
@@ -42,8 +42,13 @@ def create_poly_farmer():
                 maintain_plot_map[entity_type]()
 
         companion = get_companion()
+
+        if companion == None:
+            return
+        
         entity_type = companion[0]
         companion_coords = companion[1]
+        
         if plots[companion_coords[0]][companion_coords[1]] == None:
             plots[companion_coords[0]][companion_coords[1]] = {
                 "entity_type": entity_type,
@@ -52,6 +57,9 @@ def create_poly_farmer():
 
     def handle_farm():
         execute_scan_pass(world_size, world_size, handle_plot, 0, 0)
+
+        if num_items(Items.Wood) > goal[Items.Wood] and num_items(Items.Carrot) > goal[Items.Carrot] and num_items(Items.Hay) > goal[Items.Hay]:
+            return None
 
         return {
             "status": 0,
