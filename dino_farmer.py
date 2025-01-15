@@ -108,3 +108,6 @@ def create_dino_farmer(goal):
         }
 
     return init_farm
+
+def farm_dinos(goal):
+    execute_single_farmer(create_dino_farmer(goal))

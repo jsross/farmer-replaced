@@ -62,3 +62,7 @@ def calculate_adjusted_grow_time(base_grow_time, water_level):
     speed = (4 * water_level) + 1
 
     return base_grow_time / speed
+
+def maintain_plot_water():
+    if num_unlocked(Unlocks.Watering) > 0 and num_items(Items.Water) > 0 and get_water() < 0.25:
+        use_item(Items.Water)

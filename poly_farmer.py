@@ -3,7 +3,7 @@ from __test_harness__ import *
 from Utility import *
 from matrix import *
 from drone import *
-from grass_farmer import *
+from hay_farmer import *
 from bush_farmer import *
 from tree_farmer import *
 from carrot_farmer import *
@@ -55,6 +55,8 @@ def create_poly_farmer(goal):
                 "initialized": False
             }
 
+        return 0
+
     def handle_farm():
         execute_scan_pass(world_size, world_size, handle_plot, 0, 0)
 
@@ -68,3 +70,6 @@ def create_poly_farmer(goal):
         }
 
     return handle_farm
+
+def farm_poly(goal):
+    execute_single_farmer(create_poly_farmer(goal))

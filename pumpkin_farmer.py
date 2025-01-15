@@ -8,29 +8,25 @@ from drone import *
 def init_pumpkin_plot():
     till()
     
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
 
     plant(Entities.Pumpkin)
+
+    return 0
 
 def replant_pumpkin_plot():
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
 
     plant(Entities.Pumpkin)
 
+    return 0
+
 def maintain_pumpkin_plot():
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
     
     plant(Entities.Pumpkin)
 
     return can_harvest()
-
-def init_pumpkin_farm(width, height, x_offset, y_offset):
-    execute_scan_pass_with_matrix(width, height, init_pumpkin_plot, None, x_offset, y_offset)
-
-    return 0
 
 def maintain_pumpkin_farm(matrix, width, height, x_offset, y_offset):
     coords = select_coords_from_matrix_with_value(matrix, False)
@@ -50,8 +46,8 @@ def create_pumpkin_farmer(width, height, x_offset, y_offset, goal):
     can_harvest_matrix = create_matrix_with_default(width, height, False) 
 
     def init_farm():
-        init_pumpkin_farm(width, height, x_offset, y_offset)
-
+        execute_scan_pass_with_matrix(width, height, init_pumpkin_plot, None, x_offset, y_offset)
+        
         return {
             "status": 0,
             "next_pass": maintain_farm,
@@ -71,5 +67,9 @@ def create_pumpkin_farmer(width, height, x_offset, y_offset, goal):
         }
 
     return init_farm
+
+def farm_pumpkins(goal):
+    farm_size = get_world_size()
+    execute_single_farmer(create_pumpkin_farmer(farm_size, farm_size, 0, 0, goal))
 
              

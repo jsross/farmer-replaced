@@ -108,3 +108,6 @@ def create_maze_farmer(goal):
 
 def check_is_treasure():
     return get_entity_type() == Entities.Treasure
+
+def farm_maze(goal):
+    execute_single_farmer(create_maze_farmer(goal))

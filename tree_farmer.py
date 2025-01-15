@@ -14,15 +14,13 @@ def maintain_tree_farm(width, height):
     return 0
 
 def init_tree_plot():
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
 
     plant(Entities.Tree)
     use_item(Items.Fertilizer)
 
 def maintain_tree_plot():
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
 
     if(can_harvest()):
         harvest()
@@ -72,3 +70,7 @@ def create_tree_farmer(width, height, x_offset, y_offset, goal):
         }
         
     return init_farm
+
+def farm_trees(goal):
+    farm_size = get_world_size()
+    execute_single_farmer(create_tree_farmer(farm_size, farm_size, 0, 0, goal))

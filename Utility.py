@@ -39,6 +39,12 @@ def remove_range(array, to_remove):
 
 	return array
 
+def append_range(array, to_append):
+	for item in to_append:
+		array.append(item)
+
+	return array
+
 def select_object_from_array(array, properties):
 	def test_func(item, _):
 		for key in properties:

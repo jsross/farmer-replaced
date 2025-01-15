@@ -91,19 +91,25 @@ def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
         return ready_by_list
     
     def _init_plot():
-        if get_water() < 0.25:
-            use_item(Items.Water)
+        maintain_plot_water()
 
         till()
         plant(Entities.Sunflower)
         plot_matrix[get_pos_x()][get_pos_y()] = _create_plot()
 
+        return 0
+
     def _replant_plot():
-        if get_water() < 0.25:
-            use_item(Items.Water)
+        maintain_plot_water()
 
         plant(Entities.Sunflower)
         plot_matrix[get_pos_x()][get_pos_y()] = _create_plot()
+
+        return 0
     
     
     return init_farm
+
+def farm_sunflowers(goal):
+    farm_size = get_world_size()
+    execute_single_farmer(create_sunflower_farmer(farm_size, farm_size, 0, 0, goal))
