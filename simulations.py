@@ -6,7 +6,7 @@ def simulate_hay_leaderboard_run():
     }
 
     items = {
-        Items.Power: 9999999
+        Items.Power: 99999
     }
 
     globals = {}
@@ -15,7 +15,8 @@ def simulate_hay_leaderboard_run():
 
     result = simulate("lb_hay_run", unlocks, items, globals, seed, 5000)
 
-    print(result)
+    quick_print("lb_fastest_reset seconds: ", result)
+    quick_print("lb_fastest_reset time: ", result // 60, ":", result % 60)
 
 def simulate_fastest_rest_run():
     unlocks = {}
@@ -26,4 +27,5 @@ def simulate_fastest_rest_run():
 
     result = simulate("lb_fastest_reset", unlocks, items, globals, seed, 4)
 
-    quick_print("lb_fastest_reset: ", result)
+    quick_print("lb_fastest_reset seconds: ", result)
+    quick_print("lb_fastest_reset time: ", result // 60, ":", result % 60)
