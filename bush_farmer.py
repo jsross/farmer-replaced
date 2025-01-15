@@ -8,7 +8,7 @@ def create_bush_farmer(width, height, x_offset, y_offset, goal):
     def init_farm():
         go_to(x_offset, y_offset)
 
-        init_bush_farm(width, height, x_offset, y_offset)
+        execute_scan_pass(width, height, init_bush_plot, x_offset, y_offset)
 
         return {
             "status": 0,
@@ -18,7 +18,7 @@ def create_bush_farmer(width, height, x_offset, y_offset, goal):
 
     def maintain_farm():
         go_to(x_offset, y_offset)
-        maintain_bush_farm(width, height, x_offset, y_offset)
+        execute_scan_pass(width, height, maintain_bush_plot, x_offset, y_offset)
 
         if num_items(Items.Wood) > goal:
             return None
@@ -31,31 +31,32 @@ def create_bush_farmer(width, height, x_offset, y_offset, goal):
      
     return init_farm
 
-def init_bush_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, init_bush_plot, None, x_offset, y_offset)
-
-    return 0
-
-def maintain_bush_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, maintain_bush_plot, None, x_offset, y_offset)
-
-    return 0
-
 def init_bush_plot():
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
 
-    plant(Entities.Bush)
-    use_item(Items.Fertilizer)
+    if not plant(Entities.Bush):
+        return -1
+
+    if num_unlocked(Items.Fertilizer) > 0:
+        use_item(Items.Fertilizer)
+
+    return 0
 
 def maintain_bush_plot():
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
 
     if(can_harvest()):
         harvest()
 
-        plant(Entities.Bush)
-        use_item(Items.Fertilizer)
+        if not plant(Entities.Bush):
+            return -1
+        if num_unlocked(Items.Fertilizer) > 0:
+            use_item(Items.Fertilizer)
+        
+    return 0
+
+def farm_bush(goal):
+    farm_size = get_world_size()
+    execute_single_farmer(create_bush_farmer(farm_size, farm_size, 0, 0, goal))
 
     

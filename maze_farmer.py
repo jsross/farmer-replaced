@@ -5,6 +5,9 @@ from matrix import *
 from drone import *
 from maze_navigator import *
 
+MAX_PRIORITY = 15
+NO_PRIORITY = 0
+
 def create_maze_farmer(goal):
     graph = create_graph()
 
@@ -105,3 +108,6 @@ def create_maze_farmer(goal):
 
 def check_is_treasure():
     return get_entity_type() == Entities.Treasure
+
+def farm_maze(goal):
+    execute_single_farmer(create_maze_farmer(goal))

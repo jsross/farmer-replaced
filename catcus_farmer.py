@@ -18,8 +18,7 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
 
         till()
 
-        if get_water() < 0.25:
-            use_item(Items.Water)
+        maintain_plot_water()
             
         plant(Entities.Cactus)
         
@@ -28,13 +27,14 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
         if can_harvest() and not harvest_matrix[x][y]:
             harvest_matrix[x][y] = True
             farm_stats["harvest_count"] += 1
+
+        return 0
 
     def replant_catcus_plot():
         x = get_pos_x()
         y = get_pos_y()
 
-        if get_water() < 0.25:
-            use_item(Items.Water)
+        maintain_plot_water()
             
         plant(Entities.Cactus)
         
@@ -43,9 +43,11 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
         if can_harvest() and not harvest_matrix[x][y]:
             harvest_matrix[x][y] = True
             farm_stats["harvest_count"] += 1
+        
+        return 0
 
     def init_farm():
-        execute_scan_pass(width, height, init_cactus_plot, None, x_offset, y_offset)
+        execute_scan_pass(width, height, init_cactus_plot, x_offset, y_offset)
 
         return {
             "status": 0,
@@ -75,14 +77,12 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
                     sorted = False
                     break
 
-        print("Sorted: ", sorted)
-
         if(sorted):
             go_to(0,0)
             harvest()
-            execute_scan_pass(width, height, replant_catcus_plot, None, x_offset, y_offset)
+            execute_scan_pass(width, height, replant_catcus_plot, x_offset, y_offset)
         else:
-            execute_scan_pass(width, height, maintain_cactus_plot, None, x_offset, y_offset)
+            execute_scan_pass(width, height, maintain_cactus_plot, x_offset, y_offset)
 
         if num_items(Items.Cactus) > goal:
             return None
@@ -97,8 +97,7 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
         x = get_pos_x()
         y = get_pos_y()
 
-        if get_water() < 0.25:
-            use_item(Items.Water)
+        maintain_plot_water()
 
         if can_harvest() and not harvest_matrix[x][y]:
             harvest_matrix[x][y] = True
@@ -141,3 +140,6 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
             
     return init_farm
 
+def farm_cacti(goal):
+    farm_size = get_world_size()
+    execute_single_farmer(create_cactus_farmer(farm_size, farm_size, 0, 0, goal))

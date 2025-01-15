@@ -4,18 +4,15 @@ from Utility import *
 from farmer import *
 
 def handle_grass_plot():
-    harvest()
-
-def handle_grass_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, handle_grass_plot, None, x_offset, y_offset)
-
+    if not harvest():
+        return -1
+    
     return 0
 
-def create_grass_farmer(width, height, x_offset, y_offset, goal):
+def create_hay_farmer(width, height, x_offset, y_offset, goal):
 
     def handle_farm():
-        
-        handle_grass_farm(width, height, x_offset, y_offset)
+        execute_scan_pass(width, height, handle_grass_plot, x_offset, y_offset)
 
         if num_items(Items.Hay) > goal:
             return None
@@ -27,3 +24,7 @@ def create_grass_farmer(width, height, x_offset, y_offset, goal):
         }
 
     return handle_farm
+
+def farm_hay(goal):
+    farm_size = get_world_size()
+    execute_single_farmer(create_hay_farmer(farm_size, farm_size, 0, 0, goal))

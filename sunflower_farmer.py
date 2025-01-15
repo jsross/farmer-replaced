@@ -6,12 +6,14 @@ from drone import *
 from farmer import *
 
 def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
+    MAX_PRIORITY = 15
+    NO_PRIORITY = 0
     MAX_GROW_TIME = 8.4
 
     plot_matrix = create_matrix_with_default(width, height, None)
 
     def init_farm():
-        execute_scan_pass(width, height, _init_plot, None, x_offset, y_offset)
+        execute_scan_pass(width, height, _init_plot, x_offset, y_offset)
 
         return {
             "status": 0,
@@ -20,7 +22,7 @@ def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
         }
     
     def replant_farm():
-        execute_scan_pass(width, height, _replant_plot, None, x_offset, y_offset)
+        execute_scan_pass(width, height, _replant_plot, x_offset, y_offset)
 
         return {
             "status": 0,
@@ -89,19 +91,25 @@ def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
         return ready_by_list
     
     def _init_plot():
-        if get_water() < 0.25:
-            use_item(Items.Water)
+        maintain_plot_water()
 
         till()
         plant(Entities.Sunflower)
         plot_matrix[get_pos_x()][get_pos_y()] = _create_plot()
 
+        return 0
+
     def _replant_plot():
-        if get_water() < 0.25:
-            use_item(Items.Water)
+        maintain_plot_water()
 
         plant(Entities.Sunflower)
         plot_matrix[get_pos_x()][get_pos_y()] = _create_plot()
+
+        return 0
     
     
     return init_farm
+
+def farm_sunflowers(goal):
+    farm_size = get_world_size()
+    execute_single_farmer(create_sunflower_farmer(farm_size, farm_size, 0, 0, goal))

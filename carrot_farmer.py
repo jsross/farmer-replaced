@@ -6,36 +6,34 @@ from farmer import *
 def init_carrot_plot():
     till()
 
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
 
-    plant(Entities.Carrot)
-    use_item(Items.Fertilizer)
+    if not plant(Entities.Carrot):
+        return -1
+
+    if num_unlocked(Items.Fertilizer) > 0:
+        use_item(Items.Fertilizer)
+
+    return 0
 
 def maintain_carrot_plot():
-    if get_water() < 0.25:
-        use_item(Items.Water)
+    maintain_plot_water()
 
     if(can_harvest()):
         harvest()
         
-        plant(Entities.Carrot)
-        use_item(Items.Fertilizer)
-
-def init_carrot_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, init_carrot_plot, None, x_offset, y_offset)
-
-    return 0
-
-def maintain_carrot_farm(width, height, x_offset, y_offset):
-    execute_scan_pass(width, height, maintain_carrot_plot, None, x_offset, y_offset)
+        if not plant(Entities.Carrot):
+            return -1
+        
+        if num_unlocked(Items.Fertilizer) > 0:
+            use_item(Items.Fertilizer)
 
     return 0
 
 def create_carrot_farmer(width, height, x_offset, y_offset, goal):
     
     def init_farm():
-        init_carrot_farm(width, height, x_offset, y_offset)
+        execute_scan_pass(width, height, init_carrot_plot, x_offset, y_offset)
 
         return {
             "status": 0,
@@ -44,7 +42,7 @@ def create_carrot_farmer(width, height, x_offset, y_offset, goal):
         }
 
     def maintain_farm():
-        maintain_carrot_farm(width, height, x_offset, y_offset)
+        execute_scan_pass(width, height, maintain_carrot_plot, x_offset, y_offset)
 
         if num_items(Items.Carrot) > goal:
             return None
@@ -56,4 +54,8 @@ def create_carrot_farmer(width, height, x_offset, y_offset, goal):
         }
      
     return init_farm
+
+def farm_carrots(goal):
+    farm_size = get_world_size()
+    execute_single_farmer(create_carrot_farmer(farm_size, farm_size, 0, 0, goal))
 
