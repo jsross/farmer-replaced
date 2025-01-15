@@ -1,11 +1,22 @@
 from drone import *
 
 def execute_scan_pass(width, height, action, x_offset, y_offset):
+    go_to(x_offset, y_offset)
+
     for x_index in range(width):
         for y_index in range(height):
-            go_to(x_index + x_offset, y_index + y_offset)
             action()
-                
+
+            if x_index % 2 == 0:
+                if y_index < height - 1:
+                    move(North)
+                else:
+                    move(East)
+            else:
+                if y_index < height - 1:
+                    move(South)
+                else:
+                    move(East)
 
 def execute_scan_pass_with_matrix(width, height, action, matrix, x_offset, y_offset):
     for x_index in range(width):
