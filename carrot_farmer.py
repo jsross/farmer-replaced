@@ -3,7 +3,7 @@ from __test_harness__ import *
 from Utility import *
 from farmer import *
 
-def init_carrot_plot():
+def init_carrot_plot(_x, _y):
     till()
 
     maintain_plot_water()
@@ -16,7 +16,7 @@ def init_carrot_plot():
 
     return 0
 
-def maintain_carrot_plot():
+def maintain_carrot_plot(_y, _x):
     maintain_plot_water()
 
     if(can_harvest()):
@@ -58,4 +58,3 @@ def create_carrot_farmer(width, height, x_offset, y_offset, goal):
 def farm_carrots(goal):
     farm_size = get_world_size()
     execute_single_farmer(create_carrot_farmer(farm_size, farm_size, 0, 0, goal))
-

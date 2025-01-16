@@ -3,7 +3,7 @@ from __test_harness__ import *
 from Utility import *
 from farmer import *
 
-def handle_grass_plot():
+def handle_grass_plot(_x, _y):
     if not harvest():
         return -1
     

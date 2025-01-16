@@ -31,7 +31,7 @@ def create_bush_farmer(width, height, x_offset, y_offset, goal):
      
     return init_farm
 
-def init_bush_plot():
+def init_bush_plot(_x, _y):
     maintain_plot_water()
 
     if not plant(Entities.Bush):
@@ -42,7 +42,7 @@ def init_bush_plot():
 
     return 0
 
-def maintain_bush_plot():
+def maintain_bush_plot(_x, _y):
     maintain_plot_water()
 
     if(can_harvest()):

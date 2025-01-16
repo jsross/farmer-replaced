@@ -12,10 +12,7 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
         "harvest_count": 0
     }
 
-    def init_cactus_plot():
-        x = get_pos_x()
-        y = get_pos_y()
-
+    def init_cactus_plot(x, y):
         till()
 
         maintain_plot_water()
@@ -30,10 +27,7 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
 
         return 0
 
-    def replant_catcus_plot():
-        x = get_pos_x()
-        y = get_pos_y()
-
+    def replant_catcus_plot(x, y):
         maintain_plot_water()
             
         plant(Entities.Cactus)
@@ -93,10 +87,7 @@ def create_cactus_farmer(width, height, x_offset, y_offset, goal):
             "delay": 0
         }
     
-    def maintain_cactus_plot():
-        x = get_pos_x()
-        y = get_pos_y()
-
+    def maintain_cactus_plot(x, y):
         maintain_plot_water()
 
         if can_harvest() and not harvest_matrix[x][y]:

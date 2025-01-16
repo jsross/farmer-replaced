@@ -13,13 +13,13 @@ def maintain_tree_farm(width, height):
 
     return 0
 
-def init_tree_plot():
+def init_tree_plot(_x, _y):
     maintain_plot_water()
 
     plant(Entities.Tree)
     use_item(Items.Fertilizer)
 
-def maintain_tree_plot():
+def maintain_tree_plot(_x, _y):
     maintain_plot_water()
 
     if(can_harvest()):
@@ -38,9 +38,9 @@ def create_tree_farmer(width, height, x_offset, y_offset, goal):
                 rem = y_index % 2
 
                 if (x_index - rem ) % 2 == 0:
-                    init_tree_plot()
+                    init_tree_plot(x_index, y_index)
                 else:
-                    init_bush_plot()
+                    init_bush_plot(x_index, y_index)
 
         return {
             "status": 0,
@@ -56,9 +56,9 @@ def create_tree_farmer(width, height, x_offset, y_offset, goal):
                 rem = y_index % 2
 
                 if (x_index - rem ) % 2 == 0:
-                    maintain_tree_plot()
+                    maintain_tree_plot(x_index, y_index)
                 else:
-                    maintain_bush_plot()
+                    maintain_bush_plot(x_index, y_index)
 
         if num_items(Items.Wood) > goal:
             return None

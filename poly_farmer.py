@@ -26,20 +26,17 @@ def create_poly_farmer(goal):
     world_size = get_world_size()
     plots = create_matrix_with_default(world_size, world_size, None)
 
-    def handle_plot():
-        x = get_pos_x()
-        y = get_pos_y()
-
+    def handle_plot(x, y):
         plot = plots[x][y]
 
         if plot != None:
             entity_type = plot["entity_type"]
 
             if not plot["initialized"]:
-                init_plot_map[entity_type]()
+                init_plot_map[entity_type](x,y)
                 plot["initialized"] = True
             else:
-                maintain_plot_map[entity_type]()
+                maintain_plot_map[entity_type](x,y)
 
         companion = get_companion()
 

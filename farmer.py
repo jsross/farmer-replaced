@@ -3,39 +3,33 @@ from drone import *
 def execute_scan_pass(width, height, action, x_offset, y_offset):
     go_to(x_offset, y_offset)
 
+    current_x = 0
+    current_y = 0
+
     for x_index in range(width):
         for y_index in range(height):
-            action()
+            action(current_x, current_y)
 
             if x_index % 2 == 0:
                 if y_index < height - 1:
                     move(North)
+                    current_y += 1
                 else:
                     move(East)
+                    current_x += 1
             else:
                 if y_index < height - 1:
                     move(South)
+                    current_y -= 1
                 else:
                     move(East)
+                    current_x += 1
 
-def execute_scan_pass_with_matrix(width, height, action, matrix, x_offset, y_offset):
-    for x_index in range(width):
-        for y_index in range(height):
-            go_to(x_index + x_offset, y_index + y_offset)
-
-            if matrix != None:
-                matrix[x_index][y_index] = action()
-            else:
-                action()
-
-def execute_path_action(path, action, x_offset, y_offset, matrix):
+def execute_path_action(path, action, x_offset, y_offset):
     for coords in path:
         go_to(coords[0] + x_offset, coords[1] + y_offset)
 
-        if matrix != None:
-            matrix[coords[0]][coords[1]] = action()
-        else:
-            action()
+        action(coords[0], coords[1])
 
 def execute_dual_scan_pass(width, height, action1, action2):
      for x_index in range(width):

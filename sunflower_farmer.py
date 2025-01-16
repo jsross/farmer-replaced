@@ -90,16 +90,16 @@ def create_sunflower_farmer(width, height, x_offset, y_offset, goal):
 
         return ready_by_list
     
-    def _init_plot():
+    def _init_plot(x, y):
         maintain_plot_water()
 
         till()
         plant(Entities.Sunflower)
-        plot_matrix[get_pos_x()][get_pos_y()] = _create_plot()
+        plot_matrix[x][y] = _create_plot()
 
         return 0
 
-    def _replant_plot():
+    def _replant_plot(x, y):
         maintain_plot_water()
 
         plant(Entities.Sunflower)
